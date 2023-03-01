@@ -104,9 +104,7 @@ class AppDefault {
       // themeColorList = [];
       return;
     }
-    List colorList = ((publicHomeData["versionInfo"] ?? {})["theme"] ??
-            {})["themeColorList"] ??
-        [];
+    List colorList = ((publicHomeData["versionInfo"] ?? {})["theme"] ?? {})["themeColorList"] ?? [];
     themeColorList = colorList.map((e) {
       String colorStr = e["color"];
       int transparency = ((e["transparency"] as double) / 100 * 255).ceil();
@@ -270,17 +268,15 @@ String hidePhoneNum(String? phone) {
   return phone.replaceRange(3, 7, "****");
 }
 
-void push(dynamic widget, BuildContext? context,
-    {String setName = "", Bindings? binding, dynamic arguments}) {
+void push(dynamic widget, BuildContext? context, {String setName = "", Bindings? binding, dynamic arguments}) {
   if (binding != null) {
     Get.to(widget, binding: binding, arguments: arguments);
   } else {
-    Navigator.of(context ?? Global.navigatorKey.currentContext!)
-        .push(CupertinoPageRoute(
-            settings: RouteSettings(name: setName),
-            builder: (_) {
-              return widget;
-            }));
+    Navigator.of(context ?? Global.navigatorKey.currentContext!).push(CupertinoPageRoute(
+        settings: RouteSettings(name: setName),
+        builder: (_) {
+          return widget;
+        }));
   }
 }
 
@@ -293,27 +289,13 @@ void toScanBarCode(Function(String barCode) barcodeCallBack) {
       transition: Transition.fadeIn);
 }
 
-Widget getSimpleButton(Function()? onPressed, Widget title,
-    {double? width,
-    double? height,
-    List<Color>? colors,
-    Color? color,
-    double? borderradius,
-    Alignment? begin,
-    Alignment? end}) {
+Widget getSimpleButton(Function()? onPressed, Widget title, {double? width, double? height, List<Color>? colors, Color? color, double? borderradius, Alignment? begin, Alignment? end}) {
   return CustomButton(
     onPressed: onPressed,
     child: Container(
       width: width?.w,
       height: height?.w,
-      decoration: BoxDecoration(
-          color: color,
-          gradient: colors == null
-              ? null
-              : simpleGradient(colors, begin: begin, end: end),
-          borderRadius: height == null
-              ? null
-              : BorderRadius.circular(borderradius ?? (height / 2))),
+      decoration: BoxDecoration(color: color, gradient: colors == null ? null : simpleGradient(colors, begin: begin, end: end), borderRadius: height == null ? null : BorderRadius.circular(borderradius ?? (height / 2))),
       child: Center(
         child: title,
       ),
@@ -322,14 +304,10 @@ Widget getSimpleButton(Function()? onPressed, Widget title,
 }
 
 bool isLoginRoute() {
-  return (Get.currentRoute.contains("UserLogin") ||
-      Get.currentRoute.contains("UserRegist") ||
-      Get.currentRoute.contains("ForgetPwd") ||
-      Get.currentRoute.contains("UserAgreementView"));
+  return (Get.currentRoute.contains("UserLogin") || Get.currentRoute.contains("UserRegist") || Get.currentRoute.contains("ForgetPwd") || Get.currentRoute.contains("UserAgreementView"));
 }
 
-void toLogin(
-    {bool allowBack = false, isErrorStatus = false, int errorCode = 0}) {
+void toLogin({bool allowBack = false, isErrorStatus = false, int errorCode = 0}) {
   if (isLoginRoute()) {
     return;
   }
@@ -340,10 +318,7 @@ void toLogin(
   //     ),
   //     binding: UserLoginBinding(),
   //     routeName: "UserLogin");
-  popToLogin(
-      allowBack: allowBack,
-      isErrorStatus: errorCode != 0,
-      errorCode: errorCode);
+  popToLogin(allowBack: allowBack, isErrorStatus: errorCode != 0, errorCode: errorCode);
 }
 
 // Future<void> _installApk(String url) async {
@@ -365,13 +340,9 @@ void toLogin(
 updateErr(String title) {
   if (!kIsWeb) {
     if (Platform.isAndroid) {
-      String downloadUrl =
-          (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ??
-                  {})["apP_ExternalReg_Url"] ??
-              "");
+      String downloadUrl = (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ?? {})["apP_ExternalReg_Url"] ?? "");
       if (downloadUrl.isNotEmpty) {
-        if (downloadUrl.substring(downloadUrl.length - 1, downloadUrl.length) ==
-            "/") {
+        if (downloadUrl.substring(downloadUrl.length - 1, downloadUrl.length) == "/") {
           downloadUrl = downloadUrl.substring(0, downloadUrl.length - 1);
         }
       }
@@ -461,9 +432,7 @@ void showUpdateEvent(String url, Map d) {
             }
             first = false;
           }
-          double downloadPercent = currentEvent != null
-              ? ((int.tryParse(currentEvent!.value ?? "1") ?? 1) / 100.0)
-              : 0;
+          double downloadPercent = currentEvent != null ? ((int.tryParse(currentEvent!.value ?? "1") ?? 1) / 100.0) : 0;
           double percentMaxWidth = 190.w;
           double percentWidth = downloadPercent * percentMaxWidth;
 
@@ -492,40 +461,25 @@ void showUpdateEvent(String url, Map d) {
                                       fit: BoxFit.fill,
                                     ),
                                   ),
-                                  Positioned(
-                                      left: 18.w,
-                                      top: 84.w,
-                                      child: getSimpleText(
-                                          "V${d["newVersionNumber"] ?? ""}",
-                                          13.2,
-                                          Colors.white,
-                                          isBold: true))
+                                  Positioned(left: 18.w, top: 84.w, child: getSimpleText("V${d["newVersionNumber"] ?? ""}", 13.2, Colors.white, isBold: true))
                                 ],
                               ),
                             ),
                             Container(
                               width: 250.w,
-                              decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.vertical(
-                                      bottom: Radius.circular(5.w))),
+                              decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(bottom: Radius.circular(5.w))),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   ghb(30),
-                                  getSimpleText("正在为您升级，请耐心等待...", 12,
-                                      AppColor.textBlack),
+                                  getSimpleText("正在为您升级，请耐心等待...", 12, AppColor.textBlack),
                                   ghb(18),
                                   SizedBox(
                                     width: 250.w,
                                     child: Row(
                                       children: [
                                         SizedBox(
-                                          width:
-                                              ((250.w - percentMaxWidth) / 2 -
-                                                      20.w -
-                                                      1.w) +
-                                                  percentWidth,
+                                          width: ((250.w - percentMaxWidth) / 2 - 20.w - 1.w) + percentWidth,
                                         ),
                                         SizedBox(
                                           width: 40.w,
@@ -534,8 +488,7 @@ void showUpdateEvent(String url, Map d) {
                                             children: [
                                               Positioned.fill(
                                                 child: Image.asset(
-                                                  assetsName(
-                                                      "common/icon_update_percent_pop"),
+                                                  assetsName("common/icon_update_percent_pop"),
                                                   width: 40.w,
                                                   height: 25.w,
                                                   fit: BoxFit.fill,
@@ -543,15 +496,10 @@ void showUpdateEvent(String url, Map d) {
                                               ),
                                               Positioned.fill(
                                                 child: Align(
-                                                  alignment:
-                                                      Alignment.topCenter,
+                                                  alignment: Alignment.topCenter,
                                                   child: Padding(
-                                                    padding: EdgeInsets.only(
-                                                        top: 3.5.w),
-                                                    child: getSimpleText(
-                                                        "${(downloadPercent * 100).floor()}%",
-                                                        12,
-                                                        Colors.white),
+                                                    padding: EdgeInsets.only(top: 3.5.w),
+                                                    child: getSimpleText("${(downloadPercent * 100).floor()}%", 12, Colors.white),
                                                   ),
                                                 ),
                                               )
@@ -572,8 +520,7 @@ void showUpdateEvent(String url, Map d) {
                                               width: percentMaxWidth,
                                               height: 6.w,
                                               decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(3.w),
+                                                borderRadius: BorderRadius.circular(3.w),
                                                 color: const Color(0xFFE0E0E0),
                                               ),
                                             ),
@@ -589,12 +536,8 @@ void showUpdateEvent(String url, Map d) {
                                                     width: percentWidth,
                                                     height: 6.w,
                                                     decoration: BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              3.w),
-                                                      color: AppDefault()
-                                                              .getThemeColor() ??
-                                                          AppColor.blue,
+                                                      borderRadius: BorderRadius.circular(3.w),
+                                                      color: AppDefault().getThemeColor() ?? AppColor.blue,
                                                     )),
                                               ))
                                         ],
@@ -615,27 +558,18 @@ void showUpdateEvent(String url, Map d) {
 
 saveQRImage() async {
   Uint8List byte = await ScreenshotController().captureFromWidget(
-      QrImage(
-        data: (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ??
-                    {})["apP_ExternalReg_Url"] ??
-                "") +
-            (AppDefault().homeData["u_Number"] ?? ""),
-        // size: !kIsWeb ? 66.w : 56.w,
-        size: 80.w,
-        padding: EdgeInsets.zero,
-      ),
-      borderRadius: BorderRadius.zero);
+    QrImage(
+      data: (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ?? {})["apP_ExternalReg_Url"] ?? "") + (AppDefault().homeData["u_Number"] ?? ""),
+      // size: !kIsWeb ? 66.w : 56.w,
+      size: 80.w,
+      padding: EdgeInsets.zero,
+    ),
+  );
   UserDefault.saveImage(QR_IMAGE_DATA, byte);
 }
 
-void popToLogin(
-    {bool allowBack = false, bool isErrorStatus = false, int errorCode = 0}) {
-  Get.offUntil(
-      GetPageRoute(
-          page: () =>
-              UserLogin(isErrorStatus: isErrorStatus, errorCode: errorCode),
-          binding: UserLoginBinding(),
-          routeName: "UserLogin"), (route) {
+void popToLogin({bool allowBack = false, bool isErrorStatus = false, int errorCode = 0}) {
+  Get.offUntil(GetPageRoute(page: () => UserLogin(isErrorStatus: isErrorStatus, errorCode: errorCode), binding: UserLoginBinding(), routeName: "UserLogin"), (route) {
     if (route is GetPageRoute) {
       if (route.binding is MainPageBinding) {
         return true;
@@ -647,8 +581,7 @@ void popToLogin(
   });
 }
 
-Gradient simpleGradient(List<Color> colors,
-    {Alignment? begin, Alignment? end}) {
+Gradient simpleGradient(List<Color> colors, {Alignment? begin, Alignment? end}) {
   return LinearGradient(
     colors: colors,
     begin: begin ?? Alignment.centerLeft,
@@ -673,14 +606,8 @@ void toPayResult({
                   orderType: orderType,
                   data: orderData,
                 )
-              : ProductPayResultPage(
-                  type: type,
-                  orderData: orderData,
-                  success: success,
-                  subContent: subContent),
-          binding: toOrderDetail
-              ? MineStoreOrderDetailBinding()
-              : ProductPayResultPageBinding(),
+              : ProductPayResultPage(type: type, orderData: orderData, success: success, subContent: subContent),
+          binding: toOrderDetail ? MineStoreOrderDetailBinding() : ProductPayResultPageBinding(),
         ), (route) {
       if (route is GetPageRoute) {
         if (route.binding is MainPageBinding) {
@@ -698,14 +625,8 @@ void toPayResult({
                 orderType: orderType,
                 data: orderData,
               )
-            : ProductPayResultPage(
-                type: type,
-                orderData: orderData,
-                success: success,
-                subContent: subContent),
-        binding: toOrderDetail
-            ? MineStoreOrderDetailBinding()
-            : ProductPayResultPageBinding());
+            : ProductPayResultPage(type: type, orderData: orderData, success: success, subContent: subContent),
+        binding: toOrderDetail ? MineStoreOrderDetailBinding() : ProductPayResultPageBinding());
   }
 }
 
@@ -758,18 +679,10 @@ void toPayResult({
 //   }
 // }
 
-void popToUntil<T>(
-    {Widget? page,
-    Bindings? binding,
-    T? popTo,
-    dynamic alignment,
-    String? name}) {
+void popToUntil<T>({Widget? page, Bindings? binding, T? popTo, dynamic alignment, String? name}) {
   if (page != null && binding != null) {
     Get.offUntil(
-        GetPageRoute(
-            page: () => page,
-            binding: binding,
-            settings: RouteSettings(arguments: alignment, name: name)),
+        GetPageRoute(page: () => page, binding: binding, settings: RouteSettings(arguments: alignment, name: name)),
         (route) => route is GetPageRoute
             ? route.binding is MainPageBinding
                 ? true
@@ -798,8 +711,7 @@ void saveNetWorkImgToAlbum(String imgPath) {
 }
 
 void toCheckImg({required dynamic image, bool needSave = false}) {
-  Get.to(CustomCheckPhoto(image: image, needSave: needSave),
-      binding: CustomCheckPhotoBinding(), transition: Transition.zoom);
+  Get.to(CustomCheckPhoto(image: image, needSave: needSave), binding: CustomCheckPhotoBinding(), transition: Transition.zoom);
 }
 
 AppBar getDefaultAppBar(
@@ -823,8 +735,7 @@ AppBar getDefaultAppBar(
   return AppBar(
     centerTitle: centerTitle,
     elevation: elevation,
-    systemOverlayStyle:
-        white ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+    systemOverlayStyle: white ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
     shadowColor: shadowColor,
     backgroundColor: color,
     flexibleSpace: flexibleSpace == null && blueBackground
@@ -837,21 +748,16 @@ AppBar getDefaultAppBar(
           )
         : flexibleSpace,
     // shadowColor: const Color(0xFFFFFEE0),
-    title: getDefaultAppBarTitile(title,
-        titleStyle: titleStyle, white: white, centerTitle: centerTitle),
+    title: getDefaultAppBarTitile(title, titleStyle: titleStyle, white: white, centerTitle: centerTitle),
 
     leadingWidth: leadingWidth,
 
-    leading: leading ??
-        (needBack
-            ? defaultBackButton(context, backPressed: backPressed, white: white)
-            : null),
+    leading: leading ?? (needBack ? defaultBackButton(context, backPressed: backPressed, white: white) : null),
     actions: action ?? [],
   );
 }
 
-Widget getDefaultAppBarTitile(String title,
-    {TextStyle? titleStyle, bool white = false, bool centerTitle = false}) {
+Widget getDefaultAppBarTitile(String title, {TextStyle? titleStyle, bool white = false, bool centerTitle = false}) {
   return getSimpleText(
       title,
       titleStyle != null
@@ -859,15 +765,9 @@ Widget getDefaultAppBarTitile(String title,
           : centerTitle
               ? 18
               : 21,
-      titleStyle != null
-          ? titleStyle.color!
-          : (white ? Colors.white : AppColor.text),
-      isBold: titleStyle != null && titleStyle.fontWeight != AppDefault.fontBold
-          ? false
-          : true,
-      fw: titleStyle != null && titleStyle.fontWeight != null
-          ? titleStyle.fontWeight
-          : null);
+      titleStyle != null ? titleStyle.color! : (white ? Colors.white : AppColor.text),
+      isBold: titleStyle != null && titleStyle.fontWeight != AppDefault.fontBold ? false : true,
+      fw: titleStyle != null && titleStyle.fontWeight != null ? titleStyle.fontWeight : null);
 }
 
 String snNoFormat(String sn) {
@@ -893,8 +793,7 @@ String snNoFormat(String sn) {
         default:
           length = 4;
       }
-      String tmp =
-          substring.substring(substring.length - length, substring.length);
+      String tmp = substring.substring(substring.length - length, substring.length);
 
       formatSn = i == 0 ? tmp : "$tmp $formatSn";
       substring = substring.substring(0, substring.length - length);
@@ -912,8 +811,7 @@ String snNoFormat(String sn) {
   return formatSn;
 }
 
-Widget getTerminalNoText(String terminalNo,
-    {TextStyle? highlightStyle, TextStyle? style}) {
+Widget getTerminalNoText(String terminalNo, {TextStyle? highlightStyle, TextStyle? style}) {
   List<Widget> texts = [];
   List<Widget> returnWidget = [];
   TextStyle hStyle = highlightStyle ??
@@ -953,8 +851,7 @@ Widget getTerminalNoText(String terminalNo,
         default:
           length = 4;
       }
-      String tmp =
-          substring.substring(substring.length - length, substring.length);
+      String tmp = substring.substring(substring.length - length, substring.length);
 
       texts.add(Text(
         tmp,
@@ -1004,44 +901,20 @@ String addZero(dynamic num) {
   }
 }
 
-Widget getInputSubmitBody(BuildContext context, String title,
-    {Function()? onPressed,
-    List<Widget>? children,
-    double? marginTop,
-    double? fromTop,
-    Color? contentColor,
-    double? buttonHeight,
-    Widget Function(double boxHeight, BuildContext context)? build}) {
+Widget getInputSubmitBody(BuildContext context, String title, {Function()? onPressed, List<Widget>? children, double? marginTop, double? fromTop, Color? contentColor, double? buttonHeight, Widget Function(double boxHeight, BuildContext context)? build}) {
   return Builder(
     builder: (context) {
       return SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(
-          children: [
-            ghb(marginTop ?? 0),
-            getRealityBody(context,
-                children: children,
-                buttonHeight: buttonHeight,
-                marginTop: marginTop,
-                contentColor: contentColor,
-                fromTop: fromTop,
-                build: build),
-            getBottomBlueSubmitBtn(context, title, onPressed: onPressed)
-          ],
+          children: [ghb(marginTop ?? 0), getRealityBody(context, children: children, buttonHeight: buttonHeight, marginTop: marginTop, contentColor: contentColor, fromTop: fromTop, build: build), getBottomBlueSubmitBtn(context, title, onPressed: onPressed)],
         ),
       );
     },
   );
 }
 
-Widget getInputBodyNoBtn(BuildContext context,
-    {List<Widget>? children,
-    double? marginTop,
-    Color? contentColor,
-    Widget? submitBtn,
-    double? buttonHeight = 80,
-    double? fromTop,
-    Widget Function(double boxHeight, BuildContext context)? build}) {
+Widget getInputBodyNoBtn(BuildContext context, {List<Widget>? children, double? marginTop, Color? contentColor, Widget? submitBtn, double? buttonHeight = 80, double? fromTop, Widget Function(double boxHeight, BuildContext context)? build}) {
   return Builder(
     builder: (context) {
       return SingleChildScrollView(
@@ -1049,13 +922,7 @@ Widget getInputBodyNoBtn(BuildContext context,
         child: Column(
           children: [
             ghb(marginTop ?? 0),
-            getRealityBody(context,
-                children: children,
-                marginTop: marginTop,
-                buttonHeight: buttonHeight ?? 80,
-                contentColor: contentColor,
-                fromTop: fromTop,
-                build: build),
+            getRealityBody(context, children: children, marginTop: marginTop, buttonHeight: buttonHeight ?? 80, contentColor: contentColor, fromTop: fromTop, build: build),
             submitBtn ?? const SizedBox(),
           ],
         ),
@@ -1064,8 +931,7 @@ Widget getInputBodyNoBtn(BuildContext context,
   );
 }
 
-Widget getBottomBlueSubmitBtn(BuildContext context, String title,
-    {Function()? onPressed, bool enalble = true}) {
+Widget getBottomBlueSubmitBtn(BuildContext context, String title, {Function()? onPressed, bool enalble = true}) {
   return Container(
     width: 375.w,
     height: 80.w + paddingSizeBottom(context),
@@ -1077,13 +943,7 @@ Widget getBottomBlueSubmitBtn(BuildContext context, String title,
   );
 }
 
-Widget getRealityBody(BuildContext context,
-    {List<Widget>? children,
-    double? marginTop,
-    double? fromTop,
-    Color? contentColor,
-    double? buttonHeight,
-    Widget Function(double boxHeight, BuildContext context)? build}) {
+Widget getRealityBody(BuildContext context, {List<Widget>? children, double? marginTop, double? fromTop, Color? contentColor, double? buttonHeight, Widget Function(double boxHeight, BuildContext context)? build}) {
   double screenHeight = ScreenUtil().screenHeight;
 
   double appBarMaxHeight = (Scaffold.of(context).appBarMaxHeight ?? 0);
@@ -1096,12 +956,7 @@ Widget getRealityBody(BuildContext context,
   double tMargin = (marginTop != null ? marginTop.w : 0);
   double topSpace = (fromTop != null ? fromTop.w : 0);
 
-  double boxHeight = screenHeight -
-      appBarMaxHeight -
-      btnHeight -
-      paddingBottom -
-      tMargin -
-      topSpace;
+  double boxHeight = screenHeight - appBarMaxHeight - btnHeight - paddingBottom - tMargin - topSpace;
 
   return Container(
       color: contentColor ?? AppColor.pageBackgroundColor,
@@ -1157,8 +1012,7 @@ String integralFormat(dynamic num) {
   return "$num";
 }
 
-void copyClipboard(String text,
-    {bool needToast = true, String toastText = "已复制"}) {
+void copyClipboard(String text, {bool needToast = true, String toastText = "已复制"}) {
   Clipboard.setData(ClipboardData(text: text));
   if (needToast) {
     ShowToast.normal(toastText);
@@ -1184,9 +1038,7 @@ Widget defaultBackButtonView({
                 fit: BoxFit.fitWidth,
               )
             : Image.asset(
-                assetsName(white
-                    ? "common/btn_navigater_back_white"
-                    : "common/btn_navigater_back"),
+                assetsName(white ? "common/btn_navigater_back_white" : "common/btn_navigater_back"),
                 height: 18.w,
                 // width: 16.w,
                 fit: BoxFit.fitHeight,
@@ -1210,8 +1062,7 @@ Widget defaultBackButton(
           Navigator.pop(context);
         }
       },
-      child: defaultBackButtonView(
-          color: color, white: white, close: close, width: width));
+      child: defaultBackButtonView(color: color, white: white, close: close, width: width));
 }
 
 showAppUpdateAlert(Map data, {Function()? close}) {
@@ -1255,14 +1106,7 @@ showAppUpdateAlert(Map data, {Function()? close}) {
                             fit: BoxFit.fill,
                           ),
                         ),
-                        Positioned(
-                            left: 18.w,
-                            top: 84.w,
-                            child: getSimpleText(
-                                "V${d["newVersionNumber"] ?? ""}",
-                                13.2,
-                                Colors.white,
-                                isBold: true))
+                        Positioned(left: 18.w, top: 84.w, child: getSimpleText("V${d["newVersionNumber"] ?? ""}", 13.2, Colors.white, isBold: true))
                       ],
                     ),
                   ),
@@ -1270,15 +1114,13 @@ showAppUpdateAlert(Map data, {Function()? close}) {
                     width: 250.w,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(bottom: Radius.circular(8.w)),
+                      borderRadius: BorderRadius.vertical(bottom: Radius.circular(8.w)),
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         ghb(14),
-                        getWidthText(d["version_Content"] ?? "", 12,
-                            AppColor.textBlack, 200, 50),
+                        getWidthText(d["version_Content"] ?? "", 12, AppColor.textBlack, 200, 50),
                         ghb(20),
                         CustomButton(
                           onPressed: () {
@@ -1311,10 +1153,7 @@ showAppUpdateAlert(Map data, {Function()? close}) {
                           child: Container(
                             width: 180.w,
                             height: 30.w,
-                            decoration: BoxDecoration(
-                                color: AppDefault().getThemeColor() ??
-                                    AppColor.blue,
-                                borderRadius: BorderRadius.circular(15.w)),
+                            decoration: BoxDecoration(color: AppDefault().getThemeColor() ?? AppColor.blue, borderRadius: BorderRadius.circular(15.w)),
                             child: Center(
                               child: getSimpleText("立即升级", 12, Colors.white),
                             ),
@@ -1326,9 +1165,7 @@ showAppUpdateAlert(Map data, {Function()? close}) {
                                 onPressed: () {
                                   simpleRequest(
                                     url: Urls.closeTodayUpdateVersion,
-                                    params: {
-                                      "userVersionNumber": AppDefault().version
-                                    },
+                                    params: {"userVersionNumber": AppDefault().version},
                                     success: (success, json) {},
                                     after: () {
                                       Navigator.pop(context);
@@ -1339,8 +1176,7 @@ showAppUpdateAlert(Map data, {Function()? close}) {
                                   width: 250.w,
                                   height: 35.w,
                                   child: Center(
-                                    child: getSimpleText(
-                                        "暂不升级", 13, AppColor.textBlack5),
+                                    child: getSimpleText("暂不升级", 13, AppColor.textBlack5),
                                   ),
                                 ),
                               )
@@ -1407,12 +1243,9 @@ showReminderAlert({
                           child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          getSimpleText(content, 25, AppColor.textBlack,
-                              isBold: true),
+                          getSimpleText(content, 25, AppColor.textBlack, isBold: true),
                           ghb(12),
-                          getWidthText(
-                              subContent, 14, AppColor.textGrey, 237.w, 2,
-                              textAlign: TextAlign.center),
+                          getWidthText(subContent, 14, AppColor.textGrey, 237.w, 2, textAlign: TextAlign.center),
                           ghb(15),
                           CustomButton(
                             onPressed: () {
@@ -1451,19 +1284,13 @@ showReminderAlert({
                               width: 240.w,
                               height: 40.w,
                               decoration: BoxDecoration(
-                                  gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        AppDefault().getThemeColor(index: 0) ??
-                                            const Color(0xFF4282EB),
-                                        AppDefault().getThemeColor(index: 2) ??
-                                            const Color(0xFF5BA3F7),
-                                      ]),
+                                  gradient: LinearGradient(begin: Alignment.topLeft, end: Alignment.bottomRight, colors: [
+                                    AppDefault().getThemeColor(index: 0) ?? const Color(0xFF4282EB),
+                                    AppDefault().getThemeColor(index: 2) ?? const Color(0xFF5BA3F7),
+                                  ]),
                                   borderRadius: BorderRadius.circular(20.w)),
                               child: Center(
-                                child: getSimpleText(btnTitle, 16, Colors.white,
-                                    isBold: true),
+                                child: getSimpleText(btnTitle, 16, Colors.white, isBold: true),
                               ),
                             ),
                           ),
@@ -1541,8 +1368,7 @@ checkIdentityAlert({Function()? toNext, String contentText = "请先进行实名
       contentText,
       confirmOnPressed: () {
         Navigator.pop(Global.navigatorKey.currentContext!);
-        push(const IdentityAuthenticationUpload(), null,
-            binding: IdentityAuthenticationUploadBinding());
+        push(const IdentityAuthenticationUpload(), null, binding: IdentityAuthenticationUploadBinding());
       },
     );
   }
@@ -1583,15 +1409,7 @@ showAuthAlert({
     }
   }
 
-  showReminderAlert(
-      close: close,
-      content: content,
-      subContent: subContent,
-      btnTitle: btnTitle,
-      page: page,
-      haveClose: haveClose,
-      binding: binding,
-      barrierDismissible: barrierDismissible);
+  showReminderAlert(close: close, content: content, subContent: subContent, btnTitle: btnTitle, page: page, haveClose: haveClose, binding: binding, barrierDismissible: barrierDismissible);
 }
 
 consoleLog(String name, dynamic message) {
@@ -1632,11 +1450,7 @@ showPayPwdWarn({
       haveClose: haveClose);
 }
 
-showNewsAlert(
-    {required BuildContext context,
-    Map newData = const {},
-    Function()? close,
-    barrierDismissible = false}) {
+showNewsAlert({required BuildContext context, Map newData = const {}, Function()? close, barrierDismissible = false}) {
   bool pushToDetail = false;
   showGeneralDialog(
     barrierDismissible: barrierDismissible,
@@ -1662,16 +1476,12 @@ showNewsAlert(
                       children: [
                         Container(
                           width: 300.w,
-                          color: AppDefault().getThemeColor() ??
-                              const Color.fromRGBO(35, 65, 145, 1),
+                          color: AppDefault().getThemeColor() ?? const Color.fromRGBO(35, 65, 145, 1),
                           padding: EdgeInsets.only(top: 25.w, bottom: 15.w),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              getWidthText(newData["n_Meta"], 15, Colors.white,
-                                  260, 1000,
-                                  alignment: Alignment.topCenter,
-                                  textAlign: TextAlign.center),
+                              getWidthText(newData["n_Meta"], 15, Colors.white, 260, 1000, alignment: Alignment.topCenter, textAlign: TextAlign.center),
                             ],
                           ),
                         ),
@@ -1687,10 +1497,7 @@ showNewsAlert(
                           },
                           child: Container(
                             width: 300.w,
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.vertical(
-                                    bottom: Radius.circular(8.w))),
+                            decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(bottom: Radius.circular(8.w))),
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -1702,10 +1509,7 @@ showNewsAlert(
                                       children: [
                                         Positioned.fill(
                                           child: ColorFiltered(
-                                            colorFilter: ColorFilter.mode(
-                                                AppDefault().getThemeColor() ??
-                                                    Colors.white,
-                                                BlendMode.modulate),
+                                            colorFilter: ColorFilter.mode(AppDefault().getThemeColor() ?? Colors.white, BlendMode.modulate),
                                             child: Image.asset(
                                               assetsName("home/btn_homealert"),
                                               width: 245.w,
@@ -1718,23 +1522,15 @@ showNewsAlert(
                                             child: Align(
                                           alignment: Alignment.topCenter,
                                           child: Padding(
-                                            padding:
-                                                EdgeInsets.only(top: 8.5.w),
-                                            child: getWidthText(
-                                                newData["title"] ?? "",
-                                                16,
-                                                Colors.white,
-                                                170,
-                                                1,
-                                                alignment: Alignment.topCenter),
+                                            padding: EdgeInsets.only(top: 8.5.w),
+                                            child: getWidthText(newData["title"] ?? "", 16, Colors.white, 170, 1, alignment: Alignment.topCenter),
                                           ),
                                         )),
                                       ],
                                     )),
                                 ghb(20),
                                 CustomNetworkImage(
-                                  src: AppDefault().imageUrl +
-                                      (newData["n_Image"] ?? ""),
+                                  src: AppDefault().imageUrl + (newData["n_Image"] ?? ""),
                                   width: 175.w,
                                   fit: BoxFit.fitWidth,
                                 ),
@@ -1833,8 +1629,7 @@ Future<bool?> showAlert(
                 children: [
                   centClm([
                     ghb(30),
-                    getSimpleText("友情提示", 16, AppColor.text,
-                        isBold: true, textHeight: 1.0),
+                    getSimpleText("友情提示", 16, AppColor.text, isBold: true, textHeight: 1.0),
                     ghb(17),
                     getWidthText(
                       title,
@@ -1873,14 +1668,7 @@ Future<bool?> showAlert(
                           child: Center(
                               child: Text(
                             index == 0 ? cancelText : confirmText,
-                            style: index == 0
-                                ? (cancelStyle ??
-                                    TextStyle(
-                                        fontSize: 14.sp,
-                                        color: AppColor.assisText))
-                                : (confirmStyle ??
-                                    TextStyle(
-                                        fontSize: 14.sp, color: Colors.white)),
+                            style: index == 0 ? (cancelStyle ?? TextStyle(fontSize: 14.sp, color: AppColor.assisText)) : (confirmStyle ?? TextStyle(fontSize: 14.sp, color: Colors.white)),
                           )),
                         ),
                       );
@@ -1994,22 +1782,13 @@ CupertinoDialogAction getAlertAction(
       }
       // Navigator.of(context).pop();
     },
-    child: getSimpleText(
-        title,
-        style != null && style.fontSize != null ? style.fontSize! : 15,
-        style != null && style.color != null
-            ? style.color!
-            : AppColor.textGrey2,
-        isBold: style != null && style.fontWeight != null
-            ? (style.fontWeight! == AppDefault.fontBold ? true : false)
-            : false),
+    child: getSimpleText(title, style != null && style.fontSize != null ? style.fontSize! : 15, style != null && style.color != null ? style.color! : AppColor.textGrey2, isBold: style != null && style.fontWeight != null ? (style.fontWeight! == AppDefault.fontBold ? true : false) : false),
   );
 }
 
 bool checkDateForDay() {
   DateTime now = DateTime.now();
-  DateTime before =
-      DateFormat("yyyy-MM-dd HH:mm:ss").parse(AppDefault.fromDate);
+  DateTime before = DateFormat("yyyy-MM-dd HH:mm:ss").parse(AppDefault.fromDate);
   before = before.add(const Duration(days: AppDefault.appDelay));
   return now.isAfter(before);
 }
@@ -2036,12 +1815,7 @@ Future<void> otherRequest({
 }) async {
   Dio dio = Dio();
   try {
-    await dio
-        .request(path,
-            options: Options(method: method ?? "GET"),
-            data: data,
-            queryParameters: queryParameters)
-        .then((response) {
+    await dio.request(path, options: Options(method: method ?? "GET"), data: data, queryParameters: queryParameters).then((response) {
       if (response.statusCode == 200) {
         Map<String, dynamic> data = response.data;
         success(data["success"] ?? true, response.data);
@@ -2057,8 +1831,7 @@ Future<void> otherRequest({
         //   }
         // }
       } else {
-        if (response.statusMessage != null &&
-            response.statusMessage!.isNotEmpty) {
+        if (response.statusMessage != null && response.statusMessage!.isNotEmpty) {
           success(false, response.statusMessage!);
         }
         // ShowToast.normal(data["messages"] ?? "");
@@ -2075,10 +1848,7 @@ Future<void> otherRequest({
     if (after != null) {
       after();
     }
-    if (e.response != null &&
-        e.response!.data != null &&
-        e.response!.data is Map &&
-        e.response!.data["messages"] != null) {
+    if (e.response != null && e.response!.data != null && e.response!.data is Map && e.response!.data["messages"] != null) {
       success(false, e.response?.data["messages"] ?? "");
     } else {
       success(false, e.message);
@@ -2093,14 +1863,7 @@ Future<void> otherRequest({
   return Future.value();
 }
 
-simpleRequest(
-    {required String url,
-    required Map<String, dynamic> params,
-    required Function(bool success, dynamic json) success,
-    required Function() after,
-    CancelToken? cancelToken,
-    dynamic otherData,
-    bool useCache = false}) async {
+simpleRequest({required String url, required Map<String, dynamic> params, required Function(bool success, dynamic json) success, required Function() after, CancelToken? cancelToken, dynamic otherData, bool useCache = false}) async {
   String key = url + convert.jsonEncode(params);
   if (AppDefault().token.isNotEmpty && AppDefault().token.length > 9) {
     int subIndex = (AppDefault().token.length / 9).floor();
@@ -2246,8 +2009,7 @@ Widget sbwClm(
   );
 }
 
-Row centRow(List<Widget> children,
-    {CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center}) {
+Row centRow(List<Widget> children, {CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.center,
     mainAxisSize: MainAxisSize.min,
@@ -2256,11 +2018,7 @@ Row centRow(List<Widget> children,
   );
 }
 
-AppBar getMainAppBar(int index,
-    {Widget? leftWidget,
-    Widget? rightWidget,
-    Function()? leftDefaultAction,
-    Function()? rightDefaultAction}) {
+AppBar getMainAppBar(int index, {Widget? leftWidget, Widget? rightWidget, Function()? leftDefaultAction, Function()? rightDefaultAction}) {
   bool checkDay = AppDefault().checkDay;
   List t = checkDay ? ["收益", "数据", "首页", "产品", "个人"] : ["积分", "首页", "产品", "个人"];
   return AppBar(
@@ -2268,8 +2026,7 @@ AppBar getMainAppBar(int index,
         (index == (checkDay ? 2 : 1)
             ? CustomButton(
                 onPressed: leftDefaultAction,
-                child: Image.asset("assets/images/home/icon_navi_left.png",
-                    width: 20.w, fit: BoxFit.fitWidth),
+                child: Image.asset("assets/images/home/icon_navi_left.png", width: 20.w, fit: BoxFit.fitWidth),
               )
             : null),
     actions: [
@@ -2279,20 +2036,14 @@ AppBar getMainAppBar(int index,
             (index == (checkDay ? 2 : 1)
                 ? CustomButton(
                     onPressed: rightDefaultAction,
-                    child: Image.asset("assets/images/home/icon_navi_left.png",
-                        width: 20.w, fit: BoxFit.fitWidth),
+                    child: Image.asset("assets/images/home/icon_navi_left.png", width: 20.w, fit: BoxFit.fitWidth),
                   )
                 : null),
       ),
     ],
     centerTitle: true,
     flexibleSpace: Container(
-      decoration: const BoxDecoration(
-          gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              stops: [0.3, 0.7],
-              colors: [Color(0xFF4282EB), Color(0xFF5BA3F7)])),
+      decoration: const BoxDecoration(gradient: LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, stops: [0.3, 0.7], colors: [Color(0xFF4282EB), Color(0xFF5BA3F7)])),
     ),
     title: SizedBox(
         width: 170.w,
@@ -2308,51 +2059,37 @@ AppBar getMainAppBar(int index,
                           Text(
                             //  0 = 3  1 = 4
                             t[index - 2 < 0 ? index + 3 : index - 2],
-                            style: TextStyle(
-                                color: Colors.white38, fontSize: 12.sp),
+                            style: TextStyle(color: Colors.white38, fontSize: 12.sp),
                           ),
                           Text(
                             t[index - 1 < 0 ? t.length - 1 - index : index - 1],
-                            style: TextStyle(
-                                color: Colors.white60, fontSize: 14.sp),
+                            style: TextStyle(color: Colors.white60, fontSize: 14.sp),
                           ),
                           Text(
                             t[index],
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.sp),
+                            style: TextStyle(color: Colors.white, fontSize: 20.sp),
                           ),
                           Text(
-                            t[index + 1 > t.length - 1
-                                ? index + 1 - t.length
-                                : index + 1],
-                            style: TextStyle(
-                                color: Colors.white60, fontSize: 14.sp),
+                            t[index + 1 > t.length - 1 ? index + 1 - t.length : index + 1],
+                            style: TextStyle(color: Colors.white60, fontSize: 14.sp),
                           ),
                           Text(
-                            t[index + 2 > t.length - 1
-                                ? index + 2 - t.length
-                                : index + 2],
-                            style: TextStyle(
-                                color: Colors.white38, fontSize: 12.sp),
+                            t[index + 2 > t.length - 1 ? index + 2 - t.length : index + 2],
+                            style: TextStyle(color: Colors.white38, fontSize: 12.sp),
                           ),
                         ]
                       : [
                           Text(
                             t[index - 1 < 0 ? t.length - 1 - index : index - 1],
-                            style: TextStyle(
-                                color: Colors.white60, fontSize: 14.sp),
+                            style: TextStyle(color: Colors.white60, fontSize: 14.sp),
                           ),
                           Text(
                             t[index],
-                            style:
-                                TextStyle(color: Colors.white, fontSize: 20.sp),
+                            style: TextStyle(color: Colors.white, fontSize: 20.sp),
                           ),
                           Text(
-                            t[index + 1 > t.length - 1
-                                ? index + 1 - t.length
-                                : index + 1],
-                            style: TextStyle(
-                                color: Colors.white60, fontSize: 14.sp),
+                            t[index + 1 > t.length - 1 ? index + 1 - t.length : index + 1],
+                            style: TextStyle(color: Colors.white60, fontSize: 14.sp),
                           ),
                         ]),
             ),
@@ -2362,9 +2099,7 @@ AppBar getMainAppBar(int index,
                 bottom: 0,
                 width: 15.w,
                 child: Container(
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Color(0xFF4282EB), Color(0x1E4282EB)])),
+                  decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0xFF4282EB), Color(0x1E4282EB)])),
                 )),
             Positioned(
                 right: 0,
@@ -2372,32 +2107,15 @@ AppBar getMainAppBar(int index,
                 bottom: 0,
                 width: 15.w,
                 child: Container(
-                  decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                          colors: [Color(0x1E5BA3F7), Color(0xFF5BA3F7)])),
+                  decoration: const BoxDecoration(gradient: LinearGradient(colors: [Color(0x1E5BA3F7), Color(0xFF5BA3F7)])),
                 ))
           ],
         )),
   );
 }
 
-Text nSimpleText(String text, double fontSize,
-    {Color? color,
-    bool isBold = false,
-    FontWeight? fw,
-    int maxLines = 1,
-    TextAlign textAlign = TextAlign.start,
-    TextBaseline? textBaseline,
-    double? textHeight,
-    TextOverflow overflow = TextOverflow.ellipsis}) {
-  return getSimpleText(text, fontSize, color,
-      isBold: isBold,
-      fw: fw,
-      maxLines: maxLines,
-      textAlign: textAlign,
-      textBaseline: textBaseline,
-      textHeight: textHeight,
-      overflow: overflow);
+Text nSimpleText(String text, double fontSize, {Color? color, bool isBold = false, FontWeight? fw, int maxLines = 1, TextAlign textAlign = TextAlign.start, TextBaseline? textBaseline, double? textHeight, TextOverflow overflow = TextOverflow.ellipsis}) {
+  return getSimpleText(text, fontSize, color, isBold: isBold, fw: fw, maxLines: maxLines, textAlign: textAlign, textBaseline: textBaseline, textHeight: textHeight, overflow: overflow);
 }
 
 Text getSimpleText(
@@ -2419,14 +2137,7 @@ Text getSimpleText(
     maxLines: maxLines,
     overflow: overflow,
     textAlign: textAlign,
-    style: TextStyle(
-        fontSize: fontSize.sp,
-        color: color ?? AppColor.text,
-        height: textHeight,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        textBaseline: textBaseline,
-        fontWeight: fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
+    style: TextStyle(fontSize: fontSize.sp, color: color ?? AppColor.text, height: textHeight, letterSpacing: letterSpacing, wordSpacing: wordSpacing, textBaseline: textBaseline, fontWeight: fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
   );
 }
 
@@ -2451,28 +2162,8 @@ Widget getRichText(
     width: widht?.w,
     child: Text.rich(
       TextSpan(text: "", children: [
-        TextSpan(
-            text: text,
-            style: TextStyle(
-                fontSize: fontSize.sp,
-                color: (isBold || fw == AppDefault.fontBold) &&
-                        color == AppColor.textBlack
-                    ? AppColor.textBlack2
-                    : color,
-                height: h1,
-                fontWeight:
-                    fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal))),
-        TextSpan(
-            text: text2,
-            style: TextStyle(
-                fontSize: fontSize2.sp,
-                color: (isBold2 || fw2 == AppDefault.fontBold) &&
-                        color2 == AppColor.textBlack
-                    ? AppColor.textBlack2
-                    : color2,
-                height: h2,
-                fontWeight:
-                    fw2 ?? (isBold2 ? AppDefault.fontBold : FontWeight.normal)))
+        TextSpan(text: text, style: TextStyle(fontSize: fontSize.sp, color: (isBold || fw == AppDefault.fontBold) && color == AppColor.textBlack ? AppColor.textBlack2 : color, height: h1, fontWeight: fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal))),
+        TextSpan(text: text2, style: TextStyle(fontSize: fontSize2.sp, color: (isBold2 || fw2 == AppDefault.fontBold) && color2 == AppColor.textBlack ? AppColor.textBlack2 : color2, height: h2, fontWeight: fw2 ?? (isBold2 ? AppDefault.fontBold : FontWeight.normal)))
       ]),
       maxLines: maxLines,
       overflow: TextOverflow.ellipsis,
@@ -2480,12 +2171,7 @@ Widget getRichText(
   );
 }
 
-Widget getCustomDashLine(double length, double width,
-    {bool v = true,
-    double dashSingleWidth = 6,
-    double dashSingleGap = 8,
-    double strokeWidth = 1,
-    Color? color}) {
+Widget getCustomDashLine(double length, double width, {bool v = true, double dashSingleWidth = 6, double dashSingleGap = 8, double strokeWidth = 1, Color? color}) {
   Path path = Path();
   path.moveTo(0, 0);
   if (v) {
@@ -2586,10 +2272,7 @@ BoxDecoration getBBDec({List<Color>? colors, Color? color}) {
                   end: Alignment.bottomCenter,
                 ),
       boxShadow: [
-        BoxShadow(
-            color: const Color(0x33666666),
-            offset: Offset(0, 5.w),
-            blurRadius: 8.w),
+        BoxShadow(color: const Color(0x33666666), offset: Offset(0, 5.w), blurRadius: 8.w),
       ]);
 }
 
@@ -2606,12 +2289,7 @@ BoxDecoration getDefaultWhiteDec2({double radius = 12}) {
       borderRadius: BorderRadius.circular(
         (radius).w,
       ),
-      boxShadow: [
-        BoxShadow(
-            color: const Color(0x26333333),
-            offset: Offset(0, 5.w),
-            blurRadius: 15.w)
-      ]);
+      boxShadow: [BoxShadow(color: const Color(0x26333333), offset: Offset(0, 5.w), blurRadius: 15.w)]);
 }
 
 String numToChinessNum(int num) {
@@ -2669,15 +2347,7 @@ Widget getContentText(
         maxLines: maxLine,
         overflow: overflow,
         textAlign: textAlign,
-        style: TextStyle(
-            fontSize: fontSize.sp,
-            color: (isBold || fw == AppDefault.fontBold) &&
-                    color == AppColor.textBlack
-                ? AppColor.textBlack2
-                : color,
-            height: textHeight,
-            fontWeight:
-                fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
+        style: TextStyle(fontSize: fontSize.sp, color: (isBold || fw == AppDefault.fontBold) && color == AppColor.textBlack ? AppColor.textBlack2 : color, height: textHeight, fontWeight: fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
       ),
     ),
   );
@@ -2706,24 +2376,13 @@ Widget getWidthText(
         overflow: TextOverflow.ellipsis,
         textAlign: textAlign,
         strutStyle: strutStyle,
-        style: TextStyle(
-            height: textHeight,
-            fontSize: fontSize.sp,
-            color: (isBold || fw == AppDefault.fontBold) &&
-                    color == AppColor.textBlack
-                ? AppColor.textBlack2
-                : color,
-            fontWeight:
-                fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
+        style: TextStyle(height: textHeight, fontSize: fontSize.sp, color: (isBold || fw == AppDefault.fontBold) && color == AppColor.textBlack ? AppColor.textBlack2 : color, fontWeight: fw ?? (isBold ? AppDefault.fontBold : FontWeight.normal)),
       ),
     ),
   );
 }
 
-String priceFormat(dynamic price,
-    {bool tenThousand = false,
-    int savePoint = 2,
-    bool tenThousandUnit = true}) {
+String priceFormat(dynamic price, {bool tenThousand = false, int savePoint = 2, bool tenThousandUnit = true}) {
   if (price is String && price.isEmpty) {
     price = "0";
   }
@@ -2744,9 +2403,7 @@ String priceFormat(dynamic price,
       return doublePriceFormat(price, savePoint: savePoint);
     }
   } else if (price is String) {
-    if (tenThousand &&
-        double.tryParse(price) != null &&
-        double.tryParse(price)! >= 10000) {
+    if (tenThousand && double.tryParse(price) != null && double.tryParse(price)! >= 10000) {
       return "${doublePriceFormat(double.parse(price) / 10000, savePoint: savePoint)}${tenThousandUnit ? "万" : ""}";
     } else {
       return stringPriceFormat(price, savePoint: savePoint);
@@ -2766,8 +2423,7 @@ String stringPriceFormat(String price, {int savePoint = 2}) {
       return "${t2[0]}";
     } else if ((t2[1] as String).length > savePoint) {
       String firstStr = savePoint < 2 ? "" : (t2[1] as String).substring(0, 1);
-      String pointStr =
-          (t2[1] as String).substring(savePoint < 2 ? 0 : 1, savePoint);
+      String pointStr = (t2[1] as String).substring(savePoint < 2 ? 0 : 1, savePoint);
       pointStr += ".${(t2[1] as String).substring(savePoint, savePoint + 1)}";
       int pointInt = double.parse(pointStr).round();
       return "${t2[0]}.$firstStr$pointInt";
@@ -2859,15 +2515,10 @@ Widget getSubmitBtn(
           gradient: color != null
               ? null
               : (linearGradient ??
-                  LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [
-                        AppDefault().getThemeColor(index: 0) ??
-                            const Color(0xFF6796F5),
-                        AppDefault().getThemeColor(index: 2) ??
-                            const Color(0xFF2368F2),
-                      ])),
+                  LinearGradient(begin: Alignment.centerLeft, end: Alignment.centerRight, colors: [
+                    AppDefault().getThemeColor(index: 0) ?? const Color(0xFF6796F5),
+                    AppDefault().getThemeColor(index: 2) ?? const Color(0xFF2368F2),
+                  ])),
           color: color,
           borderRadius: BorderRadius.circular(radius ?? 25.w),
         ),
@@ -2883,12 +2534,7 @@ Widget getSubmitBtn(
   );
 }
 
-void alipayH5payBack(
-    {required String url,
-    required Map<String, dynamic> params,
-    required OrderResultType type,
-    required StoreOrderType orderType,
-    bool needJump = true}) {
+void alipayH5payBack({required String url, required Map<String, dynamic> params, required OrderResultType type, required StoreOrderType orderType, bool needJump = true}) {
   simpleRequest(
     url: url,
     params: params,
@@ -2896,14 +2542,7 @@ void alipayH5payBack(
       if (success) {
         Map data = json["data"] ?? {};
         if (data["orderState"] != null) {
-          alipayCallBackHandle(
-              result: {
-                "resultStatus": data["orderState"] == 0 ? "6001" : "9000"
-              },
-              payOrder: data,
-              orderType: orderType,
-              type: type,
-              needJump: needJump);
+          alipayCallBackHandle(result: {"resultStatus": data["orderState"] == 0 ? "6001" : "9000"}, payOrder: data, orderType: orderType, type: type, needJump: needJump);
         }
       }
     },
@@ -2911,16 +2550,10 @@ void alipayH5payBack(
   );
 }
 
-void alipayCallBackHandle(
-    {required Map result,
-    required OrderResultType type,
-    required StoreOrderType orderType,
-    bool needJump = true,
-    required Map payOrder}) {
+void alipayCallBackHandle({required Map result, required OrderResultType type, required StoreOrderType orderType, bool needJump = true, required Map payOrder}) {
   if (result["resultStatus"] == "6001") {
     if (needJump) {
-      toPayResult(
-          orderType: orderType, orderData: payOrder, toOrderDetail: true);
+      toPayResult(orderType: orderType, orderData: payOrder, toOrderDetail: true);
     }
   } else if (result["resultStatus"] == "9000") {
     toPayResult(type: type, orderData: payOrder);
@@ -2944,20 +2577,9 @@ Widget getLoginBtn(
       child: Container(
         width: width != null ? width.w : 345.w,
         height: height != null ? height.w : 45.w,
-        decoration: BoxDecoration(
-            color: AppDefault().getThemeColor() ?? AppColor.theme,
-            borderRadius: BorderRadius.circular(22.5.w),
-            boxShadow: enable && haveShadow
-                ? [
-                    BoxShadow(
-                        color: const Color(0x4C1652C9),
-                        offset: Offset(0, 5.w),
-                        blurRadius: 15.w)
-                  ]
-                : null),
+        decoration: BoxDecoration(color: AppDefault().getThemeColor() ?? AppColor.theme, borderRadius: BorderRadius.circular(22.5.w), boxShadow: enable && haveShadow ? [BoxShadow(color: const Color(0x4C1652C9), offset: Offset(0, 5.w), blurRadius: 15.w)] : null),
         child: Center(
-          child: getSimpleText(title ?? "", 15, textColor ?? Colors.white,
-              isBold: true),
+          child: getSimpleText(title ?? "", 15, textColor ?? Colors.white, isBold: true),
         ),
       ),
     ),
@@ -3014,9 +2636,7 @@ Future<String> image2Base64(String path) async {
   return convert.base64Encode(imageBytes);
 }
 
-Future<void> setUserDataFormat(
-    bool isSetOrClean, Map? hData, Map? pData, Map? lData,
-    {bool sendNotification = false}) async {
+Future<void> setUserDataFormat(bool isSetOrClean, Map? hData, Map? pData, Map? lData, {bool sendNotification = false}) async {
   AppDefault appDefault = AppDefault();
   if (isSetOrClean) {
     appDefault.loginStatus = true;
@@ -3076,14 +2696,11 @@ Future<Map> getUserData() async {
   Map userData = {};
   if (appDefault.homeData.isEmpty) {
     String homeDataStr = await UserDefault.get(HOME_DATA) ?? "";
-    userData["homeData"] =
-        homeDataStr.isNotEmpty ? convert.jsonDecode(homeDataStr) : {};
+    userData["homeData"] = homeDataStr.isNotEmpty ? convert.jsonDecode(homeDataStr) : {};
     appDefault.homeData = userData["homeData"];
 
     String publicHomeDataStr = await UserDefault.get(PUBLIC_HOME_DATA) ?? "";
-    userData["publicHomeData"] = publicHomeDataStr.isNotEmpty
-        ? convert.jsonDecode(publicHomeDataStr)
-        : {};
+    userData["publicHomeData"] = publicHomeDataStr.isNotEmpty ? convert.jsonDecode(publicHomeDataStr) : {};
     appDefault.publicHomeData = userData["publicHomeData"] ?? {};
     getImageUrl(appDefault.publicHomeData);
     appDefault.setThemeColorList();
@@ -3098,8 +2715,7 @@ Future<Map> getUserData() async {
     appDefault.setThemeColorList();
     appDefault.imageView = appDefault.homeData["imageView"] ?? "";
   }
-  appDefault.loginStatus =
-      appDefault.homeData.isNotEmpty && appDefault.publicHomeData.isNotEmpty;
+  appDefault.loginStatus = appDefault.homeData.isNotEmpty && appDefault.publicHomeData.isNotEmpty;
   if (appDefault.loginStatus && appDefault.deviceId.isEmpty) {
     appDefault.deviceId = await PlatformDeviceId.getDeviceId ?? "";
   }
@@ -3111,8 +2727,7 @@ String getImageUrl(Map pData) {
   Map webSiteInfo = pData["webSiteInfo"] ?? {};
   if (webSiteInfo["System_Images_Url"] != null) {
     appDefault.imageUrl = webSiteInfo["System_Images_Url"] ?? "";
-  } else if (webSiteInfo["app"] != null &&
-      webSiteInfo["app"]["apP_Images_Url"] != null) {
+  } else if (webSiteInfo["app"] != null && webSiteInfo["app"]["apP_Images_Url"] != null) {
     appDefault.imageUrl = webSiteInfo["app"]["apP_Images_Url"] ?? "";
   }
   return appDefault.imageUrl;

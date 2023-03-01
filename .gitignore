@@ -78,4 +78,5 @@ git rm -r --cached .
 **/*.r.dart
 **/*.m.dart
 **/pubspec.lock
+**/pubspec.yaml
 **/.flutter-plugins-dependencies

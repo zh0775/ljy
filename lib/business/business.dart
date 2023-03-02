@@ -1,4 +1,3 @@
-import 'package:cxhighversion2/business/finance/finance_space.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
@@ -88,12 +87,7 @@ class Business extends GetView<BusinessController> {
                   }
 
                   return CustomButton(
-                    onPressed: () {
-                      if (index == 0) {
-                        push(const FinanceSpace(), context,
-                            binding: FinanceSpaceBinding());
-                      }
-                    },
+                    onPressed: () {},
                     child: centClm([
                       Image.asset(
                         assetsName(img),
@@ -143,11 +137,9 @@ class Business extends GetView<BusinessController> {
           borderRadius: BorderRadius.circular(8.w),
         ),
         child: centClm([
-          getSimpleText(index == 0 ? "积分商城" : "特惠复购", 15, AppColor.text,
-              isBold: true),
+          getSimpleText(index == 0 ? "积分商城" : "特惠复购", 15, AppColor.text, isBold: true),
           ghb(2),
-          getSimpleText(
-              index == 0 ? "超值积分换好礼" : "限时积分低至7.5折", 12, AppColor.text3),
+          getSimpleText(index == 0 ? "超值积分换好礼" : "限时积分低至7.5折", 12, AppColor.text3),
           ghb(8),
           Image.asset(
             assetsName("business/icon_${index == 0 ? "jfsc" : "thfg"}"),
@@ -162,8 +154,7 @@ class Business extends GetView<BusinessController> {
   Widget cardList() {
     return Container(
       width: 345.w,
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
       child: Column(
         children: [
           sbhRow([
@@ -195,18 +186,13 @@ class Business extends GetView<BusinessController> {
                       centClm([
                         nSimpleText(data["name"] ?? "", 15, isBold: true),
                         ghb(5),
-                        getSimpleText(
-                            data["subTitle"] ?? "", 12, AppColor.text2),
+                        getSimpleText(data["subTitle"] ?? "", 12, AppColor.text2),
                       ], crossAxisAlignment: CrossAxisAlignment.start)
                     ]),
                     Container(
                       width: 60.w,
                       height: 30.w,
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(15.w),
-                          border:
-                              Border.all(width: 0.5.w, color: AppColor.theme)),
+                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15.w), border: Border.all(width: 0.5.w, color: AppColor.theme)),
                       child: Center(
                         child: getSimpleText("申请", 12, AppColor.theme),
                       ),
@@ -217,21 +203,14 @@ class Business extends GetView<BusinessController> {
                     Container(
                       height: 18.w,
                       padding: EdgeInsets.symmetric(horizontal: 6.w),
-                      decoration: BoxDecoration(
-                          color: AppColor.theme.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(2.w)),
+                      decoration: BoxDecoration(color: AppColor.theme.withOpacity(0.1), borderRadius: BorderRadius.circular(2.w)),
                       child: Center(
-                        child: getSimpleText(
-                            "奖励￥${priceFormat(data["reward"] ?? 0, savePoint: 0)}",
-                            10,
-                            AppColor.theme),
+                        child: getSimpleText("奖励￥${priceFormat(data["reward"] ?? 0, savePoint: 0)}", 10, AppColor.theme),
                       ),
                     )
                   ], width: 345 - (15 + 40 + 12) * 2),
                   ghb(16),
-                  index != controller.cardList.length - 1
-                      ? gline(315, 1)
-                      : ghb(0)
+                  index != controller.cardList.length - 1 ? gline(315, 1) : ghb(0)
                 ],
               ),
             );

@@ -34,8 +34,16 @@ class AfterSalePage extends GetView<AfterSalePageController> {
               child: Column(
                 children: List.generate(2, (index) {
                   List data = [
-                    {"title": "我要退款（无需退货）", "subtitle": "没收到货，或与卖家协商后只退款不退货", "iconImg": "business/sale/icon_refund_speed"},
-                    {"title": "我要退款退货", "subtitle": "已收到货，需要退还货物", "iconImg": "business/sale/icon_return_goods"}
+                    {
+                      "title": "我要退款（无需退货）",
+                      "subtitle": "没收到货，或与卖家协商后只退款不退货",
+                      "iconImg": "business/sale/icon_refund_speed"
+                    },
+                    {
+                      "title": "我要退款退货",
+                      "subtitle": "已收到货，需要退还货物",
+                      "iconImg": "business/sale/icon_return_goods"
+                    }
                   ];
                   return SizedBox(
                     child: AfterSaleItem(data[index], index),
@@ -69,8 +77,12 @@ class AfterSalePage extends GetView<AfterSalePageController> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        getSimpleText(item['title'], 14, const Color(0xFF565B66), textHeight: 1.1),
-                        getSimpleText(item['subtitle'], 12, const Color(0xFF565B66), textHeight: 1.1),
+                        getSimpleText(
+                            item['title'], 14, const Color(0xFF565B66),
+                            textHeight: 1.1),
+                        getSimpleText(
+                            item['subtitle'], 12, const Color(0xFF565B66),
+                            textHeight: 1.1),
                       ],
                     ),
                     Image.asset(

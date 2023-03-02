@@ -1,4 +1,6 @@
+import 'package:cxhighversion2/business/finance/finance_space_order_list.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:flutter/material.dart';
@@ -75,8 +77,68 @@ class FinanceSpaceMineController extends GetxController {
     }
   }
 
+  Map mineData = {};
+
   loadData() {
-    update();
+    simpleRequest(
+      url: Urls.userCreditCardMYList,
+      params: {
+        "typeTime": timeFilterList[timeFilterIdx]["id"],
+      },
+      success: (success, json) {
+        if (success) {
+          mineData = json["data"] ?? {};
+          cardOrderStatus = cardOrderStatus
+              .asMap()
+              .entries
+              .map((e) => {
+                    "name": e.key == 0
+                        ? "待确认"
+                        : e.key == 1
+                            ? "待再查"
+                            : e.key == 2
+                                ? "待激活"
+                                : e.key == 3
+                                    ? "已完成"
+                                    : "未通过",
+                    "num": e.key == 0
+                        ? mineData["num1"] ?? 0
+                        : e.key == 1
+                            ? mineData["num2"] ?? 0
+                            : e.key == 2
+                                ? mineData["num3"] ?? 0
+                                : e.key == 3
+                                    ? mineData["num4"] ?? 0
+                                    : mineData["num5"] ?? 0,
+                  })
+              .toList();
+          loansOrderStatus = loansOrderStatus
+              .asMap()
+              .entries
+              .map((e) => {
+                    "name": e.key == 0
+                        ? "待确认"
+                        : e.key == 1
+                            ? "已完成"
+                            : "未通过",
+                    "num": e.key == 0
+                        ? mineData["num6"] ?? 0
+                        : e.key == 1
+                            ? mineData["num7"] ?? 0
+                            : mineData["num8"] ?? 0,
+                  })
+              .toList();
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  @override
+  void onInit() {
+    loadData();
+    super.onInit();
   }
 }
 
@@ -120,31 +182,60 @@ class FinanceSpaceMine extends StatelessWidget {
                       top: 23.w,
                       left: 23.w,
                       child: Align(
-                        alignment: Alignment.topLeft,
-                        child: sbClm([
-                          centClm([
-                            getSimpleText("推广收益(元)", 14, Colors.white),
-                            ghb(5),
-                            getSimpleText("465.20", 30, Colors.white,
-                                isBold: true),
-                          ], crossAxisAlignment: CrossAxisAlignment.start),
-                          centRow([
-                            getSimpleText(
-                                "已结算(元)", 12, Colors.white.withOpacity(0.7)),
-                            gwb(4),
-                            getSimpleText(
-                                "342.00", 14, Colors.white.withOpacity(0.7)),
-                            gwb(28),
-                            getSimpleText(
-                                "待结算(元)", 12, Colors.white.withOpacity(0.7)),
-                            gwb(4),
-                            getSimpleText(
-                                "0.00", 14, Colors.white.withOpacity(0.7)),
-                          ]),
-                        ],
-                            height: 91,
-                            crossAxisAlignment: CrossAxisAlignment.start),
-                      ))
+                          alignment: Alignment.topLeft,
+                          child: GetBuilder<FinanceSpaceMineController>(
+                            init: FinanceSpaceMineController(),
+                            builder: (controller) {
+                              return sbClm([
+                                centClm([
+                                  getSimpleText(
+                                      "推广收益(${(controller.mineData["amt1"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                      14,
+                                      Colors.white),
+                                  ghb(5),
+                                  getSimpleText(
+                                      priceFormat(
+                                          controller.mineData["amt1"] ?? 0,
+                                          tenThousand: true,
+                                          tenThousandUnit: false),
+                                      30,
+                                      Colors.white,
+                                      isBold: true),
+                                ],
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start),
+                                centRow([
+                                  getSimpleText(
+                                      "已结算(${(controller.mineData["amt2"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                      12,
+                                      Colors.white.withOpacity(0.7)),
+                                  gwb(4),
+                                  getSimpleText(
+                                      priceFormat(
+                                          controller.mineData["amt2"] ?? 0,
+                                          tenThousand: true,
+                                          tenThousandUnit: false),
+                                      14,
+                                      Colors.white.withOpacity(0.7)),
+                                  gwb(28),
+                                  getSimpleText(
+                                      "待结算(${(controller.mineData["amt3"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                      12,
+                                      Colors.white.withOpacity(0.7)),
+                                  gwb(4),
+                                  getSimpleText(
+                                      priceFormat(
+                                          controller.mineData["amt3"] ?? 0,
+                                          tenThousand: true,
+                                          tenThousandUnit: false),
+                                      14,
+                                      Colors.white.withOpacity(0.7)),
+                                ]),
+                              ],
+                                  height: 91,
+                                  crossAxisAlignment: CrossAxisAlignment.start);
+                            },
+                          )))
                 ]),
               ),
             ),
@@ -169,7 +260,14 @@ class FinanceSpaceMine extends StatelessWidget {
       child: Column(
         children: [
           ghb(15),
-          cellTitle("申卡订单"),
+          cellTitle(
+            "申卡订单",
+            onPressed: () {
+              push(const FinanceSpaceOrderList(), null,
+                  binding: FinanceSpaceOrderListBinding(),
+                  arguments: {"type": 0, "index": 0});
+            },
+          ),
           ghb(12),
           GetBuilder<FinanceSpaceMineController>(
             init: FinanceSpaceMineController(),
@@ -178,7 +276,11 @@ class FinanceSpaceMine extends StatelessWidget {
                   List.generate(controller.cardOrderStatus.length, (index) {
                     Map e = controller.cardOrderStatus[index];
                     return CustomButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        push(const FinanceSpaceOrderList(), null,
+                            binding: FinanceSpaceOrderListBinding(),
+                            arguments: {"type": 0, "index": index});
+                      },
                       child: SizedBox(
                         height: 60.w,
                         width: 345.w / controller.cardOrderStatus.length,
@@ -311,26 +413,47 @@ class FinanceSpaceMine extends StatelessWidget {
             )),
           ),
           ...List.generate(2, (index) {
-            return sbhRow([
-              centClm([
-                getWidthText(index == 0 ? "我的推广(人)" : "累计团队核卡(张)", 12,
-                    AppColor.text2, 345 / 2 - 0.5, 1,
-                    alignment: Alignment.center),
-                ghb(12),
-                getSimpleText(index == 0 ? "724" : "106", 24, AppColor.text2,
-                    isBold: true),
-              ]),
-              gline(1, 40),
-              centClm([
-                getWidthText(index == 0 ? "团队推广(人)" : "累计团队业绩(元)", 12,
-                    AppColor.text2, 345 / 2 - 0.5, 1,
-                    alignment: Alignment.center),
-                ghb(12),
-                getSimpleText(
-                    index == 0 ? "698" : "6429.00", 24, AppColor.text2,
-                    isBold: true),
-              ]),
-            ], width: 345, height: 88.5);
+            return GetBuilder<FinanceSpaceMineController>(
+                builder: (controller) {
+              return sbhRow([
+                centClm([
+                  getWidthText(index == 0 ? "我的推广(人)" : "累计团队核卡(张)", 12,
+                      AppColor.text2, 345 / 2 - 0.5, 1,
+                      alignment: Alignment.center),
+                  ghb(12),
+                  getSimpleText(
+                      index == 0
+                          ? "${controller.mineData["myNum"] ?? 0}"
+                          : "${controller.mineData["teamCheckNum"] ?? 0}",
+                      24,
+                      AppColor.text2,
+                      isBold: true),
+                ]),
+                gline(1, 40),
+                centClm([
+                  getWidthText(
+                      index == 0
+                          ? "团队推广(人)"
+                          : "累计团队业绩(${(controller.mineData["teamCheckAmt"] ?? 0) >= 10000 ? "万" : ""}元)",
+                      12,
+                      AppColor.text2,
+                      345 / 2 - 0.5,
+                      1,
+                      alignment: Alignment.center),
+                  ghb(12),
+                  getSimpleText(
+                      index == 0
+                          ? "${controller.mineData["teamNum"] ?? 0}"
+                          : priceFormat(
+                              controller.mineData["teamCheckAmt"] ?? 0,
+                              tenThousand: true,
+                              tenThousandUnit: false),
+                      24,
+                      AppColor.text2,
+                      isBold: true),
+                ]),
+              ], width: 345, height: 88.5);
+            });
           }),
           ghb(20),
         ],
@@ -346,7 +469,14 @@ class FinanceSpaceMine extends StatelessWidget {
       child: Column(
         children: [
           ghb(15),
-          cellTitle("贷款订单"),
+          cellTitle(
+            "贷款订单",
+            onPressed: () {
+              push(const FinanceSpaceOrderList(), null,
+                  binding: FinanceSpaceOrderListBinding(),
+                  arguments: {"type": 1, "index": 0});
+            },
+          ),
           ghb(12),
           GetBuilder<FinanceSpaceMineController>(
             init: FinanceSpaceMineController(),
@@ -355,7 +485,11 @@ class FinanceSpaceMine extends StatelessWidget {
                   List.generate(controller.loansOrderStatus.length, (index) {
                     Map e = controller.cardOrderStatus[index];
                     return CustomButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        push(const FinanceSpaceOrderList(), null,
+                            binding: FinanceSpaceOrderListBinding(),
+                            arguments: {"type": 1, "index": index});
+                      },
                       child: SizedBox(
                         height: 60.w,
                         width: 300.w / controller.loansOrderStatus.length,

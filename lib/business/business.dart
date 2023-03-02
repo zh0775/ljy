@@ -1,4 +1,11 @@
+import 'package:cxhighversion2/business/finance/finance_space.dart';
+import 'package:cxhighversion2/business/finance/finance_space_card_apply.dart';
+import 'package:cxhighversion2/business/finance/finance_space_card_list.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/home/businessSchool/business_school_list_page.dart';
+import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -7,36 +14,33 @@ import 'package:cxhighversion2/business/pointsMall/points_mall_page.dart';
 import 'package:get/get.dart';
 
 class BusinessController extends GetxController {
-  List cardList = [
-    {
-      "id": 0,
-      "name": "招商银行全球支付信用卡",
-      "subTitle": "初审+首刷+M4补贴",
-      "reward": 58.0,
-      "img": "business/tmp_card",
-    },
-    {
-      "id": 0,
-      "name": "建行龙卡尊享白金信用卡",
-      "subTitle": "初审+首刷+M4补贴",
-      "reward": 68.0,
-      "img": "business/tmp_card",
-    },
-    {
-      "id": 0,
-      "name": "农业银行金穗信用卡",
-      "subTitle": "初审+首刷+M4补贴",
-      "reward": 78.0,
-      "img": "business/tmp_card",
-    },
-    {
-      "id": 0,
-      "name": "建行龙卡尊享白金信用卡",
-      "subTitle": "初审+首刷+M4补贴",
-      "reward": 88.0,
-      "img": "business/tmp_card",
-    }
-  ];
+  List cardList = [];
+
+  loadCardList() {
+    simpleRequest(
+        url: Urls.userCreditCardBankList,
+        params: {
+          "pageNo": 1,
+          "pageSize": 4,
+        },
+        success: (success, json) {
+          if (success) {
+            Map data = json["data"] ?? {};
+            cardList = data["data"] ?? [];
+            update();
+          }
+        },
+        after: () {
+          // isLoading = false;
+        },
+        useCache: true);
+  }
+
+  @override
+  void onInit() {
+    loadCardList();
+    super.onInit();
+  }
 }
 
 class Business extends GetView<BusinessController> {
@@ -87,7 +91,16 @@ class Business extends GetView<BusinessController> {
                   }
 
                   return CustomButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (index == 0) {
+                        push(const FinanceSpace(), context,
+                            binding: FinanceSpaceBinding());
+                      } else if (index == 4) {
+                        push(const BusinessSchoolListPage(), context,
+                            binding: BusinessSchoolListPageBinding(),
+                            arguments: {"type": 1});
+                      }
+                    },
                     child: centClm([
                       Image.asset(
                         assetsName(img),
@@ -106,7 +119,10 @@ class Business extends GetView<BusinessController> {
             ], width: 345),
             ghb(15),
             CustomButton(
-              onPressed: () {},
+              onPressed: () {
+                push(const FinanceSpaceCardList(), null,
+                    binding: FinanceSpaceCardListBinding());
+              },
               child: Image.asset(
                 assetsName("business/bg_apply_card"),
                 width: 345.w,
@@ -127,6 +143,9 @@ class Business extends GetView<BusinessController> {
       onPressed: () {
         if (index == 0) {
           push(const PointsMallPage(), null, binding: PointsMallPageBinding());
+        } else {
+          push(const IntegralRepurchase(), null,
+              binding: IntegralRepurchaseBinding());
         }
       },
       child: Container(
@@ -137,9 +156,11 @@ class Business extends GetView<BusinessController> {
           borderRadius: BorderRadius.circular(8.w),
         ),
         child: centClm([
-          getSimpleText(index == 0 ? "积分商城" : "特惠复购", 15, AppColor.text, isBold: true),
+          getSimpleText(index == 0 ? "积分商城" : "特惠复购", 15, AppColor.text,
+              isBold: true),
           ghb(2),
-          getSimpleText(index == 0 ? "超值积分换好礼" : "限时积分低至7.5折", 12, AppColor.text3),
+          getSimpleText(
+              index == 0 ? "超值积分换好礼" : "限时积分低至7.5折", 12, AppColor.text3),
           ghb(8),
           Image.asset(
             assetsName("business/icon_${index == 0 ? "jfsc" : "thfg"}"),
@@ -154,19 +175,26 @@ class Business extends GetView<BusinessController> {
   Widget cardList() {
     return Container(
       width: 345.w,
-      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
+      decoration: BoxDecoration(
+          color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
       child: Column(
         children: [
           sbhRow([
             nSimpleText("热门信用卡", 16, isBold: true),
-            centRow([
-              nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
-              Image.asset(
-                assetsName("mine/icon_right_arrow"),
-                width: 12.w,
-                fit: BoxFit.fitWidth,
-              )
-            ])
+            CustomButton(
+              onPressed: () {
+                push(const FinanceSpaceCardList(), null,
+                    binding: FinanceSpaceCardListBinding());
+              },
+              child: centRow([
+                nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
+                Image.asset(
+                  assetsName("mine/icon_right_arrow"),
+                  width: 12.w,
+                  fit: BoxFit.fitWidth,
+                )
+              ]),
+            )
           ], width: 345 - 15.5 * 2, height: 45.5),
           ...List.generate(controller.cardList.length, (index) {
             Map data = controller.cardList[index];
@@ -177,24 +205,36 @@ class Business extends GetView<BusinessController> {
                   ghb(index == 0 ? 8 : 17),
                   sbRow([
                     centRow([
-                      Image.asset(
-                        assetsName(data["img"] ?? ""),
+                      CustomNetworkImage(
+                        src: AppDefault().imageUrl + (data["images"] ?? ""),
                         width: 40.w,
                         fit: BoxFit.fitWidth,
                       ),
                       gwb(12),
                       centClm([
-                        nSimpleText(data["name"] ?? "", 15, isBold: true),
+                        nSimpleText(data["title"] ?? "", 15, isBold: true),
                         ghb(5),
-                        getSimpleText(data["subTitle"] ?? "", 12, AppColor.text2),
+                        getSimpleText(
+                            data["projectName"] ?? "", 12, AppColor.text2),
                       ], crossAxisAlignment: CrossAxisAlignment.start)
                     ]),
-                    Container(
-                      width: 60.w,
-                      height: 30.w,
-                      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(15.w), border: Border.all(width: 0.5.w, color: AppColor.theme)),
-                      child: Center(
-                        child: getSimpleText("申请", 12, AppColor.theme),
+                    CustomButton(
+                      onPressed: () {
+                        push(const FinanceSpaceCardApply(), null,
+                            binding: FinanceSpaceCardApplyBinding(),
+                            arguments: {"data": data});
+                      },
+                      child: Container(
+                        width: 60.w,
+                        height: 30.w,
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(15.w),
+                            border: Border.all(
+                                width: 0.5.w, color: AppColor.theme)),
+                        child: Center(
+                          child: getSimpleText("申请", 12, AppColor.theme),
+                        ),
                       ),
                     )
                   ], width: 345 - 15 * 2),
@@ -203,14 +243,21 @@ class Business extends GetView<BusinessController> {
                     Container(
                       height: 18.w,
                       padding: EdgeInsets.symmetric(horizontal: 6.w),
-                      decoration: BoxDecoration(color: AppColor.theme.withOpacity(0.1), borderRadius: BorderRadius.circular(2.w)),
+                      decoration: BoxDecoration(
+                          color: AppColor.theme.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(2.w)),
                       child: Center(
-                        child: getSimpleText("奖励￥${priceFormat(data["reward"] ?? 0, savePoint: 0)}", 10, AppColor.theme),
+                        child: getSimpleText(
+                            "奖励￥${priceFormat(data["price"] ?? 0, savePoint: 0)}",
+                            10,
+                            AppColor.theme),
                       ),
                     )
                   ], width: 345 - (15 + 40 + 12) * 2),
                   ghb(16),
-                  index != controller.cardList.length - 1 ? gline(315, 1) : ghb(0)
+                  index != controller.cardList.length - 1
+                      ? gline(315, 1)
+                      : ghb(0)
                 ],
               ),
             );

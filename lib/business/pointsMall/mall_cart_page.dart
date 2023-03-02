@@ -16,6 +16,8 @@ class MallCartPageBinding implements Bindings {
 }
 
 class MallCartPageController extends GetxController {
+  final dynamic datas;
+  MallCartPageController({this.datas});
   List MallTypeList = [
     {
       "id": 1,
@@ -26,10 +28,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -53,9 +79,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -69,10 +113,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -96,9 +164,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -112,10 +198,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -139,9 +249,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         },
       ]
@@ -155,10 +283,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -182,9 +334,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -198,10 +368,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -225,9 +419,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -241,10 +453,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -268,9 +504,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -284,10 +538,34 @@ class MallCartPageController extends GetxController {
           "pid": 1,
           "title": "拔草推荐",
           "children": [
-            {"id": 3, "pid": 2, "title": "明星同款面膜", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"},
-            {"id": 4, "pid": 2, "title": "显白口红", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"},
-            {"id": 5, "pid": 2, "title": "小美盒", "imgUrl": "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"},
-            {"id": 6, "pid": 2, "title": "新品速递", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"}
+            {
+              "id": 3,
+              "pid": 2,
+              "title": "明星同款面膜",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
+            },
+            {
+              "id": 4,
+              "pid": 2,
+              "title": "显白口红",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
+            },
+            {
+              "id": 5,
+              "pid": 2,
+              "title": "小美盒",
+              "imgUrl":
+                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
+            },
+            {
+              "id": 6,
+              "pid": 2,
+              "title": "新品速递",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
+            }
           ]
         },
         {
@@ -311,9 +589,27 @@ class MallCartPageController extends GetxController {
           "pid": 11,
           "title": "热门品牌",
           "children": [
-            {"id": 13, "pid": 12, "title": "小米", "imgUrl": "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"},
-            {"id": 14, "pid": 12, "title": "华为", "imgUrl": "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"},
-            {"id": 15, "pid": 12, "title": "Apple", "imgUrl": "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"},
+            {
+              "id": 13,
+              "pid": 12,
+              "title": "小米",
+              "imgUrl":
+                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
+            },
+            {
+              "id": 14,
+              "pid": 12,
+              "title": "华为",
+              "imgUrl":
+                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
+            },
+            {
+              "id": 15,
+              "pid": 12,
+              "title": "Apple",
+              "imgUrl":
+                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
+            },
           ]
         }
       ]
@@ -330,15 +626,15 @@ class MallCartPageController extends GetxController {
   }
 }
 
-class MallCartPage extends GetView<MallCartPageController> {
+class MallCartPage extends StatelessWidget {
   const MallCartPage({super.key});
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getDefaultAppBar(
         context,
         "分类",
-        action: [],
       ),
       body: Stack(
         children: [
@@ -353,7 +649,7 @@ class MallCartPage extends GetView<MallCartPageController> {
             right: 0,
             child: Column(
               children: [
-                MallCartSearch(),
+                mallCartSearch(),
               ],
             ),
           ),
@@ -367,10 +663,10 @@ class MallCartPage extends GetView<MallCartPageController> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SingleChildScrollView(
-                  child: CategoryTab(),
+                  child: categoryTab(),
                 ),
                 SingleChildScrollView(
-                  child: CategoryContent(),
+                  child: categoryContent(),
                 )
               ],
             ),
@@ -384,35 +680,13 @@ class MallCartPage extends GetView<MallCartPageController> {
           // Positioned(left: 90.w, top: 54.5.w, child: CategoryContent())
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: '分类'),
-          BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: '购物车'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
-        ],
-        currentIndex: 1,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.amber[800],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              push(const PointsMallPage(), null, binding: PointsMallPageBinding());
-              break;
-            case 1:
-              push(const MallCartPage(), null, binding: MallCartPageBinding());
-              break;
-            default:
-          }
-        },
-      ),
     );
   }
 
   // 搜索
-  Widget MallCartSearch() {
+  Widget mallCartSearch() {
     return Container(
-      decoration: BoxDecoration(color: Color(0xFFFFFFFF)),
+      color: Colors.white,
       width: 375.w,
       child: Column(children: [
         ghb(5),
@@ -422,7 +696,7 @@ class MallCartPage extends GetView<MallCartPageController> {
             width: 345.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: Color(0xFFF5F5F7),
+              color: AppColor.pageBackgroundColor,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Center(
@@ -443,41 +717,54 @@ class MallCartPage extends GetView<MallCartPageController> {
   }
 
   // 左侧分类
-  Widget CategoryTab() {
-    return Container(
-      width: 90.w,
-      child: Column(
-        children: List.generate(controller.MallTypeList.length, (index) {
-          Map data = controller.MallTypeList[index];
+  Widget categoryTab() {
+    return GetBuilder<MallCartPageController>(
+      init: MallCartPageController(),
+      initState: (_) {},
+      builder: (controller) {
+        return SizedBox(
+          width: 90.w,
+          child: Column(
+            children: List.generate(controller.MallTypeList.length, (index) {
+              Map data = controller.MallTypeList[index];
 
-          return GetBuilder<MallCartPageController>(
-            builder: (_) {
-              return GestureDetector(onTap: () {
-                controller.currentIndex = index;
-              }, child: GetX<MallCartPageController>(
-                builder: (controller) {
-                  return Container(
-                    decoration: BoxDecoration(color: Color(controller.currentIndex == index ? 0xFFFFFFFF : 0xFFF5F5F7)),
-                    alignment: Alignment.center,
-                    width: 90.w,
-                    height: 50.w,
-                    child: Text(
-                      data['title'],
-                      style: TextStyle(fontSize: 15, color: Color(controller.currentIndex == index ? 0xFFFF6231 : 0xFF333333)),
-                    ),
-                  );
+              return GetBuilder<MallCartPageController>(
+                builder: (_) {
+                  return GestureDetector(onTap: () {
+                    controller.currentIndex = index;
+                  }, child: GetX<MallCartPageController>(
+                    builder: (controller) {
+                      return Container(
+                        decoration: BoxDecoration(
+                            color: Color(controller.currentIndex == index
+                                ? 0xFFFFFFFF
+                                : 0xFFF5F5F7)),
+                        alignment: Alignment.center,
+                        width: 90.w,
+                        height: 50.w,
+                        child: Text(
+                          data['title'],
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Color(controller.currentIndex == index
+                                  ? 0xFFFF6231
+                                  : 0xFF333333)),
+                        ),
+                      );
+                    },
+                  ));
                 },
-              ));
-            },
-          );
-        }),
-      ),
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 
   // 分类区域
 
-  Widget CategoryContent() {
+  Widget categoryContent() {
     return Container(
       width: 285.w,
       padding: EdgeInsets.all(8.w),
@@ -486,10 +773,13 @@ class MallCartPage extends GetView<MallCartPageController> {
           GetX<MallCartPageController>(
         init: MallCartPageController(),
         initState: (_) {},
-        builder: (_) {
+        builder: (controller) {
           return Column(
-            children: List.generate(controller.MallTypeList[controller.currentIndex]['children'].length, (level2Index) {
-              Map _level2Item = controller.MallTypeList[controller.currentIndex]['children'][level2Index];
+            children: List.generate(
+                controller.MallTypeList[controller.currentIndex]['children']
+                    .length, (level2Index) {
+              Map _level2Item = controller.MallTypeList[controller.currentIndex]
+                  ['children'][level2Index];
               List _level3data = _level2Item['children'];
               return Column(
                 children: [
@@ -503,7 +793,8 @@ class MallCartPage extends GetView<MallCartPageController> {
                     child: Wrap(
                       spacing: 10.w,
                       runSpacing: 20.w,
-                      children: List.generate(_level3data.length, (level3Index) {
+                      children:
+                          List.generate(_level3data.length, (level3Index) {
                         Map level3item = _level3data[level3Index];
                         return Container(
                           child: Column(children: [

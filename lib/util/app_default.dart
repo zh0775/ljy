@@ -5,7 +5,6 @@ import 'dart:math' as math;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cxhighversion2/component/app_scan_barcode.dart';
-import 'package:cxhighversion2/component/custom_buildcontext_extension.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_check_photo.dart';
 import 'package:cxhighversion2/component/custom_dotted_line_painter.dart';
@@ -23,7 +22,6 @@ import 'package:cxhighversion2/mine/mineStoreOrder/mine_store_order_list.dart';
 import 'package:cxhighversion2/mine/mine_verify_identity.dart';
 import 'package:cxhighversion2/product/product_pay_result_page.dart';
 import 'package:cxhighversion2/service/http.dart';
-import 'package:cxhighversion2/service/http_config.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/EventBus.dart';
 import 'package:cxhighversion2/util/device_util.dart';
@@ -156,6 +154,8 @@ class AppDefault {
 
 class AppColor {
   static Color theme = const Color(0xFF2866ff);
+  static Color themeOrange = const Color(0xFFFF6231);
+
   static Color theme2 = const Color(0xFF06dfc1);
   static Color theme3 = const Color(0xFFff8629);
   static Color text = const Color(0xFF283f65);

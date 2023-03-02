@@ -9,11 +9,11 @@ import audio_session
 import just_audio
 import mobile_scanner
 import package_info_plus_macos
-import path_provider_foundation
+import path_provider_macos
 import photo_manager
 import platform_device_id
 import platform_device_id_macos
-import shared_preferences_foundation
+import shared_preferences_macos
 import sqflite
 import store_plugin
 import url_launcher_macos

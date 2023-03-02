@@ -618,4 +618,31 @@ class Urls {
 
   //积分项目列表
   static const userIntegralProjectList = "/api/Draw/User_IntegralProjectList";
+
+  //金融区
+  //信用卡银行资源
+  static const userCreditCardBankList =
+      "/api/CreditCard/User_CreditCardBankList";
+
+  //贷款资源
+  static const userCreditCardLoansList =
+      "/api/CreditCard/User_CreditCardLoansList";
+
+  //金融区-我的
+  static const userCreditCardMYList = "/api/CreditCard/User_CreditCardMYList";
+
+  //申请信用卡
+  static const userCreditCardAdd = "/api/CreditCard/UserCreditCardAdd";
+
+  //申请贷款
+  static const userCreditCardLoansAdd =
+      "/api/CreditCard/UserCreditCardLoansAdd";
+
+  //申请信用卡订单
+  static const userCreditCardOrderList =
+      "/api/CreditCard/User_CreditCardOrderList";
+
+  //申请贷款订单
+  static const userCreditCardLoansOrderList =
+      "/api/CreditCard/User_CreditCardLoansOrderList";
 }

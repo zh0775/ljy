@@ -1,3 +1,4 @@
+import 'package:cxhighversion2/business/pointsMall/shopping_cart_page.dart';
 import 'package:flutter/material.dart';
 
 import 'package:cxhighversion2/component/custom_button.dart';
@@ -18,6 +19,10 @@ class PointsMallPageBinding implements Bindings {
 }
 
 class PointsMallPageController extends GetxController {
+  final _tabIdx = 0.obs;
+  int get tabIdx => _tabIdx.value;
+  set tabIdx(v) => _tabIdx.value = v;
+
   List<BannerData> banner = <BannerData>[
     BannerData(
         imagePath:
@@ -81,10 +86,68 @@ class PointsMallPage extends GetView<PointsMallPageController> {
   Widget build(BuildContext context) {
     return Scaffold(
       // backgroundColor: Color(0xFFFFFFFF),
+
+      body: GetX<PointsMallPageController>(
+        builder: (_) {
+          return IndexedStack(
+            index: controller.tabIdx,
+            children: [
+              homePage(context),
+              const MallCartPage(),
+              const ShoppingCartPage(),
+              const UserMallPage(),
+            ],
+          );
+        },
+      ),
+      bottomNavigationBar: GetX<PointsMallPageController>(
+        builder: (_) {
+          return BottomNavigationBar(
+            currentIndex: controller.tabIdx,
+            items: List.generate(
+                4,
+                (index) => BottomNavigationBarItem(
+                    icon: centClm([
+                      Image.asset(
+                        assetsName(
+                            "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
+                        width: 30.w,
+                        fit: BoxFit.fitWidth,
+                      ),
+                    ]),
+                    label: index == 0
+                        ? "首页"
+                        : index == 1
+                            ? "分类"
+                            : index == 2
+                                ? "购物车"
+                                : "我的",
+                    activeIcon: Image.asset(
+                      assetsName(
+                          "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
+                      width: 30.w,
+                      fit: BoxFit.fitWidth,
+                    ))),
+            type: BottomNavigationBarType.fixed,
+            iconSize: 30.w,
+            selectedItemColor: AppColor.themeOrange,
+            unselectedItemColor: AppColor.text3,
+            unselectedFontSize: 10.w,
+            selectedFontSize: 10.w,
+            onTap: (index) {
+              controller.tabIdx = index;
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget homePage(BuildContext context) {
+    return Scaffold(
       appBar: getDefaultAppBar(
         context,
         "积分商城",
-        action: [],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
@@ -93,30 +156,6 @@ class PointsMallPage extends GetView<PointsMallPageController> {
           ghb(6),
           RecommendationList(),
         ]),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: '首页'),
-          BottomNavigationBarItem(icon: Icon(Icons.category), label: '分类'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.shopping_cart), label: '购物车'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: '我的'),
-        ],
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.amber[800],
-        onTap: (index) {
-          switch (index) {
-            case 0:
-              break;
-            case 1:
-              push(const MallCartPage(), null, binding: MallCartPageBinding());
-              break;
-            case 3:
-              push(const UserMallPage(), null, binding: UserMallPageBinding());
-              break;
-            default:
-          }
-        },
       ),
     );
   }
@@ -230,7 +269,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
           ),
 
           ghb(15),
-          ProductListView(),
+          productListView(),
           // 产品列表
         ],
       ),
@@ -238,7 +277,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
   }
 
   // 积分列表
-  Widget ProductListView() {
+  Widget productListView() {
     return Container(
       width: 375.w,
       child: Column(
@@ -251,7 +290,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               children: List.generate(controller.productList.length, (index) {
                 Map data = controller.productList[index];
                 return Container(
-                  decoration: BoxDecoration(color: Color(0xFFFFFFFF)),
+                  decoration: BoxDecoration(color: Colors.white),
                   width: (375 - 15 * 2 - 10).w / 2 - 0.1,
 
                   // 167.5.w,
@@ -276,12 +315,12 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                 AppColor.textBlack, 149.w, 2,
                                 textAlign: TextAlign.left,
                                 alignment: Alignment.topLeft),
-                            getSimpleText("${data['integral']}积分" ?? "0积分", 18,
+                            getSimpleText("${data['integral'] ?? 0}积分", 18,
                                 AppColor.theme3,
                                 isBold: true, textAlign: TextAlign.left),
                             sbhRow([
-                              getSimpleText("已兑${data['exchange']}个" ?? "已兑0个",
-                                  12, Color(0xFF999999),
+                              getSimpleText("已兑${data['exchange'] ?? 0}个", 12,
+                                  AppColor.textGrey5,
                                   textAlign: TextAlign.left),
                               centRow([
                                 GetBuilder<PointsMallPageController>(

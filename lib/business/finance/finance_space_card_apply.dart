@@ -1,6 +1,12 @@
+import 'package:cxhighversion2/business/finance/finance_space.dart';
+import 'package:cxhighversion2/business/finance/finance_space_card_list.dart';
+import 'package:cxhighversion2/business/finance/finance_space_order_list.dart';
+import 'package:cxhighversion2/component/app_success_result.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
+import 'package:cxhighversion2/util/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -21,10 +27,77 @@ class FinanceSpaceCardApplyController extends GetxController {
   final noInputCtrl = TextEditingController();
   final phoneInputCtrl = TextEditingController();
 
+  final _btnEnable = true.obs;
+  bool get btnEnable => _btnEnable.value;
+  set btnEnable(v) => _btnEnable.value = v;
+
   String applyInfoContent =
       "1.均不允许收集客户身份信息，购买复购积分只能用于联聚商城区以及联聚拓客合作  2.考核面签户成本，面签户成本均为250元  ";
 
-  confirmAction() {}
+  confirmAction() {
+    if (nameInputCtrl.text.isEmpty) {
+      ShowToast.normal("请填写个人姓名");
+      return;
+    }
+    if (noInputCtrl.text.isEmpty) {
+      ShowToast.normal("请填写身份证号");
+      return;
+    }
+    if (phoneInputCtrl.text.isEmpty) {
+      ShowToast.normal("请填写手机号");
+      return;
+    }
+    btnEnable = false;
+    simpleRequest(
+      url: type == 0 ? Urls.userCreditCardAdd : Urls.userCreditCardLoansAdd,
+      params: {
+        "merName": nameInputCtrl.text,
+        "merIdentityNo": noInputCtrl.text,
+        "merMobile": phoneInputCtrl.text,
+        "bankCardId": cardData["id"],
+      },
+      success: (success, json) {
+        push(
+            AppSuccessResult(
+              title: "申请结果",
+              success: success,
+              contentTitle: success ? "提交成功" : json["messages"] ?? "提交失败",
+              buttonTitles: const ["查看记录", "返回列表"],
+              backPressed: () {
+                Get.until((route) => route is GetPageRoute
+                    ? route.binding is FinanceSpaceBinding
+                        ? true
+                        : false
+                    : false);
+              },
+              onPressed: (index) {
+                Get.offUntil(
+                    GetPageRoute(
+                        page: () => index == 0
+                            ? const FinanceSpaceOrderList()
+                            : const FinanceSpaceCardList(),
+                        binding: index == 0
+                            ? FinanceSpaceOrderListBinding()
+                            : FinanceSpaceCardListBinding(),
+                        settings: RouteSettings(
+                            arguments: {"type": type},
+                            name: index == 0
+                                ? "FinanceSpaceOrderList"
+                                : "FinanceSpaceCardList")),
+                    (route) => route is GetPageRoute
+                        ? route.binding is FinanceSpaceBinding
+                            ? true
+                            : false
+                        : false);
+              },
+            ),
+            Global.navigatorKey.currentContext!);
+      },
+      after: () {
+        btnEnable = true;
+      },
+    );
+  }
 
   @override
   void onClose() {
@@ -32,6 +105,18 @@ class FinanceSpaceCardApplyController extends GetxController {
     noInputCtrl.dispose();
     phoneInputCtrl.dispose();
     super.onClose();
+  }
+
+  int type = 0;
+  Map cardData = {};
+
+  @override
+  void onInit() {
+    if (datas != null) {
+      type = datas["type"] ?? 0;
+      cardData = datas["data"] ?? {};
+    }
+    super.onInit();
   }
 }
 
@@ -121,15 +206,17 @@ class FinanceSpaceCardApply extends GetView<FinanceSpaceCardApplyController> {
                 ),
               ),
               ghb(30),
-              getSubmitBtn(
-                "立即申请",
-                () {
-                  takeBackKeyboard(context);
-                  controller.confirmAction();
+              GetX<FinanceSpaceCardApplyController>(
+                builder: (_) {
+                  return getSubmitBtn("立即申请", () {
+                    takeBackKeyboard(context);
+                    controller.confirmAction();
+                  },
+                      fontSize: 15,
+                      color: AppColor.theme,
+                      height: 45,
+                      enable: controller.btnEnable);
                 },
-                fontSize: 15,
-                color: AppColor.theme,
-                height: 45,
               ),
               ghb(10),
               getWidthText("*请确认以上信息与申请信息完全一致，填写错误将会导致申请无 法通过，或者无法查询办理进度。", 12,
@@ -167,6 +254,7 @@ class FinanceSpaceCardApply extends GetView<FinanceSpaceCardApplyController> {
             : type == 1
                 ? "请输入身份证号"
                 : "请输入手机号",
+        maxLength: type == 2 ? 11 : null,
         keyboardType: type == 2 ? TextInputType.phone : TextInputType.text,
         style: TextStyle(fontSize: 14.w, color: AppColor.text2),
         placeholderStyle: TextStyle(fontSize: 14.w, color: AppColor.assisText),

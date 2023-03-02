@@ -90,8 +90,9 @@ class BusinessSchoolListPageController extends GetxController {
     Map<String, dynamic> params = {
       "pageNo": pageNos[myLoadIdx],
       "pageSize": pageSizes[myLoadIdx],
-      "classId": listStatus[myLoadIdx]["id"],
+      "classId": listStatus[myLoadIdx]["id"] ?? 0,
     };
+
     // if (searchText != null && searchText.isNotEmpty) {
     //   params["devNo"] = searchText;
     // }
@@ -189,12 +190,20 @@ class BusinessSchoolListPageController extends GetxController {
 
   // List
   bool isFirst = true;
+  // 0: 商学院 1: 金融区相关资讯
+  int type = 0;
 
   @override
   void onInit() {
-    listStatus =
-        (AppDefault().publicHomeData["appHelpRule"] ?? {})["businessSchool"] ??
-            [];
+    type = (datas ?? {})["type"] ?? 0;
+    if (type == 0) {
+      listStatus = (AppDefault().publicHomeData["appHelpRule"] ??
+              {})["businessSchool"] ??
+          [];
+    } else if (type == 1) {
+      listStatus = [{}];
+    }
+
     counts = [];
     pageNos = [];
     pageSizes = [];
@@ -208,6 +217,7 @@ class BusinessSchoolListPageController extends GetxController {
       pullCtrls.add(RefreshController());
     }
     int index = (datas ?? {})["index"] ?? 0;
+
     pageCtrl = PageController(initialPage: index);
     topIndex = index;
 
@@ -237,91 +247,96 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
       child: Scaffold(
         appBar: getDefaultAppBar(
           context,
-          "商学院",
+          controller.type == 0 ? "商学院" : "相关资讯",
         ),
         body: Stack(
           children: [
-            Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 55.w,
-                child: Container(
-                  color: Colors.white,
-                  child: Stack(
-                    children: [
-                      Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          height: 46.w,
-                          child: Row(
-                            children: List.generate(
-                                controller.listStatus.length, (index) {
-                              return CustomButton(
-                                onPressed: () {
-                                  controller.topIndex = index;
-                                },
-                                child: Column(
-                                  children: [
-                                    ghb(20),
-                                    GetX<BusinessSchoolListPageController>(
-                                        builder: (_) {
-                                      return SizedBox(
-                                        width: 375.w /
-                                                controller.listStatus.length -
-                                            0.1.w,
-                                        child: Center(
-                                          child: getSimpleText(
-                                            controller.listStatus[index]
-                                                ["name"],
-                                            15,
-                                            controller.topIndex == index
-                                                ? AppColor.theme
-                                                : AppColor.text2,
-                                            isBold:
-                                                controller.topIndex == index,
-                                          ),
-                                        ),
-                                      );
-                                    }),
-                                  ],
-                                ),
-                              );
-                            }),
-                          )),
-                      GetX<BusinessSchoolListPageController>(
-                        builder: (_) {
-                          return AnimatedPositioned(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                              top: 46.w,
-                              width: 15.w,
-                              left: controller.topIndex *
-                                      (375.w / controller.listStatus.length -
-                                          0.1.w) +
-                                  ((375.w / controller.listStatus.length -
-                                              0.1.w) -
-                                          15.w) /
-                                      2,
-                              height: 9.w,
-                              child: Align(
-                                alignment: Alignment.topCenter,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(0.5.w),
-                                    color: AppColor.theme,
-                                  ),
-                                  height: 2.w,
-                                ),
-                              ));
-                        },
-                      )
-                    ],
-                  ),
-                )),
+            controller.type == 1
+                ? gemp()
+                : Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 55.w,
+                    child: Container(
+                      color: Colors.white,
+                      child: Stack(
+                        children: [
+                          Positioned(
+                              top: 0,
+                              left: 0,
+                              right: 0,
+                              height: 46.w,
+                              child: Row(
+                                children: List.generate(
+                                    controller.listStatus.length, (index) {
+                                  return CustomButton(
+                                    onPressed: () {
+                                      controller.topIndex = index;
+                                    },
+                                    child: Column(
+                                      children: [
+                                        ghb(20),
+                                        GetX<BusinessSchoolListPageController>(
+                                            builder: (_) {
+                                          return SizedBox(
+                                            width: 375.w /
+                                                    controller
+                                                        .listStatus.length -
+                                                0.1.w,
+                                            child: Center(
+                                              child: getSimpleText(
+                                                controller.listStatus[index]
+                                                    ["name"],
+                                                15,
+                                                controller.topIndex == index
+                                                    ? AppColor.theme
+                                                    : AppColor.text2,
+                                                isBold: controller.topIndex ==
+                                                    index,
+                                              ),
+                                            ),
+                                          );
+                                        }),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              )),
+                          GetX<BusinessSchoolListPageController>(
+                            builder: (_) {
+                              return AnimatedPositioned(
+                                  duration: const Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                  top: 46.w,
+                                  width: 15.w,
+                                  left: controller.topIndex *
+                                          (375.w /
+                                                  controller.listStatus.length -
+                                              0.1.w) +
+                                      ((375.w / controller.listStatus.length -
+                                                  0.1.w) -
+                                              15.w) /
+                                          2,
+                                  height: 9.w,
+                                  child: Align(
+                                    alignment: Alignment.topCenter,
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(0.5.w),
+                                        color: AppColor.theme,
+                                      ),
+                                      height: 2.w,
+                                    ),
+                                  ));
+                            },
+                          )
+                        ],
+                      ),
+                    )),
             Positioned.fill(
-                top: 55.w,
+                top: controller.type == 1 ? 0 : 55.w,
                 child: PageView.builder(
                   controller: controller.pageCtrl,
                   itemCount: controller.dataLists.length,

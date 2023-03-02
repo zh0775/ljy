@@ -421,7 +421,7 @@ class _CustomPagePosition extends ScrollPositionWithSingleContext
 
   @override
   void saveScrollOffset() {
-    PageStorage.of(context.storageContext)?.writeState(context.storageContext,
+    PageStorage.of(context.storageContext).writeState(context.storageContext,
         _cachedPage ?? getPageFromPixels(pixels, viewportDimension));
   }
 
@@ -429,7 +429,7 @@ class _CustomPagePosition extends ScrollPositionWithSingleContext
   void restoreScrollOffset() {
     if (!hasPixels) {
       final double? value = PageStorage.of(context.storageContext)
-          ?.readState(context.storageContext) as double?;
+          .readState(context.storageContext) as double?;
       if (value != null) _pageToUseOnStartup = value;
     }
   }

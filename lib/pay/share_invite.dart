@@ -6,7 +6,6 @@ import 'package:cxhighversion2/component/app_wechat_manager.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_dotted_line_painter.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
-import 'package:cxhighversion2/service/http_config.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -309,7 +308,6 @@ class ShareInvite extends GetView<ShareInviteController> {
         Uint8List imageBytes = await ScreenshotController().captureFromWidget(
             sharePage(controller.pageIndex, shot: true),
             delay: const Duration(milliseconds: 100),
-            borderRadius: BorderRadius.circular(0),
             context: context);
 
         if (idx == 0) {
@@ -544,7 +542,6 @@ class ShareInvite extends GetView<ShareInviteController> {
       ///
       ///retry untill capture is successfull
       ///
-
     } while (isDirty && retryCounter >= 0);
     try {
       /// Dispose All widgets

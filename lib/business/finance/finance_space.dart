@@ -2,7 +2,6 @@ import 'package:cxhighversion2/business/finance/finance_space_home.dart';
 import 'package:cxhighversion2/business/finance/finance_space_mine.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/util/app_default.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';

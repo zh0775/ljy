@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cxhighversion2/component/custom_dropdown_view.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
@@ -119,10 +121,10 @@ class StatisticsUserManageController extends GetxController {
     } else if (userType == 3) {
       if (index == 0) {
         ztFilterIdx = clickIdx;
-        realZtFilterIdx = sfFilterIdx;
+        realZtFilterIdx = ztFilterIdx;
       } else {
         jxFilterIdx = clickIdx;
-        realJxFilterIdx = ztFilterIdx;
+        realJxFilterIdx = jxFilterIdx;
       }
     }
     showFilter(index);
@@ -223,6 +225,9 @@ class StatisticsUserManageController extends GetxController {
       case 2:
         url = Urls.userTeamByLeaderList;
         break;
+      case 3:
+        url = Urls.userMerchantDetail;
+        break;
     }
     Map<String, dynamic> params = {
       "pageSize": pageSize,
@@ -230,7 +235,11 @@ class StatisticsUserManageController extends GetxController {
     };
 
     if (searchStr != null && searchStr.isNotEmpty) {
-      params["userInfo"] = searchStr;
+      if (userType == 3) {
+        params["tmName"] = searchStr;
+      } else {
+        params["userInfo"] = searchStr;
+      }
     }
     if (userType == 0) {
       params["uFlag"] =
@@ -241,6 +250,14 @@ class StatisticsUserManageController extends GetxController {
       params["levelType"] = userType == 2 ? 1 : 2;
       params["typeTime"] = timeFilterList[timeFilterIdx]["id"];
       params["timeSort"] = isRegistDesc ? 0 : 1;
+    } else if (userType == 3) {
+      params["tmInTime"] = isRegistDesc ? 1 : 0;
+      params["status"] =
+          ztFilterDatas[realZtFilterIdx < 0 ? 0 : realZtFilterIdx]["id"];
+      if (realJxFilterIdx > 0) {
+        params["tcId"] =
+            jxFilterDatas[realJxFilterIdx < 0 ? 0 : realJxFilterIdx]["id"];
+      }
     }
 
     simpleRequest(
@@ -315,6 +332,30 @@ class StatisticsUserManageController extends GetxController {
         {"id": 1, "name": "无效"},
         {"id": 2, "name": "有效"},
       ];
+    } else if (userType == 3) {
+      ztFilterDatas = [
+        {"id": 0, "name": "全部"},
+        {"id": 1, "name": "未激活"},
+        {"id": 2, "name": "已激活"},
+      ];
+
+      Map publicHomeData = AppDefault().publicHomeData;
+      if (publicHomeData.isNotEmpty &&
+          publicHomeData["terminalMod"].isNotEmpty &&
+          publicHomeData["terminalMod"] is List) {
+        List tmpList = publicHomeData["terminalMod"];
+        jxFilterDatas = [
+          {"id": -1, "name": "全部"}
+        ];
+        List xh = List.generate(tmpList.length, (index) {
+          Map e = tmpList[index];
+          return {
+            "id": e["enumValue"],
+            "name": e["enumName"],
+          };
+        });
+        jxFilterDatas = [...jxFilterDatas, ...xh];
+      }
     }
   }
 
@@ -377,6 +418,10 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                                   fontSize: 12.sp, color: AppColor.assisText),
                               style: TextStyle(
                                   fontSize: 12.sp, color: AppColor.text),
+                              onSubmitted: (p0) {
+                                takeBackKeyboard(context);
+                                controller.searchAction();
+                              },
                             ),
                             CustomButton(
                               onPressed: () {
@@ -1255,18 +1300,18 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
         child: Column(children: [
           gwb(345),
           sbhRow([
-            getSimpleText(data["companyName"] ?? "", 15, AppColor.text2,
+            getSimpleText(data["merchantName"] ?? "", 15, AppColor.text2,
                 isBold: true),
-            centRow([
-              Image.asset(
-                assetsName("machine/icon_machine_count"),
-                width: 18.w,
-                fit: BoxFit.fitWidth,
-              ),
-              gwb(10),
-              getSimpleText("拥有设备 ${data["cMc"] ?? 0}/${data["aMc"] ?? 0}", 12,
-                  AppColor.text2)
-            ])
+            // centRow([
+            //   Image.asset(
+            //     assetsName("machine/icon_machine_count"),
+            //     width: 18.w,
+            //     fit: BoxFit.fitWidth,
+            //   ),
+            //   gwb(10),
+            //   getSimpleText("拥有设备 ${data["cMc"] ?? 0}/${data["aMc"] ?? 0}", 12,
+            //       AppColor.text2)
+            // ])
           ], width: 345 - 15 * 2, height: 55),
           gline(315, 0.5),
           SizedBox(
@@ -1281,8 +1326,8 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                           getSimpleText(
                               priceFormat(
                                   index == 0
-                                      ? data["allJy"] ?? 0
-                                      : data["thisMJy"] ?? 0,
+                                      ? data["totalTxnAmt"] ?? 0
+                                      : data["thisMTxnAmt"] ?? 0,
                                   tenThousand: true,
                                   tenThousandUnit: false),
                               15,
@@ -1291,8 +1336,8 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                           ghb(10),
                           getSimpleText(
                               index == 0
-                                  ? "累计交易(${(data["allJy"] ?? 0) > 10000.0 ? "万" : ""}元)"
-                                  : "本月交易(${(data["thisMJy"] ?? 0) > 10000.0 ? "万" : ""}元)",
+                                  ? "累计交易(${(data["totalTxnAmt"] ?? 0) > 10000.0 ? "万" : ""}元)"
+                                  : "本月交易(${(data["thisMTxnAmt"] ?? 0) > 10000.0 ? "万" : ""}元)",
                               12,
                               AppColor.text3)
                         ]),
@@ -1301,62 +1346,97 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
             ),
           ),
           ghb(10),
-          ...List.generate(4, (index) {
+          ...List.generate(2, (index) {
             String t1 = "";
             String t2 = "";
             switch (index) {
               case 0:
                 t1 = "注册时间";
-                t2 = data["zcTime"] ?? "";
+                t2 = data["merchantInTime"] ?? "";
                 break;
+              // case 1:
+              //   t1 = "负责人";
+              //   t2 = data["merchantName"] ?? "";
+              //   break;
               case 1:
-                t1 = "负责人";
-                t2 = data["companyFzr"] ?? "";
+                t1 = "联系电话";
+                t2 = data["merchantPhone"] ?? "";
                 break;
               case 2:
-                t1 = "联系电话";
-                t2 = data["companyNumber"] ?? "";
+                t1 = "设备类型";
+                t2 = data["terminalName"] ?? "";
                 break;
-              case 3:
-                t1 = "商户地址";
-                t2 = data["companyAddress"] ?? "";
-                break;
-              default:
+              // case 3:
+              //   t1 = "设备编号";
+              //   t2 = data["tNo"] ?? "";
+              //   break;
+              // default:
             }
 
             return Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 gwb(15),
                 ghb(22),
-                getWidthText(t1, 12, AppColor.text3, 59.5, 1,
-                    textHeight: index == 3 ? 1.3 : 1.2),
+                getWidthText(t1, 12, AppColor.text3, 59.5, 1, textHeight: 1.2),
                 getWidthText(t2, 12, AppColor.text2, 315 - 59.5, 3,
-                    textHeight: index == 3 ? 1.3 : 1.2),
+                    textHeight: 1.2),
               ],
             );
           }),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              gwb(15),
+              ghb(22),
+              getWidthText("设备编号", 12, AppColor.text3, 59.5, 1,
+                  textHeight: 1.2),
+              // getWidthText(t2, 12, AppColor.text2, 315 - 59.5, 3,
+              //     textHeight: index == 3 ? 1.3 : 1.2),
+              getSimpleText(data["tNo"] ?? "", 12, AppColor.text2,
+                  textHeight: 1.2),
+              gwb(5),
+              Container(
+                height: 18.w,
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(9.w),
+                    color: ((data["isActivation"] ?? 0) > 0
+                            ? AppColor.theme
+                            : AppColor.red)
+                        .withOpacity(0.1)),
+                alignment: Alignment.center,
+                child: getSimpleText(
+                    (data["isActivation"] ?? 0) > 0 ? "已激活" : "未激活",
+                    10,
+                    (data["isActivation"] ?? 0) > 0
+                        ? AppColor.theme
+                        : AppColor.red,
+                    textHeight: 1.3),
+              )
+            ],
+          ),
           ghb(20),
-          gline(315, 0.5),
-          CustomButton(
-              onPressed: () {
-                showTableModel(data["machineDatas"] ?? [], 1);
-              },
-              child: SizedBox(
-                width: 345.w,
-                height: 45.w - 0.1.w,
-                child: Center(
-                  child: centRow([
-                    Image.asset(
-                      assetsName("statistics/icon_check_sb"),
-                      width: 16.w,
-                      fit: BoxFit.fitWidth,
-                    ),
-                    gwb(3),
-                    getSimpleText("查看设备详情", 12, AppColor.text2, textHeight: 1.2)
-                  ]),
-                ),
-              ))
+          // gline(315, 0.5),
+          // CustomButton(
+          //     onPressed: () {
+          //       showTableModel(data["machineDatas"] ?? [], 1);
+          //     },
+          //     child: SizedBox(
+          //       width: 345.w,
+          //       height: 45.w - 0.1.w,
+          //       child: Center(
+          //         child: centRow([
+          //           Image.asset(
+          //             assetsName("statistics/icon_check_sb"),
+          //             width: 16.w,
+          //             fit: BoxFit.fitWidth,
+          //           ),
+          //           gwb(3),
+          //           getSimpleText("查看设备详情", 12, AppColor.text2, textHeight: 1.2)
+          //         ]),
+          //       ),
+          //     ))
         ]),
       ),
     );

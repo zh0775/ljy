@@ -615,16 +615,16 @@ void showUpdateEvent(String url, Map d) {
 
 saveQRImage() async {
   Uint8List byte = await ScreenshotController().captureFromWidget(
-      QrImage(
-        data: (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ??
-                    {})["apP_ExternalReg_Url"] ??
-                "") +
-            (AppDefault().homeData["u_Number"] ?? ""),
-        // size: !kIsWeb ? 66.w : 56.w,
-        size: 80.w,
-        padding: EdgeInsets.zero,
-      ),
-      borderRadius: BorderRadius.zero);
+    QrImage(
+      data: (((AppDefault().publicHomeData["webSiteInfo"] ?? {})["app"] ??
+                  {})["apP_ExternalReg_Url"] ??
+              "") +
+          (AppDefault().homeData["u_Number"] ?? ""),
+      // size: !kIsWeb ? 66.w : 56.w,
+      size: 80.w,
+      padding: EdgeInsets.zero,
+    ),
+  );
   UserDefault.saveImage(QR_IMAGE_DATA, byte);
 }
 

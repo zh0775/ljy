@@ -2847,6 +2847,7 @@ Widget getSubmitBtn(
   double? radius,
   double? fontSize,
   LinearGradient? linearGradient,
+  bool isBold = false,
 }) {
   return CustomButton(
     onPressed: enable ? onPressed : null,
@@ -2873,10 +2874,8 @@ Widget getSubmitBtn(
         ),
         child: Center(
           child: getSimpleText(
-            title ?? "",
-            fontSize ?? 15,
-            textColor ?? Colors.white,
-          ),
+              title ?? "", fontSize ?? 15, textColor ?? Colors.white,
+              isBold: isBold),
         ),
       ),
     ),

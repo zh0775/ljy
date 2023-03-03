@@ -528,7 +528,10 @@ class _MinePageState extends State<MinePage>
                     fit: BoxFit.fitWidth,
                   )
                 ]),
-                getSimpleText("成长值 3666/6000", 10, const Color(0xFF5A2F0F))
+                getSimpleText(
+                    "成长值 ${(controller.homeData["teamTotalNum"] ?? 0)}/${(controller.homeData["upTerminalNum"] ?? 0)}",
+                    10,
+                    const Color(0xFF5A2F0F))
               ], width: 345 - 15 * 2),
               ghb(6),
               Container(
@@ -540,7 +543,9 @@ class _MinePageState extends State<MinePage>
                 child: Stack(children: [
                   AnimatedPositioned(
                     duration: const Duration(milliseconds: 300),
-                    width: 255.w,
+                    width: (controller.homeData["teamTotalNum"] ?? 0) /
+                        (controller.homeData["upTerminalNum"] ?? 1) *
+                        315.w,
                     left: 0,
                     bottom: 0,
                     top: 0,
@@ -561,26 +566,28 @@ class _MinePageState extends State<MinePage>
                           fontSize: 10.w,
                           color: const Color(0xFF5A2F0F).withOpacity(0.7)),
                       children: [
-                        const TextSpan(
-                            text: "5000",
-                            style: TextStyle(
-                                color: const Color(0xFF5A2F0F),
+                        TextSpan(
+                            text: "${controller.homeData["teamTotalNum"] ?? 0}",
+                            style: const TextStyle(
+                                color: Color(0xFF5A2F0F),
                                 fontWeight: AppDefault.fontBold)),
                         const TextSpan(text: "台"),
                         WidgetSpan(child: gwb(10)),
                         const TextSpan(text: "失效设备："),
-                        const TextSpan(
-                            text: "5000",
-                            style: TextStyle(
-                                color: const Color(0xFF5A2F0F),
+                        TextSpan(
+                            text:
+                                "${controller.homeData["teamTotalFailureNum"] ?? 0}",
+                            style: const TextStyle(
+                                color: Color(0xFF5A2F0F),
                                 fontWeight: AppDefault.fontBold)),
                         const TextSpan(text: "台"),
                         WidgetSpan(child: gwb(10)),
                         const TextSpan(text: "距离升级还差"),
-                        const TextSpan(
-                            text: "5000",
-                            style: TextStyle(
-                                color: const Color(0xFF5A2F0F),
+                        TextSpan(
+                            text:
+                                "${(controller.homeData["upTerminalNum"] ?? 0) - (controller.homeData["teamTotalNum"] ?? 0)}",
+                            style: const TextStyle(
+                                color: Color(0xFF5A2F0F),
                                 fontWeight: AppDefault.fontBold)),
                         const TextSpan(text: "台"),
                       ]),

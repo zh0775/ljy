@@ -3,11 +3,13 @@ import 'dart:typed_data';
 
 import 'package:cxhighversion2/component/app_wechat_manager.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:universal_html/html.dart' as html;
 
@@ -27,9 +29,26 @@ class FinanceSpaceCardPopController extends GetxController {
   Map cardData = {};
   String shareUrl = "";
   Map homeData = {};
+  double appBarMaxHeight = 0;
+
+  double contentHeight = 0;
+
+  setAppBarMaxHeight(double h) {
+    appBarMaxHeight = h;
+    contentHeight = ScreenUtil().screenHeight -
+        appBarMaxHeight -
+        105.w -
+        paddingSizeBottom(Global.navigatorKey.currentContext!) -
+        90.w;
+  }
+
   @override
   void onInit() {
     homeData = AppDefault().homeData;
+    Map publicHomeData = AppDefault().publicHomeData;
+    shareUrl = (((publicHomeData["webSiteInfo"] ?? {})["app"] ??
+            {})["apP_ExternalReg_Url"] ??
+        "");
     cardData = (datas ?? {})["data"] ?? {};
     super.onInit();
   }
@@ -42,59 +61,136 @@ class FinanceSpaceCardPop extends GetView<FinanceSpaceCardPopController> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: getDefaultAppBar(context, "我要推广"),
-        body: Stack(
-          children: [
-            Positioned.fill(
-                child: Container(
-              decoration: BoxDecoration(
-                  image: DecorationImage(
-                      alignment: Alignment.topCenter,
-                      fit: BoxFit.fitWidth,
-                      image: AssetImage(
-                          assetsName("business/finance/bg_tuiguang")))),
-            )),
-            Positioned.fill(
-                bottom: 105.w + paddingSizeBottom(context),
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  child: Column(
-                    children: [gwb(375), ghb(45), shareView(false), ghb(45)],
-                  ),
-                )),
-            Positioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              height: 105.w + paddingSizeBottom(context),
-              child: Container(
-                alignment: Alignment.center,
-                padding: EdgeInsets.only(
-                  bottom: paddingSizeBottom(context),
-                ),
+        body: Builder(builder: (context) {
+          controller
+              .setAppBarMaxHeight(Scaffold.of(context).appBarMaxHeight ?? 0);
+
+          return Stack(
+            children: [
+              Positioned.fill(
+                  child: Container(
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius:
-                        BorderRadius.vertical(top: Radius.circular(8.w)),
-                    boxShadow: [
-                      BoxShadow(color: const Color(0x26000000), blurRadius: 5.w)
-                    ]),
-                child: centRow([
-                  shareButotn(3, context),
-                  gwb(41.5),
-                  shareButotn(2, context),
-                ]),
+                    image: DecorationImage(
+                        alignment: Alignment.topCenter,
+                        fit: BoxFit.fitWidth,
+                        image: AssetImage(
+                            assetsName("business/finance/bg_tuiguang")))),
+              )),
+              Positioned.fill(
+                  bottom: 105.w + paddingSizeBottom(context),
+                  child: SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: Column(
+                      children: [gwb(375), ghb(45), shareView(false), ghb(45)],
+                    ),
+                  )),
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 105.w + paddingSizeBottom(context),
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.only(
+                    bottom: paddingSizeBottom(context),
+                  ),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius:
+                          BorderRadius.vertical(top: Radius.circular(8.w)),
+                      boxShadow: [
+                        BoxShadow(
+                            color: const Color(0x26000000), blurRadius: 5.w)
+                      ]),
+                  child: centRow([
+                    shareButotn(3, context),
+                    gwb(41.5),
+                    shareButotn(2, context),
+                  ]),
+                ),
               ),
-            ),
-          ],
-        ));
+            ],
+          );
+        }));
   }
 
   Widget shareView(bool share) {
+    double scale = controller.contentHeight / 540.w;
+
     return Container(
       width: 320.w,
-      height: 540.w,
+      height: controller.contentHeight,
       decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(share ? 0 : 8.w)),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 65.w * scale,
+            child: Center(
+              child: getSimpleText(
+                  controller.cardData["title"], 18 * scale, AppColor.text,
+                  isBold: true),
+            ),
+          ),
+          CustomNetworkImage(
+            src: AppDefault().imageUrl + (controller.cardData["images"] ?? ""),
+            width: 238.w * scale,
+            height: 148.w * scale,
+            fit: BoxFit.fill,
+          ),
+          SizedBox(
+            height: 46.w * scale,
+            child: Center(
+              child: centRow([
+                getSimpleText(
+                  controller.cardData["projectName"] ?? "",
+                  12 * scale,
+                  AppColor.text2,
+                ),
+                gwb(5 * scale),
+                Container(
+                  height: 18.w * scale,
+                  alignment: Alignment.center,
+                  padding: EdgeInsets.symmetric(horizontal: 7.w * scale),
+                  decoration: BoxDecoration(
+                      color: AppColor.theme.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(2.w * scale)),
+                  child: getSimpleText(
+                      "奖励￥${controller.cardData["price"]}", 10, AppColor.theme),
+                )
+              ]),
+            ),
+          ),
+          ghb(22 * scale),
+          QrImage(
+            data: controller.shareUrl != null && controller.shareUrl.isNotEmpty
+                ? "${controller.shareUrl}?id=${controller.homeData["u_Number"] ?? ""}"
+                : "",
+            // size: !kIsWeb ? 66.w : 56.w,
+            size: 100.w * scale,
+            padding: EdgeInsets.zero,
+          ),
+          SizedBox(
+            height: 44.w * scale,
+            child: Center(
+              child: getSimpleText(
+                  "我的推广码：${controller.homeData["u_Number"] ?? ""}",
+                  12,
+                  AppColor.text2),
+            ),
+          ),
+          ghb(23),
+          !share
+              ? getSubmitBtn("推荐给好友", () {},
+                  color: AppColor.themeOrange,
+                  fontSize: 18,
+                  height: 45,
+                  width: 180,
+                  isBold: true)
+              : ghb(0)
+        ],
+      ),
     );
   }
 

@@ -1,6 +1,0 @@
-2023/01/29-09:11:23.246 f403 Creating DB /Users/zhanghan/Documents/workspace/聚亿联盟/jylm_bb2/~/Desktop/chromedata/Default/IndexedDB/http_localhost_49597.indexeddb.leveldb since it was missing.
-2023/01/29-09:11:23.263 f403 Reusing MANIFEST /Users/zhanghan/Documents/workspace/聚亿联盟/jylm_bb2/~/Desktop/chromedata/Default/IndexedDB/http_localhost_49597.indexeddb.leveldb/MANIFEST-000001
-2023/01/29-09:30:14.315 8217 Level-0 table #5: started
-2023/01/29-09:30:14.320 8217 Level-0 table #5: 829 bytes OK
-2023/01/29-09:30:14.333 8217 Delete type=0 #3
-2023/01/29-09:30:14.335 8217 Manual compaction at level-0 from (begin) .. (end); will stop at (end)

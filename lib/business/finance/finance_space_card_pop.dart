@@ -37,9 +37,12 @@ class FinanceSpaceCardPopController extends GetxController {
     appBarMaxHeight = h;
     contentHeight = ScreenUtil().screenHeight -
         appBarMaxHeight -
-        105.w -
+        // 105.w -
         paddingSizeBottom(Global.navigatorKey.currentContext!) -
         90.w;
+    if (contentHeight > 540.w) {
+      contentHeight = 540.w;
+    }
   }
 
   @override
@@ -77,38 +80,38 @@ class FinanceSpaceCardPop extends GetView<FinanceSpaceCardPopController> {
                             assetsName("business/finance/bg_tuiguang")))),
               )),
               Positioned.fill(
-                  bottom: 105.w + paddingSizeBottom(context),
+                  // bottom: 105.w + paddingSizeBottom(context),
                   child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    child: Column(
-                      children: [gwb(375), ghb(45), shareView(false), ghb(45)],
-                    ),
-                  )),
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 105.w + paddingSizeBottom(context),
-                child: Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.only(
-                    bottom: paddingSizeBottom(context),
-                  ),
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius:
-                          BorderRadius.vertical(top: Radius.circular(8.w)),
-                      boxShadow: [
-                        BoxShadow(
-                            color: const Color(0x26000000), blurRadius: 5.w)
-                      ]),
-                  child: centRow([
-                    shareButotn(3, context),
-                    gwb(41.5),
-                    shareButotn(2, context),
-                  ]),
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [gwb(375), ghb(45), shareView(false), ghb(45)],
                 ),
-              ),
+              )),
+              // Positioned(
+              //   bottom: 0,
+              //   left: 0,
+              //   right: 0,
+              //   height: 105.w + paddingSizeBottom(context),
+              //   child: Container(
+              //     alignment: Alignment.center,
+              //     padding: EdgeInsets.only(
+              //       bottom: paddingSizeBottom(context),
+              //     ),
+              //     decoration: BoxDecoration(
+              //         color: Colors.white,
+              //         borderRadius:
+              //             BorderRadius.vertical(top: Radius.circular(8.w)),
+              //         boxShadow: [
+              //           BoxShadow(
+              //               color: const Color(0x26000000), blurRadius: 5.w)
+              //         ]),
+              //     child: centRow([
+              //       shareButotn(3, context),
+              //       gwb(41.5),
+              //       shareButotn(2, context),
+              //     ]),
+              //   ),
+              // ),
             ],
           );
         }));
@@ -182,7 +185,9 @@ class FinanceSpaceCardPop extends GetView<FinanceSpaceCardPopController> {
           ),
           ghb(23),
           !share
-              ? getSubmitBtn("推荐给好友", () {},
+              ? getSubmitBtn("推荐给好友", () {
+                  showShareBottomModel(Global.navigatorKey.currentContext!);
+                },
                   color: AppColor.themeOrange,
                   fontSize: 18,
                   height: 45,
@@ -197,6 +202,7 @@ class FinanceSpaceCardPop extends GetView<FinanceSpaceCardPopController> {
   Widget shareButotn(int idx, BuildContext context) {
     return CustomButton(
       onPressed: () async {
+        Get.back();
         // if (controller.webCtrl == null) {
         //   ShowToast.normal("请等待页面加载完毕");
         // }
@@ -299,5 +305,27 @@ class FinanceSpaceCardPop extends GetView<FinanceSpaceCardPopController> {
     } else {
       saveImageToAlbum(imageBytes);
     }
+  }
+
+  showShareBottomModel(BuildContext context) {
+    Get.bottomSheet(Container(
+      width: 375.w,
+      height: 105.w + paddingSizeBottom(context),
+      alignment: Alignment.center,
+      padding: EdgeInsets.only(
+        bottom: paddingSizeBottom(context),
+      ),
+      decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(8.w)),
+          boxShadow: [
+            BoxShadow(color: const Color(0x26000000), blurRadius: 5.w)
+          ]),
+      child: centRow([
+        shareButotn(3, context),
+        gwb(41.5),
+        shareButotn(2, context),
+      ]),
+    ));
   }
 }

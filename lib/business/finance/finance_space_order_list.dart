@@ -175,39 +175,42 @@ class FinanceSpaceOrderList extends GetView<FinanceSpaceOrderListController> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: getDefaultAppBar(
-        context,
-        "",
-        flexibleSpace: Align(
-          alignment: Alignment.bottomCenter,
-          child: centRow(List.generate(
-              2,
-              (index) => GetX<FinanceSpaceOrderListController>(
-                    builder: (_) {
-                      return CustomButton(
-                        onPressed: () {
-                          controller.topIdx = index;
-                        },
-                        child: SizedBox(
-                          height: kToolbarHeight,
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                              child: getSimpleText(
-                                  index == 0 ? "我的订单" : "推广订单",
-                                  18,
-                                  controller.topIdx == index
-                                      ? AppColor.text
-                                      : AppColor.text3,
-                                  isBold: true),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
-                  ))),
-        ),
-      ),
+      appBar: controller.type == 1
+          ? getDefaultAppBar(context, "我的订单")
+          : getDefaultAppBar(
+              context,
+              "",
+              flexibleSpace: Align(
+                alignment: Alignment.bottomCenter,
+                child: centRow(List.generate(
+                    2,
+                    (index) => GetX<FinanceSpaceOrderListController>(
+                          builder: (_) {
+                            return CustomButton(
+                              onPressed: () {
+                                controller.topIdx = index;
+                              },
+                              child: SizedBox(
+                                height: kToolbarHeight,
+                                child: Center(
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 8.w),
+                                    child: getSimpleText(
+                                        index == 0 ? "我的订单" : "推广订单",
+                                        18,
+                                        controller.topIdx == index
+                                            ? AppColor.text
+                                            : AppColor.text3,
+                                        isBold: true),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ))),
+              ),
+            ),
       body: Stack(
         children: [
           GetX<FinanceSpaceOrderListController>(
@@ -441,6 +444,7 @@ class FinanceSpaceOrderList extends GetView<FinanceSpaceOrderListController> {
   Widget cell(int index, Map data, int listIdx) {
     return Center(
       child: Container(
+          margin: EdgeInsets.only(top: index != 0 ? 15.w : 0),
           width: 345.w,
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(4.w)),
@@ -503,7 +507,7 @@ class FinanceSpaceOrderList extends GetView<FinanceSpaceOrderListController> {
                                   index == 0
                                       ? data["title"] ?? ""
                                       : index == 1
-                                          ? data["projectName"] ?? ""
+                                          ? data["subTitle"] ?? ""
                                           : data["addTime"] ?? "",
                                   12,
                                   AppColor.text2,

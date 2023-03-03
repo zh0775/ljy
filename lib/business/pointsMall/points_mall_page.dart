@@ -1,15 +1,17 @@
 import 'package:cxhighversion2/business/pointsMall/shopping_cart_page.dart';
-import 'package:flutter/material.dart';
-
-import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cxhighversion2/business/pointsMall/shopping_product_list.dart';
 import 'package:cxhighversion2/component/app_banner.dart';
+import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
+import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 
 import 'mall_cart_page.dart';
 import 'user_mall_page.dart';
-
-import 'package:get/get.dart';
 
 class PointsMallPageBinding implements Bindings {
   @override
@@ -22,60 +24,92 @@ class PointsMallPageController extends GetxController {
   final _tabIdx = 0.obs;
   int get tabIdx => _tabIdx.value;
   set tabIdx(v) => _tabIdx.value = v;
+  // final searchInputCtrl = TextEditingController();
 
   List<BannerData> banner = <BannerData>[
     BannerData(
-        imagePath:
-            '${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png',
-        id: '1'),
+        imagePath: 'business/mall/mall_banner',
+        id: '1',
+        boxFit: BoxFit.fitHeight),
   ];
 
-  List productList = [
-    {
-      "id": 1,
-      "title": "酒店枕芯五星级宾馆枕 头仿羽布羽丝棉仿鹅...",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "积分+现金",
-      "status": 0,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 2,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 3,
-      "title": "天堂伞2件套 天堂伞天堂伞",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "积分+现金",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 4,
-      "title": "苏泊尔电磁炉 苏泊尔 电磁炉",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "",
-      "status": 0,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-  ];
+  List productList = [];
+
+  searchAction() {
+    // loadData(searchStr: searchInputCtrl.text);
+  }
+
+  final _isLoadCollect = false.obs;
+  bool get isLoadCollect => _isLoadCollect.value;
+  set isLoadCollect(v) => _isLoadCollect.value = v;
+
+  loadAddCollect(Map data) {
+    isLoadCollect = true;
+    simpleRequest(
+      url: Urls.userAddProductCollection(data["productListId"], 2),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {
+        isLoadCollect = false;
+      },
+    );
+  }
+
+  loadRemoveCollect(Map data) {
+    isLoadCollect = true;
+    simpleRequest(
+      url: Urls.userDeleteCollection(data["productListId"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {
+        isLoadCollect = false;
+      },
+    );
+  }
+
+  loadData({String? searchStr}) {
+    Map<String, dynamic> params = {
+      "pageSize": 6,
+      "pageNo": 1,
+      "isBoutique": 1,
+      "shop_Type": 2,
+    };
+    if (searchStr != null && searchStr.isNotEmpty) {
+      params["shop_Name"] = searchStr;
+    }
+    simpleRequest(
+      url: Urls.userProductList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          productList = data["data"] ?? [];
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
 
   @override
   void onInit() {
+    loadData();
+
     super.onInit();
+  }
+
+  @override
+  void onClose() {
+    // searchInputCtrl.dispose();
+    super.onClose();
   }
 }
 
@@ -86,7 +120,6 @@ class PointsMallPage extends GetView<PointsMallPageController> {
   Widget build(BuildContext context) {
     return Scaffold(
       // backgroundColor: Color(0xFFFFFFFF),
-
       body: GetX<PointsMallPageController>(
         builder: (_) {
           return IndexedStack(
@@ -149,19 +182,29 @@ class PointsMallPage extends GetView<PointsMallPageController> {
         context,
         "积分商城",
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(children: [
-          MallTop(),
-          ghb(6),
-          RecommendationList(),
-        ]),
+      body: GetBuilder<PointsMallPageController>(
+        init: PointsMallPageController(),
+        initState: (_) {},
+        builder: (_) {
+          return EasyRefresh(
+            onLoad: null,
+            header: const CupertinoHeader(),
+            onRefresh: () => controller.loadData(),
+            child: SingleChildScrollView(
+              child: Column(children: [
+                mallTop(context),
+                ghb(6),
+                recommendationList(),
+              ]),
+            ),
+          );
+        },
       ),
     );
   }
 
   // banner + 商城快捷入口
-  Widget MallTop() {
+  Widget mallTop(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Color(0xFFFFFFFF)),
       width: 375.w,
@@ -169,36 +212,68 @@ class PointsMallPage extends GetView<PointsMallPageController> {
         ghb(5),
         gwb(375),
         CustomButton(
+          onPressed: () {
+            push(const ShoppingProductList(), context,
+                binding: ShoppingProductListBinding(),
+                arguments: {"isSearch": true});
+          },
           child: Container(
             width: 345.w,
             height: 40.w,
             decoration: BoxDecoration(
-              color: Color(0xFFF5F5F7),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Center(
-              child: sbRow([
-                Text('请输入想要搜索的商品'),
-                Image.asset(
-                  assetsName("business/mall/icon_search"),
-                  width: 18.w,
-                ),
-              ], width: 345 - 20.5 * 2),
+                color: AppColor.pageBackgroundColor,
+                borderRadius: BorderRadius.circular(20.w)),
+            child: Row(
+              children: [
+                gwb(20),
+                getWidthText("请输入想要搜索的商品名称", 12, AppColor.assisText,
+                    (345 - 20 - 62 - 1 - 0.1), 1),
+
+                // CustomInput(
+                //   textEditCtrl: controller.searchInputCtrl,
+                //   width: (345 - 20 - 62 - 1 - 0.1).w,
+                //   heigth: 40.w,
+                //   placeholder: "请输入想要搜索的商品名称",
+                //   placeholderStyle:
+                //       TextStyle(fontSize: 12.sp, color: AppColor.assisText),
+                //   style: TextStyle(fontSize: 12.sp, color: AppColor.text),
+                //   onSubmitted: (p0) {
+                //     takeBackKeyboard(context);
+                //     controller.searchAction();
+                //   },
+                // ),
+                SizedBox(
+                  width: 62.w,
+                  height: 40.w,
+                  child: Center(
+                    child: Image.asset(
+                      assetsName("machine/icon_search"),
+                      width: 18.w,
+                      fit: BoxFit.fitWidth,
+                    ),
+                  ),
+                )
+              ],
             ),
           ),
-          onPressed: () => print(""),
         ),
         ghb(20.5),
         Column(
           children: [
             AppBanner(
               width: 375,
-              height: 218,
+              height: 150,
               banners: controller.banner,
               borderRadius: 5,
+              bannerClick: (data) {
+                push(const ShoppingProductList(), context,
+                    binding: ShoppingProductListBinding(),
+                    arguments: {"isSearch": false});
+              },
             ),
           ],
         ),
+        ghb(15),
         sbRow(
             List.generate(4, (index) {
               String title = "";
@@ -229,9 +304,10 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 child: centClm([
                   Image.asset(
                     assetsName(img),
-                    width: 45.w,
+                    width: 54.w,
+                    fit: BoxFit.fitWidth,
                   ),
-                  ghb(4),
+                  ghb(8),
                   getSimpleText(title, 12, AppColor.text2)
                 ]),
               );
@@ -242,18 +318,20 @@ class PointsMallPage extends GetView<PointsMallPageController> {
     );
   }
 
-  Widget RecommendationList() {
-    return Container(
+  Widget recommendationList() {
+    return SizedBox(
       width: 375.w,
       child: Column(
         children: [
           Container(
-            decoration: BoxDecoration(color: Color(0xFFFFFFFF)),
+            decoration: const BoxDecoration(color: Color(0xFFFFFFFF)),
             child: Center(
               child: sbhRow([
                 nSimpleText("精品推荐", 16, isBold: true),
                 GestureDetector(
-                  onTap: () => print("点击事件"),
+                  onTap: () => push(const ShoppingProductList(), null,
+                      binding: ShoppingProductListBinding(),
+                      arguments: {"isSearch": false}),
                   child: centRow([
                     nSimpleText("查看更多", 12,
                         color: AppColor.text3, textHeight: 1.2),
@@ -278,7 +356,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
 
   // 积分列表
   Widget productListView() {
-    return Container(
+    return SizedBox(
       width: 375.w,
       child: Column(
         children: [
@@ -290,19 +368,25 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               children: List.generate(controller.productList.length, (index) {
                 Map data = controller.productList[index];
                 return Container(
-                  decoration: BoxDecoration(color: Colors.white),
-                  width: (375 - 15 * 2 - 10).w / 2 - 0.1,
+                  width: (375 - 15 * 2 - 10).w / 2 - 0.1.w,
 
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(3.w)),
                   // 167.5.w,
                   height: 270.w,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Image.network(
-                        data["img"],
-                        width: 167.5.w,
-                        height: 167.5.w,
-                        fit: BoxFit.cover,
+                      ClipRRect(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(3.w)),
+                        child: CustomNetworkImage(
+                            src:
+                                AppDefault().imageUrl + (data["shopImg"] ?? ""),
+                            width: 167.5.w,
+                            height: 167.5.w,
+                            fit: BoxFit.cover),
                       ),
                       Container(
                         padding: EdgeInsets.all(8.0.w),
@@ -311,39 +395,59 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            getWidthText(data['title'], 14.w,
-                                AppColor.textBlack, 149.w, 2,
-                                textAlign: TextAlign.left,
-                                alignment: Alignment.topLeft),
-                            getSimpleText("${data['integral'] ?? 0}积分", 18,
-                                AppColor.theme3,
-                                isBold: true, textAlign: TextAlign.left),
+                            SizedBox(
+                              height: 45.w,
+                              child: getWidthText(data['shopName'] ?? "", 14.w,
+                                  AppColor.textBlack, 149.w, 2,
+                                  textAlign: TextAlign.left,
+                                  alignment: Alignment.topLeft),
+                            ),
+                            getSimpleText(
+                              "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
+                              18,
+                              AppColor.themeOrange,
+                              isBold: true,
+                            ),
                             sbhRow([
-                              getSimpleText("已兑${data['exchange'] ?? 0}个", 12,
-                                  AppColor.textGrey5,
+                              getSimpleText("已兑${data['shopBuyCount'] ?? 0}个",
+                                  12, AppColor.textGrey5,
                                   textAlign: TextAlign.left),
                               centRow([
                                 GetBuilder<PointsMallPageController>(
                                   builder: (_) {
                                     return CustomButton(
                                       onPressed: () {
-                                        data["favoriteStatus"] =
-                                            !data["favoriteStatus"];
-                                        //
-                                        controller.update();
+                                        if ((data["isCollect"] ?? 0) == 0) {
+                                          controller.loadAddCollect(data);
+                                        } else {
+                                          controller.loadRemoveCollect(data);
+                                        }
+                                        // data["favoriteStatus"] =
+                                        //     !data["favoriteStatus"];
+                                        // //
+                                        // controller.update();
                                       },
-                                      child: Image.asset(
-                                        assetsName(data["favoriteStatus"]
-                                            ? 'business/mall/btn_iscollect'
-                                            : 'business/mall/btn_collect'),
+                                      child: SizedBox(
                                         width: 32.w,
                                         height: 28.w,
+                                        child: Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: Image.asset(
+                                            assetsName((data["isCollect"] ??
+                                                        0) ==
+                                                    0
+                                                ? 'business/mall/btn_iscollect'
+                                                : 'business/mall/btn_collect'),
+                                            width: 16.w,
+                                            fit: BoxFit.fitWidth,
+                                          ),
+                                        ),
                                       ),
                                     );
                                   },
                                 )
                               ])
-                            ], width: 167.5 - 10 * 2, height: 12.w),
+                            ], width: 167.5 - 10 * 2, height: 15.w),
                           ],
                         ),
                       )
@@ -352,7 +456,8 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 );
               }),
             ),
-          )
+          ),
+          ghb(controller.productList.isEmpty ? 290 : 30),
         ],
       ),
     );

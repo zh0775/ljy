@@ -80,7 +80,8 @@ class FinanceSpaceHomeController extends GetxController {
         url: Urls.userCreditCardBankList,
         params: {
           "pageNo": 1,
-          "pageSize": 3,
+          "pageSize": 4,
+          "d_Type": 1,
         },
         success: (success, json) {
           if (success) {
@@ -103,7 +104,8 @@ class FinanceSpaceHomeController extends GetxController {
         url: Urls.userCreditCardLoansList,
         params: {
           "pageNo": 1,
-          "pageSize": 3,
+          "pageSize": 4,
+          "d_Type": 1,
         },
         success: (success, json) {
           if (success) {

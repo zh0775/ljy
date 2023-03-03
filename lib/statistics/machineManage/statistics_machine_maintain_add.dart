@@ -6,6 +6,7 @@ import 'package:cxhighversion2/statistics/machineManage/statistics_machine_maint
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -141,25 +142,27 @@ class StatisticsMachineMaintainAdd
                             fontSize: 14.w, color: AppColor.assisText),
                       ),
                     ]),
-                    CustomButton(
-                      onPressed: () {
-                        toScanBarCode(((barCode) {
-                          controller.noInputCtrl.text = barCode;
-                        }));
-                      },
-                      child: SizedBox(
-                        width: 18.w + 25.w,
-                        height: 46.w,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Image.asset(
-                            assetsName("machine/btn_scan_code"),
-                            width: 18.w,
-                            fit: BoxFit.fitWidth,
+                    kIsWeb
+                        ? gwb(0)
+                        : CustomButton(
+                            onPressed: () {
+                              toScanBarCode(((barCode) {
+                                controller.noInputCtrl.text = barCode;
+                              }));
+                            },
+                            child: SizedBox(
+                              width: 18.w + 25.w,
+                              height: 46.w,
+                              child: Align(
+                                alignment: Alignment.centerRight,
+                                child: Image.asset(
+                                  assetsName("machine/btn_scan_code"),
+                                  width: 18.w,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
                   ], width: 315, height: 46),
                   // gline(315, 0.5),
                   // CustomButton(
@@ -204,12 +207,16 @@ class StatisticsMachineMaintainAdd
                       width: (315 - 80).w,
                       heigth: 138.5.w,
                       placeholder: "描述一下设备故障问题吧...",
-                      style: TextStyle(fontSize: 14.w, color: AppColor.text),
-                      placeholderStyle:
-                          TextStyle(fontSize: 14.w, color: AppColor.assisText),
+                      style: TextStyle(
+                          fontSize: 14.w, color: AppColor.text, height: 1.5),
+                      placeholderStyle: TextStyle(
+                          fontSize: 14.w,
+                          color: AppColor.assisText,
+                          height: 1.5),
                       textAlignVertical: TextAlignVertical.top,
                       textAlign: TextAlign.start,
                       maxLines: 100,
+                      // padding: EdgeInsets.only(top: 3.w),
                     ),
                   ], crossAxisAlignment: CrossAxisAlignment.start, width: 315),
                 ],
@@ -219,7 +226,7 @@ class StatisticsMachineMaintainAdd
             CustomUploadImageView(
               maxImgCount: 3,
               tipStr: "注：最多可上传3张，截图需包括设备损坏界面及设备编号",
-              uploadVideo: true,
+              // uploadVideo: true,
               imageUpload: (imgs) {
                 controller.imageUrls = imgs;
               },

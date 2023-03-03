@@ -1,6 +1,3 @@
-import 'package:cxhighversion2/component/custom_background.dart';
-import 'package:cxhighversion2/util/tools.dart';
-import 'package:flutter/material.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_html_view.dart';
@@ -8,6 +5,8 @@ import 'package:cxhighversion2/home/businessSchool/business_school_collect.dart'
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
+import 'package:cxhighversion2/util/tools.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 // import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:get/get.dart';
@@ -16,11 +15,15 @@ import 'package:video_player/video_player.dart';
 class BusinessSchoolDetailBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<BusinessSchoolDetailController>(BusinessSchoolDetailController());
+    Get.put<BusinessSchoolDetailController>(
+        BusinessSchoolDetailController(datas: Get.arguments));
   }
 }
 
 class BusinessSchoolDetailController extends GetxController {
+  final dynamic datas;
+  BusinessSchoolDetailController({this.datas});
+
   bool isFirst = true;
   String videoBuildId = "BusinessSchoolDetailController_videoBuildId";
 
@@ -43,26 +46,38 @@ class BusinessSchoolDetailController extends GetxController {
       isLoading = true;
     }
     simpleRequest(
-      url: Urls.userBusinessSchoolShow(currentId),
+      url: type == 0
+          ? Urls.userBusinessSchoolShow(currentId)
+          : Urls.newDetail(currentId),
       params: {},
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-          collectData = data;
-          htmlSrc = data["bS_Content"];
-          isCollect = data["isCollect"] ?? false;
-          if (haveVideo &&
-              collectData["bS_Audio"] != null &&
-              collectData["bS_Audio"].isNotEmpty) {
-            videoCtrl = VideoPlayerController.network(
-                AppDefault().imageUrl + (collectData["bS_Audio"] ?? ""),
-                videoPlayerOptions: VideoPlayerOptions())
-              ..initialize().then((value) {
-                videoCtrl!.play();
-                videoCtrl!.addListener(checkVideo);
-                double i = videoCtrl!.value.aspectRatio;
-                update([videoBuildId]);
-              });
+
+          if (type == 0) {
+            collectData = data;
+            htmlSrc = data["bS_Content"];
+            isCollect = data["isCollect"] ?? false;
+            if (haveVideo &&
+                collectData["bS_Audio"] != null &&
+                collectData["bS_Audio"].isNotEmpty) {
+              videoCtrl = VideoPlayerController.network(
+                  AppDefault().imageUrl + (collectData["bS_Audio"] ?? ""),
+                  videoPlayerOptions: VideoPlayerOptions())
+                ..initialize().then((value) {
+                  videoCtrl!.play();
+                  videoCtrl!.addListener(checkVideo);
+                  double i = videoCtrl!.value.aspectRatio;
+                  update([videoBuildId]);
+                });
+            }
+          } else if (type == 1) {
+            htmlSrc = data["content"];
+            collectData = {
+              "bS_Title": data["meta"] ?? "",
+              "bS_View": data["viewNum"] ?? 0,
+              "addTime": data["addTime"] ?? "",
+            };
           }
 
           update();
@@ -147,18 +162,35 @@ class BusinessSchoolDetailController extends GetxController {
   bool fromCollect = false;
 
   dataInit(int id, bool from) {
-    if (!isFirst) {
-      return;
-    }
+    if (!isFirst) return;
     isFirst = false;
-    currentId = id;
+    // if (type != 0) {
+    //   htmlSrc = infoData["content"];
+    //   collectData = {
+    //     "bS_Title": infoData["meta"] ?? "",
+    //     "bS_View": infoData["view"] ?? 0,
+    //     "addTime": infoData["addTime"] ?? "",
+    //   };
+    //   return;
+    // }
+    if (type != 0) {
+      currentId = infoData["id"];
+    } else {
+      currentId = id;
+    }
+
     fromCollect = from;
     loadDetailData();
     // loadCollect();
   }
 
+  int type = 0;
+  Map infoData = {};
+
   @override
   void onInit() {
+    type = (datas ?? {})["type"] ?? 0;
+    infoData = (datas ?? {})["data"] ?? {};
     super.onInit();
   }
 

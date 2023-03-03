@@ -209,12 +209,15 @@ class _AppBannerState extends State<AppBanner> {
           widget.bannerClick!(data.data);
         }
       },
-      child: CustomNetworkImage(
-        src: data.imagePath,
-        width: widget.width.w,
-        height: widget.height.w,
-        fit: data.boxFit,
-      ),
+      child: data.imagePath.contains("http")
+          ? CustomNetworkImage(
+              src: data.imagePath,
+              width: widget.width.w,
+              height: widget.height.w,
+              fit: data.boxFit,
+            )
+          : Image.asset(assetsName(data.imagePath),
+              width: widget.width.w, height: widget.height.w, fit: data.boxFit),
       // ClipPath(
       //   clipper: BannerClippper(arc: 40.w),
       //   child: CustomNetworkImage(

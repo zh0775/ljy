@@ -84,6 +84,8 @@ class AppDefault {
   bool checkDay = false;
   //设备推广记录选中设备
   List popularizeMachineSelectIds = [];
+  //积分商城记录购物车
+  List integralStoreCarSelectIds = [];
   bool safeAlert = true;
   Map publicHomeData = {};
   Map loginData = {};

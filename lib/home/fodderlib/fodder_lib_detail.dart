@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/home/fodderlib/fodder_lib.dart';
 import 'package:cxhighversion2/service/http.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
@@ -76,7 +77,6 @@ class FodderLibDetailController extends GetxController {
           if (updateList != null) {
             updateList!();
           }
-
           // loadDetail();
           update();
         }
@@ -161,6 +161,32 @@ class FodderLibDetailController extends GetxController {
   bool fromCollect = false;
 
   Function()? updateList;
+
+  final _btnEnable = true.obs;
+  bool get btnEnable => _btnEnable.value;
+  set btnEnable(v) => _btnEnable.value = v;
+
+  loadDownload(Function(bool succ) result) {
+    btnEnable = false;
+    simpleRequest(
+      url: Urls.userNewDownload(myData["id"]),
+      params: {},
+      success: (success, json) {
+        result(success);
+        if (success) {
+          type == 1
+              ? Get.find<FodderLibController>().loadTop()
+              : Get.find<FodderLibController>().loadData();
+
+          myData["dnNum"] = (myData["dnNum"] ?? 0) + 1;
+          update();
+        }
+      },
+      after: () {
+        btnEnable = true;
+      },
+    );
+  }
 
   @override
   void onInit() {
@@ -262,7 +288,7 @@ class FodderLibDetail extends GetView<FodderLibDetailController> {
                               ),
                               ghb(5),
                               getWidthText(
-                                "文件下载次数：${controller.myData["dnNum"] ?? ""}",
+                                "文件下载次数：${controller.myData["dnNum"] ?? 0}",
                                 15,
                                 AppColor.text3,
                                 345,
@@ -368,22 +394,31 @@ class FodderLibDetail extends GetView<FodderLibDetailController> {
                 ]),
                 kIsWeb
                     ? gwb(0)
-                    : CustomButton(
-                        onPressed: () {
-                          controller.downImg((data) {
-                            saveImageToAlbum(data, showToast: false);
-                            showDownloadSucc();
-                          });
+                    : GetX<FodderLibDetailController>(
+                        builder: (_) {
+                          return CustomButton(
+                            onPressed: !controller.btnEnable
+                                ? null
+                                : () {
+                                    controller.loadDownload(
+                                        (succ) => controller.downImg((data) {
+                                              saveImageToAlbum(data,
+                                                  showToast: false);
+                                              showDownloadSucc();
+                                            }));
+                                  },
+                            child: Container(
+                              width: 105.w,
+                              height: 40.w,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: AppColor.theme.withOpacity(
+                                      controller.btnEnable ? 1.0 : 0.1),
+                                  borderRadius: BorderRadius.circular(20.w)),
+                              child: getSimpleText("免费下载", 15, Colors.white),
+                            ),
+                          );
                         },
-                        child: Container(
-                          width: 105.w,
-                          height: 40.w,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                              color: AppColor.theme,
-                              borderRadius: BorderRadius.circular(20.w)),
-                          child: getSimpleText("免费下载", 15, Colors.white),
-                        ),
                       )
               ], height: 60, width: 375 - 16 * 2),
             ))

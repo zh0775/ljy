@@ -17,6 +17,7 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/notify_default.dart';
 import 'package:cxhighversion2/util/storage_default.dart';
 import 'package:cxhighversion2/util/user_default.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -234,8 +235,10 @@ class _MainAppState extends State<MainApp> {
 
   Widget pullRefresh({required Widget child}) {
     return RefreshConfiguration(
-      headerBuilder: () =>
-          const WaterDropHeader(), // 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个
+      headerBuilder: () => WaterDropHeader(
+        refresh: const CupertinoActivityIndicator(),
+        complete: getSimpleText("刷新完成", 15, AppColor.text3),
+      ), // 配置默认头部指示器,假如你每个页面的头部指示器都一样的话,你需要设置这个
       footerBuilder: () => const ClassicFooter(), // 配置默认底部指示器
       headerTriggerDistance: 80.0.w, // 头部触发刷新的越界距离
       springDescription: SpringDescription(

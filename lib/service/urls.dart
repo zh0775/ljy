@@ -645,4 +645,18 @@ class Urls {
   //申请贷款订单
   static const userCreditCardLoansOrderList =
       "/api/CreditCard/User_CreditCardLoansOrderList";
+
+  //申请贷款订单
+  static String ruleDescriptionByID(dynamic type) =>
+      "/api/BuyMember/RuleDescriptionByID/$type";
+
+  //素材库下载
+  static String userNewDownload(dynamic id) => "/api/New/UserNewDownload/$id";
+
+//积分商城
+//添加收藏
+  static String userAddProductCollection(dynamic id, dynamic type) =>
+      "/api/Product/User_AddProductCollection/$id/$type";
+  static String userDeleteCollection(dynamic collectionIds) =>
+      "/api/Product/User_DeleteCollection/$collectionIds";
 }

@@ -14,6 +14,7 @@ import 'package:cxhighversion2/mine/myWallet/my_wallet.dart';
 import 'package:cxhighversion2/mine/myWallet/my_wallet_draw.dart';
 import 'package:cxhighversion2/mine/personal_information.dart';
 import 'package:cxhighversion2/service/http_config.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/EventBus.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/notify_default.dart';
@@ -31,18 +32,21 @@ class MineBinding extends Bindings {
 }
 
 class MinePageController extends GetxController {
-  String aboutMeInfoContent = '''
-嘉联支付有限公司是经中国人民银行批准授予《支付业务许可证》，在全国范围内开展银行卡收单业务的专业第三方支付服务提供商。公司于2009年正式成立，注册资本为2亿元人民币。 
-嘉联支付有限公司是以市场为导向、具有多元化服务体系的取得全国支付牌照的第三方支付服务平台。 
+  String aboutMeInfoContent = "";
+  String serverInfo = "";
 
-''';
-  String serverInfo = '''
-本协议是用户与联聚拓客平台之间的法律协议，是用户注册联聚拓客账号和使用联聚拓客平台服务时使用的通用条款。请您务必审慎阅读、充分理解各条款内容，特别是关于用户信息的使用范围、免责条款、管辖与法律适用条款。用户信息的使用范围、免责条款可能以黑体加粗的形式提示您重点注意。您不应当以联聚拓客未对本协议以合理方式提醒用户注意或未根据用户要求尽到说明义务为理由而声称或要求法院或其它任何第三方确认相关条款非法或无效。除非您已阅读并接受本协议所有条款，否则您无权使用联聚拓客提供的服务。您使用联聚拓客提供的服务即视为您已阅读并同意上述协议的约束。
-联聚拓客可能会根据需要不时修订或者更新本协议及其相关补充和附件、平台规则、单项服务规则等文件，修订或更新后的协议和文本一经公布，立即取代原协议和文件，并自动生效。如果您不接受相关修订和更新，请立即停止使用联聚拓客提供的服务；如您继续使用联聚拓客提供的服务，即表示您已经充分接受该修订或更新。
-一、定义
- 联聚拓客，是指南宁坤之缘电子商务有限公司旗下自营平台，包括PC端、App端、小程序、公众号等。
- 用户，包含注册用户和非注册用户，以下亦称为“您”。注册用户是指通过联聚拓客 APP（或PC端、小程序、公众号等）完成全部注册程序后，使用联聚拓客平台服务或联聚拓客平台资料的用户。非注册用户是指未进行注册、直接登录联聚拓客 APP（或PC端、小程序、公众号等）直接或间接地使用联聚拓客平台服务或联聚拓客平台资料的用户。
- 用户，包含注册用户和非注册用户，以下亦称为“您”。注册用户是指通过联聚拓客 APP（或PC端、小程序、公众号等）完成全部注册程序后，使用联聚拓客平台服务或联聚拓客平台资料的用户。非注册用户是指未进行注册、直接登录联聚拓客 APP（或PC端、小程序、公众号等）直接或间接地使用联聚拓客平台服务或联聚拓客平台资料的用户。''';
+  loadAgreement() {
+    simpleRequest(
+      url: Urls.agreementListByID(1),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          serverInfo = (json["data"] ?? {})["content"] ?? "";
+        }
+      },
+      after: () {},
+    );
+  }
 
   final _cClient = true.obs;
   bool get cClient => _cClient.value;
@@ -69,11 +73,14 @@ class MinePageController extends GetxController {
   @override
   void onReady() {
     needUpdate();
+
     super.onReady();
   }
 
   @override
   void onInit() {
+    loadAgreement();
+
     bus.on(USER_LOGIN_NOTIFY, getNotify);
     bus.on(HOME_DATA_UPDATE_NOTIFY, getNotify);
     bus.on(HOME_PUBLIC_DATA_UPDATE_NOTIFY, getNotify);
@@ -117,8 +124,9 @@ class MinePageController extends GetxController {
         moneyNum += (e["amout"] ?? 0);
       }
     }
+    Map info = (publicHomeData["webSiteInfo"] ?? {})["app"] ?? {};
     // cClient = (AppDefault().homeData["u_Role"] ?? 0) == 0;
-
+    aboutMeInfoContent = info["apP_Introduction"] ?? "";
     update([topUserCellBuildId]);
     update();
   }
@@ -320,18 +328,19 @@ class _MinePageState extends State<MinePage>
                                 //         binding:
                                 //             MineCertificateAuthorizationBinding());
                                 pushInfoContent(
-                                    title: "关于我们",
-                                    content: controller.aboutMeInfoContent,
-                                    isText: true);
+                                  title: "关于我们",
+                                  content: controller.aboutMeInfoContent,
+                                  isText: true,
+                                );
                               } else if (index == 4) {
                                 // push(const IdentityAuthentication(), context,
                                 //     binding: IdentityAuthenticationBinding());
                                 // push(const MachinePayPage(), context,
                                 //     binding: MachinePayPageBinding());
                                 pushInfoContent(
-                                    title: "服务协议",
-                                    content: controller.serverInfo,
-                                    isText: true);
+                                  title: "服务协议",
+                                  content: controller.serverInfo,
+                                );
                               } else if (index == 5) {
                                 // push(const MineCustomerService(), context,
                                 //     binding: MineCustomerServiceBinding());

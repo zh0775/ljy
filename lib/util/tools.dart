@@ -2,36 +2,37 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/util/app_default.dart';
-import 'package:flutter_screenutil/src/size_extension.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 
 /// 手机号正则表达式->true匹配
 bool isMobilePhoneNumber(String value) {
-  RegExp mobile = RegExp(r"(0|86|17951)?(1[0-9][0-9])[0-9]{8}");
-  if (value.length == 11) {
-    return true;
-  } else {
-    return false;
-  }
-  // return mobile.hasMatch(value);
+  RegExp mobile = RegExp(
+      r"^1((34[0-8])|(8\d{2})|(([35][0-35-9]|4[579]|66|7[35678]|9[1389])\d{1}))\d{7}$");
+  // if (value.length == 11) {
+  //   return true;
+  // } else {
+  //   return false;
+  // }
+  return mobile.hasMatch(value);
 }
 
 // 是否为数字
 bool isNumber(String value) {
-  RegExp number = new RegExp(r"^[0-9]*[1-9][0-9]*$");
+  RegExp number = RegExp(r"^[0-9]*[1-9][0-9]*$");
   return number.hasMatch(value);
 }
 
 ///验证网页URl
 bool isUrl(String value) {
-  RegExp url = new RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+");
+  RegExp url = RegExp(r"^((https|http|ftp|rtsp|mms)?:\/\/)[^\s]+");
 
   return url.hasMatch(value);
 }
 
 ///校验身份证
 bool isIdCard(String value) {
-  RegExp identity = new RegExp(r"\d{17}[\d|x]|\d{15}");
+  RegExp identity = RegExp(r"\d{17}[\d|x]|\d{15}");
 
   return identity.hasMatch(value);
 }

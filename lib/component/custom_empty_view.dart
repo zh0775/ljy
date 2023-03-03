@@ -3,7 +3,14 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-enum CustomEmptyType { networkError, noData, noMessage, pageNone, noContent }
+enum CustomEmptyType {
+  networkError,
+  noData,
+  noMessage,
+  pageNone,
+  noContent,
+  carNoData
+}
 
 class CustomEmptyViewController extends GetxController {
   final _isFirst = true.obs;
@@ -82,6 +89,8 @@ class CustomEmptyView extends StatelessWidget {
         return assetsName("common/bg_empty3");
       case CustomEmptyType.noContent:
         return assetsName("common/bg_empty4");
+      case CustomEmptyType.carNoData:
+        return assetsName("business/mall/bg_empty");
       default:
         return "";
     }
@@ -95,6 +104,7 @@ class CustomEmptyView extends StatelessWidget {
             15,
             AppColor.text3);
       case CustomEmptyType.noData:
+      case CustomEmptyType.carNoData:
         // return GetX<CustomEmptyViewController>(
         //   init: CustomEmptyViewController(),
         //   builder: (controller) {

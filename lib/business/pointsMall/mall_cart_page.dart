@@ -5,623 +5,44 @@ import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
+import 'package:cxhighversion2/service/urls.dart';
 import 'points_mall_page.dart';
 import 'package:get/get.dart';
 
 class MallCartPageBinding implements Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<MallCartPageController>(() => MallCartPageController());
+    Get.put<MallCartPageController>(MallCartPageController());
   }
 }
 
 class MallCartPageController extends GetxController {
   final dynamic datas;
   MallCartPageController({this.datas});
-  List MallTypeList = [
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        },
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    },
-    {
-      "id": 1,
-      "title": "美妆护肤11",
-      "children": [
-        {
-          "id": 2,
-          "pid": 1,
-          "title": "拔草推荐",
-          "children": [
-            {
-              "id": 3,
-              "pid": 2,
-              "title": "明星同款面膜",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg"
-            },
-            {
-              "id": 4,
-              "pid": 2,
-              "title": "显白口红",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg"
-            },
-            {
-              "id": 5,
-              "pid": 2,
-              "title": "小美盒",
-              "imgUrl":
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg"
-            },
-            {
-              "id": 6,
-              "pid": 2,
-              "title": "新品速递",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/85282/32/13974/33702/5e5f272cE97839976/3b5ccf856f171658.jpg"
-            }
-          ]
-        },
-        {
-          "id": 7,
-          "pid": 1,
-          "title": "猫咪",
-          "children": [
-            {"id": 8, "pid": 7, "title": "喵喵"},
-            {"id": 9, "pid": 7, "title": "喵粮"},
-            {"id": 10, "pid": 7, "title": "喵零食"},
-          ]
-        }
-      ]
-    },
-    {
-      "id": 11,
-      "title": "手机数码13",
-      "children": [
-        {
-          "id": 12,
-          "pid": 11,
-          "title": "热门品牌",
-          "children": [
-            {
-              "id": 13,
-              "pid": 12,
-              "title": "小米",
-              "imgUrl":
-                  "https://img30.360buyimg.com/focus/s140x140_jfs/t13411/188/926813276/3945/a4f47292/5a1692eeN105a64b4.png"
-            },
-            {
-              "id": 14,
-              "pid": 12,
-              "title": "华为",
-              "imgUrl":
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t11929/135/2372293765/1396/e103ec31/5a1692e2Nbea6e136.jpg"
-            },
-            {
-              "id": 15,
-              "pid": 12,
-              "title": "Apple",
-              "imgUrl":
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg"
-            },
-          ]
-        }
-      ]
-    }
-  ];
+  List MallTypeList = [];
 
   final _currentIndex = 0.obs; // 默认第一个
   int get currentIndex => _currentIndex.value;
   set currentIndex(v) => _currentIndex.value = v;
 
+  loadData({String? searchStr}) {
+    simpleRequest(
+        url: Urls.userShopAllClass,
+        params: {},
+        success: (success, json) {
+          if (success) {
+            // Map data = json["data"] ?? {};
+            MallTypeList = json["data"] ?? [];
+            update();
+          }
+        },
+        after: () {},
+        useCache: true);
+  }
+
   @override
   void onInit() {
+    loadData();
     super.onInit();
   }
 }
@@ -725,8 +146,8 @@ class MallCartPage extends StatelessWidget {
         return SizedBox(
           width: 90.w,
           child: Column(
-            children: List.generate(controller.MallTypeList.length, (index) {
-              Map data = controller.MallTypeList[index];
+            children: List.generate((controller.MallTypeList ?? []).length, (index) {
+              Map data = controller.MallTypeList[index ?? 0] ?? [];
 
               return GetBuilder<MallCartPageController>(
                 builder: (_) {
@@ -735,20 +156,13 @@ class MallCartPage extends StatelessWidget {
                   }, child: GetX<MallCartPageController>(
                     builder: (controller) {
                       return Container(
-                        decoration: BoxDecoration(
-                            color: Color(controller.currentIndex == index
-                                ? 0xFFFFFFFF
-                                : 0xFFF5F5F7)),
+                        decoration: BoxDecoration(color: Color(controller.currentIndex == index ? 0xFFFFFFFF : 0xFFF5F5F7)),
                         alignment: Alignment.center,
                         width: 90.w,
                         height: 50.w,
                         child: Text(
-                          data['title'],
-                          style: TextStyle(
-                              fontSize: 15,
-                              color: Color(controller.currentIndex == index
-                                  ? 0xFFFF6231
-                                  : 0xFF333333)),
+                          data['title'] ?? '',
+                          style: TextStyle(fontSize: 15, color: Color(controller.currentIndex == index ? 0xFFFF6231 : 0xFF333333)),
                         ),
                       );
                     },
@@ -775,17 +189,14 @@ class MallCartPage extends StatelessWidget {
         initState: (_) {},
         builder: (controller) {
           return Column(
-            children: List.generate(
-                controller.MallTypeList[controller.currentIndex]['children']
-                    .length, (level2Index) {
-              Map _level2Item = controller.MallTypeList[controller.currentIndex]
-                  ['children'][level2Index];
-              List _level3data = _level2Item['children'];
+            children: List.generate((controller.MallTypeList[controller.currentIndex]['child'] ?? []).length, (level2Index) {
+              Map _level2Item = (controller.MallTypeList[controller.currentIndex]['child'])[level2Index] ?? [];
+              List _level3data = _level2Item['child'] ?? [];
               return Column(
                 children: [
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: Text(_level2Item['title']),
+                    child: Text(_level2Item['title'] ?? ""),
                   ),
                   ghb(10.5.w),
                   // Text('${level2data["children"]}')
@@ -793,19 +204,18 @@ class MallCartPage extends StatelessWidget {
                     child: Wrap(
                       spacing: 10.w,
                       runSpacing: 20.w,
-                      children:
-                          List.generate(_level3data.length, (level3Index) {
-                        Map level3item = _level3data[level3Index];
+                      children: List.generate((_level3data ?? []).length, (level3Index) {
+                        Map level3item = _level3data[level3Index] ?? [];
                         return Container(
                           child: Column(children: [
                             // Image.network("${level3item['imgUrl']}"),
                             CustomNetworkImage(
-                              src: "${level3item['imgUrl']}",
+                              src: AppDefault().imageUrl + (level3item["icon"] ?? ""),
                               width: 70.w,
                               height: 70.w,
                             ),
 
-                            Text("${level3item['title']}"),
+                            Text("${level3item['title'] ?? ''}"),
                           ]),
                         );
                       }),

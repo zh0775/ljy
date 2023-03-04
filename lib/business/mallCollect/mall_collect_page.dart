@@ -6,6 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/component/custom_empty_view.dart';
+
+import 'package:easy_refresh/easy_refresh.dart';
 
 import 'package:get/get.dart';
 
@@ -17,51 +22,81 @@ class MallCollectPageBinding implements Bindings {
 }
 
 class MallCollectPageController extends GetxController {
-  List collectList = [
-    {
-      "id": 1,
-      "title": "酒店枕芯五星级宾馆枕 头仿羽布羽丝棉仿鹅...",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "积分+现金",
-      "status": 0,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 2,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 3,
-      "title": "天堂伞2件套 天堂伞天堂伞",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "积分+现金",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 4,
-      "title": "苏泊尔电磁炉 苏泊尔 电磁炉",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "",
-      "status": 0,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-  ];
+  final _isLoading = false.obs;
+  bool get isLoading => _isLoading.value;
+  set isLoading(v) => _isLoading.value = v;
+
+  final _isLoadCollect = false.obs;
+  bool get isLoadCollect => _isLoadCollect.value;
+  set isLoadCollect(v) => _isLoadCollect.value = v;
+
+  List collectList = [];
+
+  int pageSize = 10;
+  int pageNo = 1;
+  int count = 0;
+
+  loadList({bool isLoad = false}) {
+    isLoad ? pageNo++ : pageNo = 1;
+    if (collectList.isEmpty) {
+      isLoading = true;
+    }
+
+    Map<String, dynamic> params = {
+      "pageSize": pageSize,
+      "pageNo": pageNo,
+      "isBoutique": 1,
+      "shop_Type": 2,
+    };
+    simpleRequest(
+      url: Urls.userProductList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          collectList = data["data"] ?? [];
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  loadAddCollect(Map data) {
+    isLoadCollect = true;
+    simpleRequest(
+      url: Urls.userAddProductCollection(data["productListId"], 2),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {
+        isLoadCollect = false;
+      },
+    );
+  }
+
+  loadRemoveCollect(Map data) {
+    isLoadCollect = true;
+    simpleRequest(
+      url: Urls.userDeleteCollection(data["productListId"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {
+        isLoadCollect = false;
+      },
+    );
+  }
 
   @override
   void onInit() {
+    loadList();
     super.onInit();
   }
 }
@@ -77,43 +112,68 @@ class MallCollectPage extends GetView<MallCollectPageController> {
         "我的收藏",
         action: [],
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [CollectList()],
-        ),
+      body: GetBuilder<MallCollectPageController>(
+        initState: (_) {},
+        builder: (_) {
+          return EasyRefresh(
+            header: const CupertinoHeader(),
+            footer: const CupertinoFooter(),
+
+            onLoad: controller.collectList.length >= controller.count ? null : () => controller.loadList(isLoad: true),
+            onRefresh: () => controller.loadList(),
+            child: controller.collectList.isEmpty
+                ? SingleChildScrollView(
+                    child: Center(
+                      child: GetX<MallCollectPageController>(
+                        builder: (_) {
+                          return CustomEmptyView(type: CustomEmptyType.carNoData, isLoading: controller.isLoading, bottomSpace: 200.w);
+                        },
+                      ),
+                    ),
+                  )
+                : ListView.builder(
+                    itemCount: controller.collectList.length,
+                    itemBuilder: (context, index) {
+                      return collectList();
+                    },
+                  ),
+            // child: SingleChildScrollView(
+            //   physics: const BouncingScrollPhysics(),
+            //   child: Column(
+            //     children: [collectList()],
+            //   ),
+            // ),
+          );
+        },
       ),
     );
   }
 
   // 收藏列表
-  Widget CollectList() {
-    return Container(
-      padding: EdgeInsets.only(top: 15.w),
-      child: Column(
-        children: List.generate(controller.collectList.length, (index) {
-          Map data = controller.collectList[index];
-          return CollectItem(data);
-        }),
-      ),
+  Widget collectList() {
+    return Column(
+      children: List.generate(controller.collectList.length, (index) {
+        Map data = controller.collectList[index];
+        return collectItem(data);
+      }),
     );
   }
 
   // 收藏item
-  Widget CollectItem(item) {
+  Widget collectItem(item) {
     return Center(
       child: Container(
         width: 345.w,
         color: Colors.white,
-        margin: EdgeInsets.only(bottom: 15.w),
+        margin: EdgeInsets.only(top: 15.w),
         child: Row(
           children: [
             SizedBox(
-              child: Image.network(
+              child: CustomNetworkImage(
+                src: AppDefault().imageUrl + (item["shopImg"] ?? ""),
                 width: 120.w,
                 height: 120.w,
-                '${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png',
-                fit: BoxFit.cover,
+                fit: BoxFit.fill,
               ),
             ),
             Container(
@@ -122,29 +182,26 @@ class MallCollectPage extends GetView<MallCollectPageController> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  getWidthText(item['title'], 15, AppColor.textBlack, 209.w, 2,
-                      textAlign: TextAlign.left, alignment: Alignment.topLeft),
+                  getWidthText(item['shopName'], 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
                   ghb(15.w),
-                  getSimpleText(
-                      "${item['integral'] ?? "0"}积分", 18, AppColor.theme3,
-                      isBold: true, textAlign: TextAlign.left),
+                  getSimpleText("${item['nowPrice'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
                   sbhRow([
-                    getSimpleText("已兑${item['exchange'] ?? "已兑0"}个", 12,
-                        AppColor.textGrey5,
-                        textAlign: TextAlign.left),
+                    getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
                     centRow([
                       GetBuilder<MallCollectPageController>(
                         builder: (_) {
                           return CustomButton(
                             onPressed: () {
-                              item["favoriteStatus"] = !item["favoriteStatus"];
-                              //
+                              if ((item["isCollect"] ?? 0) == 0) {
+                                controller.loadAddCollect(item);
+                              } else {
+                                controller.loadRemoveCollect(item);
+                              }
+
                               controller.update();
                             },
                             child: Image.asset(
-                              assetsName(item["favoriteStatus"]
-                                  ? 'business/mall/btn_iscollect'
-                                  : 'business/mall/btn_collect'),
+                              assetsName((item["isCollect"] ?? 0) == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
                               width: 32.w,
                               height: 28.w,
                             ),

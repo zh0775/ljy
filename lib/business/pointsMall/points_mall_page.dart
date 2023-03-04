@@ -6,6 +6,8 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cxhighversion2/component/app_banner.dart';
 
+import 'package:cxhighversion2/business/mallQuickEntry/redemption_list.dart';
+
 import 'mall_cart_page.dart';
 import 'user_mall_page.dart';
 
@@ -24,10 +26,7 @@ class PointsMallPageController extends GetxController {
   set tabIdx(v) => _tabIdx.value = v;
 
   List<BannerData> banner = <BannerData>[
-    BannerData(
-        imagePath:
-            '${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png',
-        id: '1'),
+    BannerData(imagePath: '${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png', id: '1'),
   ];
 
   List productList = [
@@ -109,8 +108,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 (index) => BottomNavigationBarItem(
                     icon: centClm([
                       Image.asset(
-                        assetsName(
-                            "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
+                        assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
                         width: 30.w,
                         fit: BoxFit.fitWidth,
                       ),
@@ -123,8 +121,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                 ? "购物车"
                                 : "我的",
                     activeIcon: Image.asset(
-                      assetsName(
-                          "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
+                      assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
                       width: 30.w,
                       fit: BoxFit.fitWidth,
                     ))),
@@ -225,7 +222,18 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               }
 
               return CustomButton(
-                onPressed: () {},
+                onPressed: () {
+                  switch (index) {
+                    case 0:
+                      push(
+                        RedemptionListPage(),
+                        null,
+                        binding: RedemptionListPageBinding(),
+                      );
+                      break;
+                    default:
+                  }
+                },
                 child: centClm([
                   Image.asset(
                     assetsName(img),
@@ -255,8 +263,7 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 GestureDetector(
                   onTap: () => print("点击事件"),
                   child: centRow([
-                    nSimpleText("查看更多", 12,
-                        color: AppColor.text3, textHeight: 1.2),
+                    nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
                     Image.asset(
                       assetsName("mine/icon_right_arrow"),
                       width: 12.w,
@@ -311,31 +318,21 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            getWidthText(data['title'], 14.w,
-                                AppColor.textBlack, 149.w, 2,
-                                textAlign: TextAlign.left,
-                                alignment: Alignment.topLeft),
-                            getSimpleText("${data['integral'] ?? 0}积分", 18,
-                                AppColor.theme3,
-                                isBold: true, textAlign: TextAlign.left),
+                            getWidthText(data['title'], 14.w, AppColor.textBlack, 149.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
+                            getSimpleText("${data['integral'] ?? 0}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
                             sbhRow([
-                              getSimpleText("已兑${data['exchange'] ?? 0}个", 12,
-                                  AppColor.textGrey5,
-                                  textAlign: TextAlign.left),
+                              getSimpleText("已兑${data['exchange'] ?? 0}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
                               centRow([
                                 GetBuilder<PointsMallPageController>(
                                   builder: (_) {
                                     return CustomButton(
                                       onPressed: () {
-                                        data["favoriteStatus"] =
-                                            !data["favoriteStatus"];
+                                        data["favoriteStatus"] = !data["favoriteStatus"];
                                         //
                                         controller.update();
                                       },
                                       child: Image.asset(
-                                        assetsName(data["favoriteStatus"]
-                                            ? 'business/mall/btn_iscollect'
-                                            : 'business/mall/btn_collect'),
+                                        assetsName(data["favoriteStatus"] ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
                                         width: 32.w,
                                         height: 28.w,
                                       ),

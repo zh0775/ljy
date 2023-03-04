@@ -7,6 +7,8 @@ import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 
+import 'package:cxhighversion2/business/mallOrder/mall_order_status.page.dart';
+
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -297,36 +299,41 @@ class MallOrderPage extends GetView<MallOrderPageController> {
             ], width: 345.w),
           ),
           ghb(14),
-          Container(
-            width: 345.w,
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F8F8),
-              borderRadius: BorderRadius.circular(8.w),
-            ),
-            padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
-            child: sbRow([
-              CustomNetworkImage(
-                src: "${data['porductImgUrl']}",
-                width: 60,
-                height: 60,
-                fit: BoxFit.fitWidth,
+          GestureDetector(
+            onTap: () {
+              push(const MallOrderStatusPage(), null, binding: MallOrderStatusPageBinding());
+            },
+            child: Container(
+              width: 345.w,
+              decoration: BoxDecoration(
+                color: const Color(0xFFF8F8F8),
+                borderRadius: BorderRadius.circular(8.w),
               ),
-              gwb(11),
-              SizedBox(
-                width: 345.w - 60.w - 30.w * 2 - 11.w,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    getSimpleText("${data['title']}", 12, const Color(0xFF333333)),
-                    getSimpleText("已选：${data['selectTypeTextList'][0]}；", 10, const Color(0xFF999999)),
-                    sbRow([
-                      getSimpleText("${data['integralNum']}积分", 10, const Color(0xFF333333)),
-                      getSimpleText("x${data['num']}", 12, const Color(0xFF999999)),
-                    ])
-                  ],
+              padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
+              child: sbRow([
+                CustomNetworkImage(
+                  src: "${data['porductImgUrl']}",
+                  width: 60,
+                  height: 60,
+                  fit: BoxFit.fitWidth,
                 ),
-              ),
-            ]),
+                gwb(11),
+                SizedBox(
+                  width: 345.w - 60.w - 30.w * 2 - 11.w,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      getSimpleText("${data['title']}", 12, const Color(0xFF333333)),
+                      getSimpleText("已选：${data['selectTypeTextList'][0]}；", 10, const Color(0xFF999999)),
+                      sbRow([
+                        getSimpleText("${data['integralNum']}积分", 10, const Color(0xFF333333)),
+                        getSimpleText("x${data['num']}", 12, const Color(0xFF999999)),
+                      ])
+                    ],
+                  ),
+                ),
+              ]),
+            ),
           ),
           ghb(15.5),
           Row(

@@ -125,16 +125,16 @@ class RefundProgressPage extends GetView<RefundProgressPageController> {
                   ),
                   index == current
                       ? Image.asset(
-                          assetsName("business/sale/icon_refund_success"),
-                          width: 14.w,
-                          height: 14.w,
-                          fit: BoxFit.fitWidth,
-                        )
+                    assetsName("business/sale/icon_refund_success"),
+                    width: 14.w,
+                    height: 14.w,
+                    fit: BoxFit.fitWidth,
+                  )
                       : Container(
-                          width: 7.w,
-                          height: 7.w,
-                          decoration: BoxDecoration(color: Color(0xFFCCCCCC), borderRadius: BorderRadius.all(Radius.circular(7.w))),
-                        )
+                    width: 7.w,
+                    height: 7.w,
+                    decoration: BoxDecoration(color: Color(0xFFCCCCCC), borderRadius: BorderRadius.all(Radius.circular(7.w))),
+                  )
                 ],
               ),
               Expanded(

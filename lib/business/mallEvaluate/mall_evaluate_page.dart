@@ -1,4 +1,4 @@
-/// 积分商城 我的评价页面
+/// 积分商城 我的评价列表页面
 
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/util/app_default.dart';
@@ -261,12 +261,10 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
   }
 
   // 待评价
-  /**
-   * datas item 数据
-   * count  累计  分页
-   * listIndex 索引
-   * evaluateType  类型
-   */
+  /// datas item 数据
+  /// count  累计  分页
+  /// listIndex 索引
+  /// evaluateType  类型
   Widget mallEvaluateList(List datas, int count, int listIndex, int evaluateType, RefreshController pullCtrl, Function()? onRefresh, Function()? onLoading) {
     return SmartRefresher(
       controller: pullCtrl,
@@ -308,19 +306,19 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
       padding: EdgeInsets.all(15.w),
       child: Column(
         children: [
-          SizedBox(
-            child: sbRow([
-              getSimpleText("订单编号：${data['orderNo']}", 10.w, const Color(0xFF999999)),
-              getSimpleText("${data['orderTypeText']}", 12.w, const Color(0xFFFF6231)),
-            ], width: (345.w - 15.w * 2)),
-          ),
-          ghb(14.w),
+          // SizedBox(
+          //   child: sbRow([
+          //     getSimpleText("订单编号：${data['orderNo']}", 10.w, const Color(0xFF999999)),
+          //     getSimpleText("${data['orderTypeText']}", 12.w, const Color(0xFFFF6231)),
+          //   ], width: (345.w - 15.w * 2)),
+          // ),
+          // ghb(14.w),
           Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF8F8F8),
-              borderRadius: BorderRadius.circular(8.w),
-            ),
-            padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
+            // decoration: BoxDecoration(
+            //   color: const Color(0xFFF8F8F8),
+            //   borderRadius: BorderRadius.circular(8.w),
+            // ),
+            // padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
             child: sbRow([
               CustomNetworkImage(
                 src: "${data['porductImgUrl']}",
@@ -330,34 +328,37 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
               ),
               gwb(11.w),
               SizedBox(
-                width: 345.w - 60.w - 30.w * 2 - 11.w,
+                width: 345.w - 60.w - 15 * 2 - 13.w,
+                height: 60.w,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     getSimpleText("${data['title']}", 12.w, const Color(0xFF333333)),
-                    getSimpleText("已选：${data['selectTypeTextList'][0]}；", 10.w, const Color(0xFF999999)),
-                    sbRow([
-                      getSimpleText("${data['integralNum']}积分", 10.w, const Color(0xFF333333)),
-                      getSimpleText("x${data['num']}", 12.w, const Color(0xFF999999)),
-                    ])
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        borderButton('评价', const Color(0xFFFF6231), data['logisticsId'], '1'),
+                      ],
+                    ),
                   ],
                 ),
-              ),
+              )
             ]),
           ),
-          ghb(15.5.w),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              getSimpleText("总计：", 10.w, const Color(0xFF333333)),
-              getSimpleText("${data['integralTotal']}积分", 12.w, const Color(0xFFFF6231)),
-            ],
-          ),
-          ghb(13.w),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [borderButton('评价', Color(0xFFFF6231), data['logisticsId'], '1')],
-          )
+
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [
+          //     getSimpleText("总计：", 10.w, const Color(0xFF333333)),
+          //     getSimpleText("${data['integralTotal']}积分", 12.w, const Color(0xFFFF6231)),
+          //   ],
+          // ),
+          // ghb(13.w),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.end,
+          //   children: [borderButton('评价', const Color(0xFFFF6231), data['logisticsId'], '1')],
+          // )
         ],
       ),
     );
@@ -381,7 +382,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
               color: color,
             ),
             boxShadow: [BoxShadow(color: Colors.white, offset: Offset.zero, blurRadius: 2.w, spreadRadius: 2.w, blurStyle: BlurStyle.solid)]),
-        child: getSimpleText("${buttonTitle} ", 12, color, textHeight: 1.1),
+        child: getSimpleText("$buttonTitle ", 12, color, textHeight: 1.1),
       ),
     );
   }
@@ -391,11 +392,12 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
   Widget myEvaluateItem(Map data, int index, BuildContext context, int listIndex) {
     return Container(
       width: 375.w,
+      color: Colors.white,
       padding: EdgeInsets.all(15.w),
+      margin: EdgeInsets.only(top: 15.w),
       child: Column(
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(15.w),
@@ -405,26 +407,112 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                   height: 30.w,
                 ),
               ),
-              Column(
-                children: [
-                  Text('喵喵爱吃鱼'),
-                  Text('喵喵爱吃鱼'),
-                ],
+              gwb(6),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        getSimpleText('喵喵爱吃鱼', 15, const Color(0xFF333333)),
+                        getSimpleText("2022-11-18", 12, const Color(0xFF333333)),
+                      ],
+                    ),
+                    Container(
+                      child: startRating(currentStart: 3),
+                    )
+                  ],
+                ),
               ),
-              getSimpleText("2022-11-18", 12.w, const Color(0xFF333333)),
             ],
           ),
-          getSimpleText("宝贝收到了，我超喜欢，做工质地都好得没话说，服 务态度也超好， 很有心的店家，以后常光顾！", 12.w, const Color(0xFF333333)),
-          Row(
-            children: [],
+          ghb(13),
+          SizedBox(
+            child: Text(
+              "宝贝收到1了，我超喜欢，做工质地都好得没话说，服 务态度也超好， 很有心的店家，以后常光顾！",
+              style: TextStyle(
+                fontSize: 15.w,
+                color: const Color(0xFF333333),
+              ),
+            ),
           ),
-          Container(
+          ghb(8),
+          GestureDetector(
+            onTap: () {
+              print('test');
+            },
             child: Row(
-              children: [],
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.network(
+                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                  width: 100.w,
+                  height: 100.w,
+                  fit: BoxFit.cover,
+                ),
+                Image.network(
+                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                  width: 100.w,
+                  height: 100.w,
+                  fit: BoxFit.cover,
+                ),
+                Image.network(
+                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                  width: 100.w,
+                  height: 100.w,
+                  fit: BoxFit.cover,
+                )
+              ],
+            ),
+          ),
+          ghb(20),
+          Container(
+            width: 345.w,
+            height: 60.w,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(4.w),
+              color: const Color(0xFFF5F5F7),
+            ),
+            padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
+            child: Row(
+              children: [
+                Image.network(
+                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                  width: 45.w,
+                  height: 45.w,
+                  fit: BoxFit.cover,
+                ),
+                gwb(12),
+                SizedBox(
+                  width: 345.w - 45.w - 20.w - 12.w - 15.w,
+                  child: getSimpleText(
+                    '自动伞十二骨全自动雨 伞抗风防晒黑胶伞胶伞胶伞胶伞胶伞',
+                    12,
+                    const Color(0xFF333333),
+                  ),
+                ),
+                Image.asset(
+                  assetsName("mine/icon_right_arrow"),
+                  width: 12.w,
+                  fit: BoxFit.fitWidth,
+                )
+              ],
             ),
           )
         ],
       ),
     );
+  }
+
+  Widget startRating({int currentStart = 0}) {
+    return Row(
+        children: List.generate(5, (index) {
+      return Icon(
+        index < currentStart ? Icons.star : Icons.star_border,
+        size: 11.w,
+        color: const Color(0xFFFEB501),
+      );
+    }));
   }
 }

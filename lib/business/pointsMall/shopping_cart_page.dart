@@ -2,6 +2,7 @@ import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
 import 'package:easy_refresh/easy_refresh.dart';
@@ -63,7 +64,11 @@ class ShoppingCartPageController extends GetxController {
         allPrice = (e["price"] ?? 0) * (e["num"] ?? 1) * 1.0;
       }
 
-      selectIds.add({"id": e["id"], "selected": e["selected"] ?? false, "num": e["num"] ?? 1});
+      selectIds.add({
+        "id": e["id"],
+        "selected": e["selected"] ?? false,
+        "num": e["num"] ?? 1
+      });
     }
 
     AppDefault().integralStoreCarSelectIds = selectIds;
@@ -127,41 +132,69 @@ class ShoppingCartPageController extends GetxController {
     }
     List selectIds = AppDefault().integralStoreCarSelectIds;
 
-    Future.delayed(const Duration(seconds: 1), () {
-      count = 30;
-      List tmpList = List.generate(
-          pageSize,
-          (index) => {
-                "id": isLoad ? dataList.length + index : index,
-                "name": "商品${dataList.length + index}",
-                "img": [
-                  "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg",
-                  "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg",
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg",
-                  "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg",
-                ][index % 4],
-                "subTitle": "60g 1组",
-                "maxNum": 15,
-                "price": [1592, 6380, 698, 1592][index % 4],
-              });
+    simpleRequest(
+      url: Urls.userViewCart,
+      params: {
+        "pageNo": pageNo,
+        "pageSize": pageSize,
+      },
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          Map carData = data["carList"] ?? {};
+          count = carData["count"] ?? 0;
+          List tmpList = carData["data"] ?? [];
+          tmpList = tmpList
+              .map((e) => {
+                    ...e,
+                    "num": 1,
+                  })
+              .toList();
+          dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
+          checkSelect();
+          update();
+        } else {}
+      },
+      after: () {
+        isLoading = false;
+      },
+    );
 
-      tmpList = tmpList.map((e) {
-        bool selected = false;
-        int num = 1;
-        for (var e2 in selectIds) {
-          if (e["id"] == e2["id"]) {
-            selected = e2["selected"] ?? false;
-            num = e2["num"] ?? 1;
-            break;
-          }
-        }
-        return {...e, "selected": selected, "num": num};
-      }).toList();
-      checkSelect();
-      dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
-      isLoading = false;
-      update();
-    });
+    // Future.delayed(const Duration(seconds: 1), () {
+    //   count = 30;
+    //   List tmpList = List.generate(
+    //       pageSize,
+    //       (index) => {
+    //             "id": isLoad ? dataList.length + index : index,
+    //             "name": "商品${dataList.length + index}",
+    //             "img": [
+    //               "https://img20.360buyimg.com/focus/s140x140_jfs/t13759/194/897734755/2493/1305d4c4/5a1692ebN8ae73077.jpg",
+    //               "https://img14.360buyimg.com/focus/s140x140_jfs/t1/91206/20/13565/9379/5e5f262bE45790537/0373287c48fa2317.jpg",
+    //               "https://img10.360buyimg.com/focus/s140x140_jfs/t1/95022/3/13977/20829/5e5f2636E20222316/bbc6e2cf5b10669e.jpg",
+    //               "https://img10.360buyimg.com/focus/s140x140_jfs/t1/102819/1/13751/13266/5e5f2642Ea72e3802/828ddc1e738c1e07.jpg",
+    //             ][index % 4],
+    //             "subTitle": "60g 1组",
+    //             "maxNum": 15,
+    //             "price": [1592, 6380, 698, 1592][index % 4],
+    //           });
+
+    //   tmpList = tmpList.map((e) {
+    //     bool selected = false;
+    //     int num = 1;
+    //     for (var e2 in selectIds) {
+    //       if (e["id"] == e2["id"]) {
+    //         selected = e2["selected"] ?? false;
+    //         num = e2["num"] ?? 1;
+    //         break;
+    //       }
+    //     }
+    //     return {...e, "selected": selected, "num": num};
+    //   }).toList();
+    //   checkSelect();
+    //   dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
+    //   isLoading = false;
+    //   update();
+    // });
   }
 }
 
@@ -179,7 +212,11 @@ class ShoppingCartPage extends StatelessWidget {
         title: GetX<ShoppingCartPageController>(
           init: ShoppingCartPageController(),
           builder: (controller) {
-            return getSimpleText("购物车 ${controller.carNum < 1 ? "" : "(${controller.carNum})"}", 18, AppColor.text, isBold: true);
+            return getSimpleText(
+                "购物车 ${controller.carNum < 1 ? "" : "(${controller.carNum})"}",
+                18,
+                AppColor.text,
+                isBold: true);
           },
         ),
         actions: [
@@ -195,7 +232,8 @@ class ShoppingCartPage extends StatelessWidget {
                   height: kTextTabBarHeight,
                   width: 60.w,
                   child: Center(
-                    child: getSimpleText(controller.isEdit ? "完成" : "编辑", 14, AppColor.text2),
+                    child: getSimpleText(
+                        controller.isEdit ? "完成" : "编辑", 14, AppColor.text2),
                   ),
                 ),
               );
@@ -213,14 +251,19 @@ class ShoppingCartPage extends StatelessWidget {
                   return EasyRefresh(
                     header: const CupertinoHeader(),
                     footer: const CupertinoFooter(),
-                    onLoad: controller.dataList.length >= controller.count ? null : () => controller.loadList(isLoad: true),
+                    onLoad: controller.dataList.length >= controller.count
+                        ? null
+                        : () => controller.loadList(isLoad: true),
                     onRefresh: () => controller.loadList(),
                     child: controller.dataList.isEmpty
                         ? SingleChildScrollView(
                             child: Center(
                               child: GetX<ShoppingCartPageController>(
                                 builder: (_) {
-                                  return CustomEmptyView(type: CustomEmptyType.carNoData, isLoading: controller.isLoading, bottomSpace: 200.w);
+                                  return CustomEmptyView(
+                                      type: CustomEmptyType.carNoData,
+                                      isLoading: controller.isLoading,
+                                      bottomSpace: 200.w);
                                 },
                               ),
                             ),
@@ -229,7 +272,8 @@ class ShoppingCartPage extends StatelessWidget {
                             padding: EdgeInsets.only(bottom: 20.w),
                             itemCount: controller.dataList.length,
                             itemBuilder: (context, index) {
-                              return carCell(controller.dataList[index], index, controller);
+                              return carCell(controller.dataList[index], index,
+                                  controller);
                             },
                           ),
                   );
@@ -242,7 +286,9 @@ class ShoppingCartPage extends StatelessWidget {
               bottom: 0,
               child: Container(
                 padding: EdgeInsets.only(bottom: paddingSizeBottom(context)),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)]),
+                decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                  BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)
+                ]),
                 child: GetX<ShoppingCartPageController>(
                   init: ShoppingCartPageController(),
                   builder: (controller) {
@@ -250,18 +296,23 @@ class ShoppingCartPage extends StatelessWidget {
                       child: sbhRow([
                         CustomButton(
                             onPressed: () {
-                              controller.checkSelect(allSelect: !controller.allSelected);
+                              controller.checkSelect(
+                                  allSelect: !controller.allSelected);
                             },
                             child: SizedBox(
                                 height: 55.w,
                                 child: centRow([
                                   Image.asset(
-                                    assetsName("business/mall/checkbox_orange_${controller.allSelected ? "selected" : "normal"}"),
+                                    assetsName(
+                                        "business/mall/checkbox_orange_${controller.allSelected ? "selected" : "normal"}"),
                                     width: 16.w,
                                     fit: BoxFit.fitWidth,
                                   ),
                                   gwb(15),
-                                  getSimpleText(controller.allSelected ? "反选" : "全选", 14, AppColor.text),
+                                  getSimpleText(
+                                      controller.allSelected ? "反选" : "全选",
+                                      14,
+                                      AppColor.text),
                                 ]))),
                         getSubmitBtn(
                           controller.isEdit ? "删除" : "结算",
@@ -293,7 +344,8 @@ class ShoppingCartPage extends StatelessWidget {
           width: 345.w,
           height: 120.w,
           margin: EdgeInsets.only(top: index == 0 ? 0 : 15.w),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
           child: Center(
             child: sbhRow([
               centRow([
@@ -302,7 +354,8 @@ class ShoppingCartPage extends StatelessWidget {
                   width: 35.w,
                   child: Center(
                     child: Image.asset(
-                      assetsName("business/mall/checkbox_orange_${data["selected"] ? "selected" : "normal"}"),
+                      assetsName(
+                          "business/mall/checkbox_orange_${data["selected"] ? "selected" : "normal"}"),
                       width: 16.w,
                       fit: BoxFit.fitWidth,
                     ),
@@ -319,16 +372,27 @@ class ShoppingCartPage extends StatelessWidget {
                 padding: EdgeInsets.only(right: 11.5.w),
                 child: sbClm([
                   centClm([
-                    getWidthText("${data["name"] ?? ""}", 15, AppColor.text, 200, 2, isBold: true),
+                    getWidthText(
+                        "${data["name"] ?? ""}", 15, AppColor.text, 200, 2,
+                        isBold: true),
                     ghb(3),
-                    getWidthText("型号：${data["subTitle"] ?? ""} ", 12, AppColor.text3, 180, 1),
+                    getWidthText("型号：${data["subTitle"] ?? ""} ", 12,
+                        AppColor.text3, 180, 1),
                   ], crossAxisAlignment: CrossAxisAlignment.start),
                   sbRow([
-                    getSimpleText("${priceFormat(data["price"] ?? 0, savePoint: 0)}积分", 15, const Color(0xFFF93635), isBold: true),
+                    getSimpleText(
+                        "${priceFormat(data["price"] ?? 0, savePoint: 0)}积分",
+                        15,
+                        const Color(0xFFF93635),
+                        isBold: true),
                     Container(
                         width: 90.w,
                         height: 25.w,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.5.w), color: AppColor.pageBackgroundColor, border: Border.all(width: 0.5.w, color: AppColor.lineColor)),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12.5.w),
+                            color: AppColor.pageBackgroundColor,
+                            border: Border.all(
+                                width: 0.5.w, color: AppColor.lineColor)),
                         child: Row(
                           children: List.generate(
                               3,
@@ -345,15 +409,24 @@ class ShoppingCartPage extends StatelessWidget {
                                             ? CustomInput(
                                                 width: 40.w - 1.w,
                                                 heigth: 21.w,
-                                                textEditCtrl: controller.cellInput,
+                                                textEditCtrl:
+                                                    controller.cellInput,
                                                 focusNode: controller.node,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
-                                                style: TextStyle(fontSize: 15.w, color: AppColor.text),
-                                                placeholderStyle: TextStyle(fontSize: 15.w, color: AppColor.assisText),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                style: TextStyle(
+                                                    fontSize: 15.w,
+                                                    color: AppColor.text),
+                                                placeholderStyle: TextStyle(
+                                                    fontSize: 15.w,
+                                                    color: AppColor.assisText),
                                               )
                                             : Center(
-                                                child: getSimpleText("${data["num"] ?? 1}", 15, AppColor.text),
+                                                child: getSimpleText(
+                                                    "${data["num"] ?? 1}",
+                                                    15,
+                                                    AppColor.text),
                                               ),
                                       ),
                                     )
@@ -364,18 +437,21 @@ class ShoppingCartPage extends StatelessWidget {
 
                                         if (idx == 0) {
                                           if (num > 1) {
-                                            data["num"] = (data["num"] ?? 1) - 1;
+                                            data["num"] =
+                                                (data["num"] ?? 1) - 1;
                                             controller.update();
                                           }
                                         } else {
                                           if (num < count) {
-                                            data["num"] = (data["num"] ?? 1) + 1;
+                                            data["num"] =
+                                                (data["num"] ?? 1) + 1;
                                             controller.update();
                                           }
                                         }
 
                                         if (controller.inputIndex == index) {
-                                          controller.cellInput.text = "${data["num"]}";
+                                          controller.cellInput.text =
+                                              "${data["num"]}";
                                         }
                                       },
                                       child: SizedBox(
@@ -385,7 +461,14 @@ class ShoppingCartPage extends StatelessWidget {
                                           child: Icon(
                                             idx == 0 ? Icons.remove : Icons.add,
                                             size: 18.w,
-                                            color: idx == 0 ? ((data["num"] ?? 1) <= 1 ? AppColor.assisText : AppColor.textBlack) : ((data["num"] ?? 1) >= (data["maxNum"] ?? 1) ? AppColor.assisText : AppColor.textBlack),
+                                            color: idx == 0
+                                                ? ((data["num"] ?? 1) <= 1
+                                                    ? AppColor.assisText
+                                                    : AppColor.textBlack)
+                                                : ((data["num"] ?? 1) >=
+                                                        (data["maxNum"] ?? 1)
+                                                    ? AppColor.assisText
+                                                    : AppColor.textBlack),
                                           ),
                                         ),
                                       ),

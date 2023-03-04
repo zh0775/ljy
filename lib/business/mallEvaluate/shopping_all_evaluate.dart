@@ -1,21 +1,16 @@
 // 商品所有的评价列表
 
-import 'package:flutter/material.dart';
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/component/custom_network_image.dart';
-import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
-import 'package:intl/intl.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class ShoppingAllEvaluateBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<ShoppingAllEvaluateController>(ShoppingAllEvaluateController(shopIds: Get.arguments));
+    Get.put<ShoppingAllEvaluateController>(
+        ShoppingAllEvaluateController(shopIds: Get.arguments));
   }
 }
 
@@ -41,7 +36,8 @@ class ShoppingAllEvaluateController extends GetxController {
       "integralTotal": 1080,
       "num": 2,
       "logisticsId": 1,
-      "porductImgUrl": "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
+      "porductImgUrl":
+          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
     },
     {
       "id": 2,
@@ -56,7 +52,8 @@ class ShoppingAllEvaluateController extends GetxController {
       "integralTotal": 540,
       "num": 1,
       "logisticsId": 1,
-      "porductImgUrl": "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
+      "porductImgUrl":
+          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
     }
   ];
 
@@ -120,7 +117,8 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
       builder: (_) {
         return Container(
           child: Column(
-            children: List.generate(controller.shopAllEvaluateList.length, (index) {
+            children:
+                List.generate(controller.shopAllEvaluateList.length, (index) {
               Map data = controller.shopAllEvaluateList[index];
               return myEvaluateItem(data);
             }),
@@ -157,7 +155,8 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         getSimpleText('喵喵爱吃鱼', 15, const Color(0xFF333333)),
-                        getSimpleText("2022-11-18", 12, const Color(0xFF333333)),
+                        getSimpleText(
+                            "2022-11-18", 12, const Color(0xFF333333)),
                       ],
                     ),
                     Container(

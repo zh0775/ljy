@@ -8,13 +8,9 @@ import 'package:cxhighversion2/component/bottom_paypassword.dart';
 import 'package:cxhighversion2/component/custom_alipay.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/home/home.dart';
-import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase.dart';
-import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase_order.dart';
 import 'package:cxhighversion2/main.dart';
-import 'package:cxhighversion2/mine/integral/integral_cash_order_list.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/util/toast.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -127,7 +123,8 @@ class MallOrderPayController extends GetxController {
                                 name: "MallOrderStatusPage",
                               )),
                           (route) => route is GetPageRoute
-                              ? route.binding is MainPageBinding
+                              ? route.binding is MainPageBinding ||
+                                      route.binding is PointsMallPageBinding
                                   ? true
                                   : false
                               : false);
@@ -140,7 +137,8 @@ class MallOrderPayController extends GetxController {
                                 name: "ShoppingProductList",
                               )),
                           (route) => route is GetPageRoute
-                              ? route.binding is PointsMallPageBinding
+                              ? route.binding is MainPageBinding ||
+                                      route.binding is PointsMallPageBinding
                                   ? true
                                   : false
                               : false);
@@ -161,7 +159,8 @@ class MallOrderPayController extends GetxController {
                           name: "MallOrderStatusPage",
                         )),
                     (route) => route is GetPageRoute
-                        ? route.binding is PointsMallPageBinding
+                        ? route.binding is MainPageBinding ||
+                                route.binding is PointsMallPageBinding
                             ? true
                             : false
                         : false);
@@ -191,7 +190,8 @@ class MallOrderPayController extends GetxController {
                                   name: "MallOrderStatusPage",
                                 )),
                             (route) => route is GetPageRoute
-                                ? route.binding is PointsMallPageBinding
+                                ? route.binding is MainPageBinding ||
+                                        route.binding is PointsMallPageBinding
                                     ? true
                                     : false
                                 : false);
@@ -204,7 +204,8 @@ class MallOrderPayController extends GetxController {
                                   name: "ShoppingProductList",
                                 )),
                             (route) => route is GetPageRoute
-                                ? route.binding is PointsMallPageBinding
+                                ? route.binding is MainPageBinding ||
+                                        route.binding is PointsMallPageBinding
                                     ? true
                                     : false
                                 : false);

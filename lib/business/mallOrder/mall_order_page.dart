@@ -1,21 +1,17 @@
 /// 积分商城 我的售后页面
 
 import 'package:cxhighversion2/business/afterSale/refund_ progress_page.dart';
+import 'package:cxhighversion2/business/mallOrder/mall_order_status.page.dart';
+import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_empty_view.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/component/custom_network_image.dart';
-import 'package:cxhighversion2/component/custom_empty_view.dart';
-
-import 'package:cxhighversion2/business/mallOrder/mall_order_status.page.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-
 import 'package:intl/intl.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MallOrderPageBinding implements Bindings {
   @override
@@ -65,6 +61,46 @@ class MallOrderPageController extends GetxController {
     0,
   ];
 
+  toPayAction() {}
+  cancelAction(Map data) {
+    simpleRequest(
+      url: Urls.userConfirmCancel,
+      params: {"id": data["id"]},
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  deletelAction(Map data) {
+    simpleRequest(
+      url: Urls.userDelOrder(data["id"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  confirmAction(Map data) {
+    simpleRequest(
+      url: Urls.userOrderConfirm(data["id"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {},
+    );
+  }
+
   final _isLoading = true.obs;
   bool get isLoading => _isLoading.value;
   set isLoading(v) => _isLoading.value = v;
@@ -79,52 +115,7 @@ class MallOrderPageController extends GetxController {
     }
   }
 
-  int mallAllCount = 0;
-  int mallProcessingCount = 0;
-
-  final _mallAllOrderData = Rx<List>([
-    {
-      "id": 1,
-      "orderNo": "201545130123056460",
-      "orderStatusList": [1],
-      "orderStatusTextList": ["查看物流"],
-      "title": "自动伞十二骨全自动雨 伞抗风防晒黑胶伞",
-      "orderType": 1,
-      "orderTypeText": "申请退款中",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 540,
-      "integralTotal": 1080,
-      "num": 2,
-      "logisticsId": 1,
-      "porductImgUrl":
-          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
-    }
-  ]);
-  List get mallAllOrderList => _mallAllOrderData.value;
-  set mallAllOrderList(v) => _mallAllOrderData.value = v;
-
-  final _mallProcessingOrderData = Rx<List>([
-    {
-      "id": 1,
-      "orderNo": "201545130123056466",
-      "orderStatusList": [1],
-      "orderStatusTextList": ["查看物流"],
-      "title": "酒店枕芯五星级宾馆枕头仿羽布羽丝棉仿...",
-      "orderType": 1,
-      "orderTypeText": "退款成功",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 1064,
-      "integralTotal": 1064,
-      "num": 1,
-      "logisticsId": 1,
-      "porductImgUrl":
-          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
-    }
-  ]);
-  List get mallProcessingOrderList => _mallProcessingOrderData.value;
-  set mallProcessingOrderList(v) => _mallProcessingOrderData.value = v;
+  String listBuildId = "MallOrderPageController_listBuildId_";
 
   loadList({bool isLoad = false, int? status}) {
     int myLoadIdx = status ?? topIndex;
@@ -135,9 +126,28 @@ class MallOrderPageController extends GetxController {
 
     simpleRequest(
       url: Urls.userOrderList,
-      params: {},
+      params: {
+        "pageNo": pageNos[myLoadIdx],
+        "pageSize": pageSizes[myLoadIdx],
+        "shopType": 2,
+        "orderState": myLoadIdx == 0
+            ? -1
+            : myLoadIdx == 1
+                ? 1
+                : myLoadIdx == 2
+                    ? 2
+                    : 3,
+      },
       success: (success, json) {
-        if (success) {}
+        if (success) {
+          Map data = json["data"] ?? {};
+          counts[myLoadIdx] = data["count"] ?? 0;
+
+          List tmpList = data["data"] ?? [];
+          dataLists[myLoadIdx] =
+              isLoad ? [...dataLists[myLoadIdx], ...tmpList] : tmpList;
+          update(["$listBuildId$myLoadIdx"]);
+        }
       },
       after: () {
         isLoading = false;
@@ -264,74 +274,63 @@ class MallOrderPage extends GetView<MallOrderPageController> {
         controller.topIndex = value;
       },
       children: [
-        // GetBuilder<MallOrderPageController>(
-        //   init: controller,
-        //   builder: (_) {
-        //     return mallOrderList(controller.mallAllOrderList,
-        //         controller.mallAllCount, 0, controller.allPullCtrl, () async {
-        //       // controller.onRefresh(0);
-        //     }, () async {
-        //       // controller.onLoad(0);
-        //     });
-        //   },
-        // ),
-        // GetBuilder<MallOrderPageController>(
-        //   init: controller,
-        //   builder: (_) {
-        //     return mallOrderList(
-        //         controller.mallProcessingOrderList,
-        //         controller.mallProcessingCount,
-        //         0,
-        //         controller.processingPullCtrl, () async {
-        //       controller.onRefresh(0);
-        //     }, () async {
-        //       controller.onLoad(0);
-        //     });
-        //   },
-        // ),
+        mallOrderList(0),
+        mallOrderList(1),
+        mallOrderList(2),
+        mallOrderList(3),
       ],
     );
   }
 
   // 积分商城我的订单列表
   Widget mallOrderList(
-      List datas,
-      int count,
-      int listIndex,
-      // RefreshController pullCtrl,
-      Function()? onRefresh,
-      Function()? onLoading) {
-    return EasyRefresh(
-      // controller: pullCtrl,
-      onRefresh: onRefresh,
-      onLoad: onLoading,
-      // physics: const BouncingScrollPhysics(),
-      // enablePullUp: datas.length < count ? true : false,
-      child: datas.isEmpty
-          ? GetX<MallOrderPageController>(
-              init: controller,
-              builder: (_) {
-                return CustomEmptyView(
-                  isLoading: controller.isLoading,
-                );
-              },
-            )
-          : ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              padding: EdgeInsets.only(
-                  bottom: 15.w +
-                      paddingSizeBottom(Global.navigatorKey.currentContext!)),
-              itemCount: datas.isEmpty ? 0 : datas.length,
-              itemBuilder: (context, index) {
-                return mallOrderItem(datas[index], index, context, listIndex);
-              },
-            ),
+    int listIndex,
+  ) {
+    return GetBuilder<MallOrderPageController>(
+      id: "${controller.listBuildId}$listIndex",
+      builder: (_) {
+        return EasyRefresh(
+          // controller: pullCtrl,
+          header: const CupertinoHeader(),
+          footer: const CupertinoFooter(),
+          onRefresh: () => controller.loadList(status: listIndex),
+          onLoad: controller.dataLists[listIndex].length >=
+                  controller.counts[listIndex]
+              ? null
+              : () => controller.loadList(isLoad: true, status: listIndex),
+          child: controller.dataLists[listIndex].isEmpty
+              ? SingleChildScrollView(
+                  child: Center(
+                    child: GetX<MallOrderPageController>(
+                      init: controller,
+                      builder: (_) {
+                        return CustomEmptyView(
+                          isLoading: controller.isLoading,
+                          bottomSpace: 200.w,
+                        );
+                      },
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  // physics: const BouncingScrollPhysics(),
+                  padding: EdgeInsets.only(
+                      bottom: 15.w +
+                          paddingSizeBottom(
+                              Global.navigatorKey.currentContext!)),
+                  itemCount: controller.dataLists[listIndex].length,
+                  itemBuilder: (context, index) {
+                    return mallOrderItem(controller.dataLists[listIndex][index],
+                        index, listIndex);
+                  },
+                ),
+        );
+      },
     );
   }
 
   //
-  Widget mallOrderItem(
-      Map data, int index, BuildContext context, int listIndex) {
+  Widget mallOrderItem(Map data, int index, int listIndex) {
     return Container(
       width: 375.w - 15.w * 2,
       margin: EdgeInsets.all(15.w),
@@ -343,52 +342,63 @@ class MallOrderPage extends GetView<MallOrderPageController> {
           SizedBox(
             child: sbRow([
               getSimpleText(
-                  "订单编号：${data['orderNo']}", 10, const Color(0xFF999999)),
+                  "订单编号：${data['orderNo'] ?? ""}", 10, const Color(0xFF999999)),
               getSimpleText(
-                  "${data['orderTypeText']}", 12, const Color(0xFFFF6231)),
+                  "${data['orderStateStr'] ?? ""}", 12, AppColor.text2),
             ], width: 345.w),
           ),
           ghb(14),
           GestureDetector(
             onTap: () {
               push(const MallOrderStatusPage(), null,
-                  binding: MallOrderStatusPageBinding());
+                  binding: MallOrderStatusPageBinding(),
+                  arguments: {"data": data});
             },
             child: Container(
-              width: 345.w,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF8F8F8),
-                borderRadius: BorderRadius.circular(8.w),
-              ),
-              padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
-              child: sbRow([
-                CustomNetworkImage(
-                  src: "${data['porductImgUrl']}",
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.fitWidth,
+                width: 345.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8F8F8),
+                  borderRadius: BorderRadius.circular(8.w),
                 ),
-                gwb(11),
-                SizedBox(
-                  width: 345.w - 60.w - 30.w * 2 - 11.w,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      getSimpleText(
-                          "${data['title']}", 12, const Color(0xFF333333)),
-                      getSimpleText("已选：${data['selectTypeTextList'][0]}；", 10,
-                          const Color(0xFF999999)),
-                      sbRow([
-                        getSimpleText("${data['integralNum']}积分", 10,
-                            const Color(0xFF333333)),
-                        getSimpleText(
-                            "x${data['num']}", 12, const Color(0xFF999999)),
-                      ])
-                    ],
-                  ),
-                ),
-              ]),
-            ),
+                padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
+                child: Column(
+                  children:
+                      List.generate((data["commodity"] ?? []).length, (cIdx) {
+                    Map cData = (data["commodity"] ?? [])[cIdx];
+                    return Padding(
+                      padding: EdgeInsets.only(top: cIdx == 0 ? 0 : 10.w),
+                      child: sbRow([
+                        CustomNetworkImage(
+                          src: AppDefault().imageUrl + (cData['shopImg'] ?? ""),
+                          width: 60.w,
+                          height: 60.w,
+                          fit: BoxFit.cover,
+                        ),
+                        gwb(11),
+                        SizedBox(
+                          width: 345.w - 60.w - 30.w * 2 - 11.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              getWidthText(cData["shopName"] ?? "", 12,
+                                  AppColor.text, 218, 1),
+                              getSimpleText("已选：${cData['shopModel'] ?? ""}",
+                                  10, AppColor.textGrey5),
+                              sbRow([
+                                getSimpleText(
+                                    "${priceFormat(cData['nowPrice'] ?? 0, savePoint: 0)}积分",
+                                    10,
+                                    const Color(0xFF333333)),
+                                getSimpleText("x${cData['num']}", 12,
+                                    const Color(0xFF999999)),
+                              ])
+                            ],
+                          ),
+                        ),
+                      ]),
+                    );
+                  }),
+                )),
           ),
           ghb(15.5),
           Row(
@@ -396,15 +406,18 @@ class MallOrderPage extends GetView<MallOrderPageController> {
             children: [
               getSimpleText("总计：", 10.w, const Color(0xFF333333)),
               getSimpleText(
-                  "${data['integralTotal']}积分", 12.w, const Color(0xFFFF6231)),
+                  "${priceFormat(data['totalPrice'] ?? 0, savePoint: 0)}积分",
+                  12.w,
+                  const Color(0xFFFF6231)),
             ],
           ),
           ghb(13),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              borderButton('查看物流', const Color.fromARGB(255, 164, 151, 151),
-                  data['logisticsId'], '1')
+              buttons(data)
+              // borderButton('查看物流', const Color.fromARGB(255, 164, 151, 151),
+              //     data['logisticsId'] ?? 0, '1')
             ],
           )
         ],
@@ -412,34 +425,74 @@ class MallOrderPage extends GetView<MallOrderPageController> {
     );
   }
 
-  Widget borderButton(
-    String buttonTitle,
-    Color color,
-    int id,
-    String type,
-  ) {
+  Widget buttons(Map data) {
+    int status = (data["orderState"] ?? -1);
+    List<Widget> widgets = [];
+
+    if (status == 0) {
+      widgets.add(borderButton(
+        "取消订单",
+        onPressed: () {
+          myAlert("是否确认取消订单", () {
+            controller.cancelAction(data);
+          });
+        },
+      ));
+    } else if (status == 1) {
+      widgets.add(borderButton(
+        "查看详情",
+        onPressed: () {
+          push(const MallOrderStatusPage(), null,
+              binding: MallOrderStatusPageBinding(), arguments: {"data": data});
+        },
+      ));
+    } else if (status == 2) {
+      widgets.add(borderButton(
+        "确认收货",
+        onPressed: () {
+          myAlert("是否确认收货", () {
+            controller.confirmAction(data);
+          });
+        },
+      ));
+    }
+    return centRow(widgets);
+  }
+
+  myAlert(String title, Function() confirm) {
+    showAlert(
+      Global.navigatorKey.currentContext!,
+      title,
+      confirmOnPressed: () {
+        Get.back();
+        confirm();
+      },
+    );
+  }
+
+  Widget borderButton(String buttonTitle,
+      {Function()? onPressed, int type = 0}) {
     return GestureDetector(
       onTap: () {
-        print("button对应的事件");
-        push(const RefundProgressPage(), null,
-            binding: RefundProgressPageBinding());
+        if (onPressed != null) {
+          onPressed();
+        }
+        // print("button对应的事件");
+        // push(const RefundProgressPage(), null,
+        //     binding: RefundProgressPageBinding());
       },
       child: Container(
         padding: EdgeInsets.fromLTRB(8.5.w, 7.w, 8.5.w, 7.w),
         decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4.w),
-            border: Border.all(
-              color: color,
-            ),
-            boxShadow: [
-              BoxShadow(
-                  color: Colors.white,
-                  offset: Offset.zero,
-                  blurRadius: 2.w,
-                  spreadRadius: 2.w,
-                  blurStyle: BlurStyle.solid)
-            ]),
-        child: getSimpleText("${buttonTitle} ", 12.w, const Color(0xFF333333),
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4.w),
+          border: Border.all(
+            width: 0.5.w,
+            color: type == 0 ? AppColor.textGrey5 : AppColor.themeOrange,
+          ),
+        ),
+        child: getSimpleText(
+            buttonTitle, 12.w, type == 0 ? AppColor.text : AppColor.themeOrange,
             textHeight: 1.1),
       ),
     );

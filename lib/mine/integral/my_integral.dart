@@ -1,3 +1,4 @@
+import 'package:cxhighversion2/business/pointsMall/points_mall_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase.dart';
 import 'package:cxhighversion2/mine/integral/my_integral_history.dart';
@@ -191,6 +192,8 @@ class MyIntegral extends GetView<MyIntegralController> {
                           return CustomButton(
                             onPressed: () {
                               if (index == 0) {
+                                push(const PointsMallPage(), null,
+                                    binding: PointsMallPageBinding());
                               } else if (index == 1) {
                                 push(const IntegralRepurchase(), context,
                                     binding: IntegralRepurchaseBinding());

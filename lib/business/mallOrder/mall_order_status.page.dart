@@ -1,24 +1,180 @@
 // 积分商城 下单成功后到订单状态页面
 
-import 'package:flutter/material.dart';
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/component/custom_input.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
+import 'dart:async';
 
+import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 
 class MallOrderStatusPageBinding implements Bindings {
   @override
   void dependencies() {
     Get.put<MallOrderStatusPageController>(
-        MallOrderStatusPageController(id: Get.arguments));
+        MallOrderStatusPageController(datas: Get.arguments));
   }
 }
 
 class MallOrderStatusPageController extends GetxController {
-  final dynamic id;
-  MallOrderStatusPageController({this.id});
+  final dynamic datas;
+  MallOrderStatusPageController({this.datas});
+
+  final _isLoading = true.obs;
+  bool get isLoading => _isLoading.value;
+  set isLoading(v) => _isLoading.value = v;
+
+  final _haveBtn = false.obs;
+  bool get haveBtn => _haveBtn.value;
+  set haveBtn(v) => _haveBtn.value = v;
+
+  Timer? timer;
+  String timebuildId = "MineStoreOrderDetail_timebuildId";
+  String minutes = "30";
+  String second = "00";
+  DateFormat dateFormat = DateFormat("yyyy/MM/dd HH:mm:ss");
+  int status = -1;
+  late DateTime addDateTime;
+  void payCountDown() {
+    if (orderData.isEmpty ||
+        orderData["addTime"] == null ||
+        orderData["addTime"].isEmpty ||
+        orderData["orderState"] != 0) {
+      if (timer != null) {
+        timer?.cancel();
+        timer = null;
+      }
+      return;
+    }
+    DateTime now = DateTime.now();
+    addDateTime =
+        dateFormat.parse(orderData["addTime"]).add(const Duration(minutes: 30));
+    Duration duration = addDateTime.difference(now);
+
+    if (duration.inMilliseconds < 0 || orderData["orderState"] != 0) {
+      if (timer != null) {
+        timer?.cancel();
+        timer = null;
+        loadDetail();
+      }
+    } else {
+      timer ??= Timer.periodic(const Duration(seconds: 1), (_) {
+        DateTime currentTime = DateTime.now();
+        Duration d = addDateTime.difference(currentTime);
+        if (d.inMilliseconds < 0 || orderData["orderState"] != 0) {
+          timer?.cancel();
+          timer = null;
+          // loadDetail();
+        }
+        int realSeconds = d.inSeconds - d.inMinutes * 60;
+        minutes = d.inMinutes < 10 ? "0${d.inMinutes}" : "${d.inMinutes}";
+        second = realSeconds < 10 ? "0$realSeconds" : "$realSeconds";
+        update([timebuildId]);
+        loadDetail();
+        print("second == $second");
+      });
+    }
+  }
+
+  // loadPay(String pwd) {
+  //   simpleRequest(url: Urls.userPayOrder(id), params: params, success: success, after: after)
+  // }
+
+  toPayAction() {}
+  cancelAction() {
+    simpleRequest(
+      url: Urls.userConfirmCancel,
+      params: {"id": orderData["id"]},
+      success: (success, json) {
+        if (success) {
+          loadDetail();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  deletelAction() {
+    simpleRequest(
+      url: Urls.userDelOrder(orderData["id"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadDetail();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  confirmAction() {
+    simpleRequest(
+      url: Urls.userOrderConfirm(orderData["id"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadDetail();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  // Map mData = {};
+  Map orderData = {};
+  CancelToken token = CancelToken();
+  loadDetail() {
+    isLoading = true;
+    simpleRequest(
+      url: Urls.userOrderShow(orderData["id"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          orderData = json["data"] ?? {};
+          status = orderData["orderState"] ?? -1;
+          payCountDown();
+          update();
+          update([timebuildId]);
+          if (status == 1 || status == 3) {
+            haveBtn = false;
+          } else {
+            haveBtn = true;
+          }
+        }
+      },
+      after: () {
+        isLoading = false;
+      },
+      cancelToken: token,
+    );
+  }
+
+  @override
+  void onInit() {
+    if (datas != null) {
+      orderData = datas["data"] ?? {};
+    }
+    payCountDown();
+    loadDetail();
+
+    // /api/Order/User_OrderShow/{id}
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    if (!token.isCancelled) {
+      token.cancel();
+    }
+    if (timer != null) {
+      timer!.cancel();
+      timer = null;
+    }
+    super.onClose();
+  }
 }
 
 class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
@@ -42,14 +198,26 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
               child: addressDefaultBox(),
             ),
 
-            Positioned(
-              left: 15.w,
-              top: 220.w, // 下面的margin引起的
-              bottom: 50.w,
-              child: shopOrderBox(),
+            GetX<MallOrderStatusPageController>(
+              builder: (controller) {
+                return Positioned(
+                  left: 15.w,
+                  top: 220.w, // 下面的margin引起的
+                  bottom: controller.haveBtn ? 50.w : 0,
+                  child: GetBuilder<MallOrderStatusPageController>(
+                    builder: (controller) {
+                      return shopOrderBox();
+                    },
+                  ),
+                );
+              },
             ),
 
-            Positioned(bottom: 0, child: orderStatusBottom())
+            GetX<MallOrderStatusPageController>(builder: (_) {
+              return controller.haveBtn
+                  ? Positioned(bottom: 0, child: orderStatusBottom())
+                  : gemp();
+            })
             // Positioned(child: shopOrderBox())
           ],
         ),
@@ -64,13 +232,65 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
       height: 120.w,
       color: const Color(0xFFFF6231),
       padding: EdgeInsets.only(left: 30.w),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          getSimpleText("待发货", 18, Colors.white),
-          getSimpleText("卖家正在发货，请耐心等待", 12, Colors.white),
-        ],
+      child: GetBuilder<MallOrderStatusPageController>(
+        id: controller.timebuildId,
+        builder: (_) {
+          String orderStatusTitle = "";
+          String orderStatusSubTitle = "";
+          Duration duration = controller.dateFormat
+              .parse(controller.orderData["addTime"])
+              .add(const Duration(days: 7))
+              .difference(DateTime.now());
+          String autoConfirmDay = "${duration.inDays}";
+          int hour = duration.inHours - duration.inDays * 24;
+          String autoConfirmHour = "$hour";
+          switch (controller.status) {
+            case 0:
+              orderStatusTitle = "等待支付订单";
+              orderStatusSubTitle =
+                  "请在${controller.minutes}分${controller.second}秒内完成支付";
+              break;
+            case 1:
+              orderStatusTitle = "已付款成功";
+              orderStatusSubTitle = "请耐心等待发货";
+              break;
+            case 2:
+              orderStatusTitle = "已发货";
+              orderStatusSubTitle =
+                  "还剩$autoConfirmDay天$autoConfirmHour小时自动确认收货";
+              break;
+            case 3:
+              orderStatusTitle = "已完成";
+              orderStatusSubTitle = "订单已确认收货";
+              break;
+            case 4:
+              orderStatusTitle = "退货中";
+              orderStatusSubTitle = "";
+              break;
+            case 5:
+              orderStatusTitle = "退货完成";
+              orderStatusSubTitle = "";
+              break;
+            case 6:
+              orderStatusTitle = "支付超时";
+              orderStatusSubTitle = "";
+              break;
+            case 7:
+            case 8:
+              orderStatusTitle = "已取消";
+              orderStatusSubTitle = "";
+              break;
+            default:
+          }
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              getSimpleText(orderStatusTitle, 18, Colors.white),
+              getSimpleText(orderStatusSubTitle, 12, Colors.white),
+            ],
+          );
+        },
       ),
     );
   }
@@ -93,39 +313,47 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                       topRight: Radius.circular(8.0.w),
                     )),
                 child: SizedBox(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: EdgeInsets.only(left: 5.w, right: 5.w),
-                            decoration: BoxDecoration(
-                              color: const Color(0xFFFF6231),
-                              borderRadius: BorderRadius.circular(2.w),
-                            ),
-                            child: getSimpleText("默认", 12, Colors.white),
-                          ),
-                          gwb(10.5),
-                          getSimpleText("李志明", 15, const Color(0xFF000000)),
-                          gwb(14.5),
-                          getSimpleText(
-                              "13246870069", 15, const Color(0xFF000000)),
-                        ],
-                      ),
-                      ghb(15.w),
-                      SizedBox(
-                        width: 242.w,
-                        child: Text(
-                          '武汉市共东西湖区金银滩大道18号碧桂园天然 公寓2栋1812',
-                          style: TextStyle(
-                              color: const Color(0xFF999999),
-                              fontSize: 12.w,
-                              height: 1.5),
+                  child:
+                      GetBuilder<MallOrderStatusPageController>(builder: (_) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            // Container(
+                            //   padding: EdgeInsets.only(left: 5.w, right: 5.w),
+                            //   decoration: BoxDecoration(
+                            //     color: const Color(0xFFFF6231),
+                            //     borderRadius: BorderRadius.circular(2.w),
+                            //   ),
+                            //   child: getSimpleText("默认", 12, Colors.white),
+                            // ),
+                            // gwb(10.5),
+                            getSimpleText(
+                                controller.orderData["recipient"] ?? "",
+                                15,
+                                const Color(0xFF000000)),
+                            gwb(14.5),
+                            getSimpleText(
+                                controller.orderData["recipientMobile"] ?? "",
+                                15,
+                                const Color(0xFF000000)),
+                          ],
                         ),
-                      ),
-                    ],
-                  ),
+                        ghb(15.w),
+                        SizedBox(
+                          width: 242.w,
+                          child: Text(
+                            controller.orderData["userAddress"] ?? "",
+                            style: TextStyle(
+                                color: const Color(0xFF999999),
+                                fontSize: 12.w,
+                                height: 1.5),
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
                 ),
               ),
               Positioned(
@@ -163,31 +391,34 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
         margin: EdgeInsets.only(top: 15.w, bottom: 38.w),
         child: Column(
           children: [
-            shopItem(),
+            ...List.generate((controller.orderData["commodity"] ?? []).length,
+                (index) {
+              return shopItem((controller.orderData["commodity"] ?? [])[index]);
+            }),
             ghb(25.w),
-            SizedBox(
-              height: 40.w,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  nSimpleText('选填', 14, textHeight: 1.5),
-                  CustomInput(
-                    placeholder: '留言50字以内）',
-                    width: 345 - 15 * 2 - 30,
-                    heigth: 40,
-                    maxLines: 2,
-                    maxLength: 50,
-                    placeholderStyle: TextStyle(
-                        fontSize: 14.sp,
-                        color: AppColor.assisText,
-                        height: 1.3),
-                    style: TextStyle(
-                        fontSize: 14.sp, color: AppColor.text2, height: 1.3),
-                  )
-                ],
-              ),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                getWidthText("留言", 14, AppColor.textGrey5, 50, 1),
+                getWidthText("", 14, AppColor.text3, 315 - 50, 3),
+
+                // CustomInput(
+                //   placeholder: '留言50字以内）',
+                //   width: 345 - 15 * 2 - 30,
+                //   heigth: 40,
+                //   maxLines: 2,
+                //   maxLength: 50,
+                //   placeholderStyle: TextStyle(
+                //       fontSize: 14.sp,
+                //       color: AppColor.assisText,
+                //       height: 1.3),
+                //   style: TextStyle(
+                //       fontSize: 14.sp, color: AppColor.text2, height: 1.3),
+                // )
+              ],
             ),
+            ghb(15),
             gline(345 - 15 * 2, 1),
             ghb(11),
             Column(
@@ -197,8 +428,11 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      nSimpleText('商品单价', 14, color: const Color(0xFF999999)),
-                      nSimpleText('6380积分', 14, color: const Color(0xFF999999)),
+                      nSimpleText('商品总价', 14, color: const Color(0xFF999999)),
+                      nSimpleText(
+                          '${priceFormat(controller.orderData["totalPrice"] ?? 0, savePoint: 0)}积分',
+                          14,
+                          color: const Color(0xFF999999)),
                     ],
                   ),
                 ),
@@ -218,10 +452,14 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       nSimpleText('总计', 14, color: const Color(0xFF999999)),
-                      nSimpleText('6380积分', 15, color: const Color(0xFF333333)),
+                      nSimpleText(
+                          '${priceFormat(controller.orderData["totalPrice"] ?? 0, savePoint: 0)}积分',
+                          15,
+                          color: const Color(0xFF333333)),
                     ],
                   ),
                 ),
+                ghb(10),
               ],
             ),
             gline(345 - 15 * 2, 1),
@@ -234,7 +472,7 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     children: [
                       nSimpleText('订单编号', 14, color: const Color(0xFF999999)),
                       gwb(14.5),
-                      nSimpleText('201545130123056460', 14,
+                      nSimpleText(controller.orderData["orderNo"] ?? "", 14,
                           color: const Color(0xFF333333)),
                     ],
                   ),
@@ -245,7 +483,7 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     children: [
                       nSimpleText('兑换时间', 14, color: const Color(0xFF999999)),
                       gwb(14.5),
-                      nSimpleText('13:26:09', 14,
+                      nSimpleText(controller.orderData["addTime"] ?? "", 14,
                           color: const Color(0xFF333333)),
                     ],
                   ),
@@ -256,7 +494,9 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     children: [
                       nSimpleText('订单状态', 14, color: const Color(0xFF999999)),
                       gwb(14.5),
-                      nSimpleText('待发货', 15, color: const Color(0xFF333333)),
+                      nSimpleText(
+                          controller.orderData["orderStateStr"] ?? "", 15,
+                          color: const Color(0xFF333333)),
                     ],
                   ),
                 ),
@@ -268,17 +508,17 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
     );
   }
 
-  Widget shopItem() {
+  Widget shopItem(Map data) {
     return SizedBox(
       width: 345.w,
       height: 105.w,
       // padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
       child: sbRow([
-        Image.network(
-          "https://cdn.pixabay.com/photo/2017/10/12/22/23/bazaar-2846247_1280.jpg",
+        CustomNetworkImage(
+          src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
           width: 105.w,
           height: 105.w,
-          fit: BoxFit.fitHeight,
+          fit: BoxFit.cover,
         ),
         gwb(15),
         SizedBox(
@@ -288,13 +528,18 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '无痕发夹欧阳娜娜同款流沙 鸭嘴夹刘海 夹简约头饰透...',
+                data["shopName"] ?? "",
                 style: TextStyle(fontSize: 15.w, color: Color(0xFF333333)),
               ),
-              getSimpleText("已选：经典蓝；", 12, const Color(0xFF999999)),
+              getSimpleText(
+                  "已选：${data["shopModel"] ?? ""}", 12, const Color(0xFF999999)),
               sbRow([
-                getSimpleText("6380积分", 15, const Color(0xFF333333)),
-                getSimpleText("X1", 12, const Color(0xFF999999)),
+                getSimpleText(
+                    "${priceFormat(data["shopModel"] ?? 0, savePoint: 0)}积分",
+                    15,
+                    const Color(0xFF333333)),
+                getSimpleText(
+                    "X${data["num"] ?? 1}", 12, const Color(0xFF999999)),
               ])
             ],
           ),
@@ -326,29 +571,80 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
       padding: EdgeInsets.only(top: 6.w, left: 8.w, bottom: 6.w, right: 8.w),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          CustomButton(
-            onPressed: () {},
-            child: Container(
-              padding: EdgeInsets.fromLTRB(8.5.w, 7.w, 8.5.w, 7.w),
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(4.w),
-                  border: Border.all(
-                    color: Color(0xFF999999),
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                        color: Colors.white,
-                        offset: Offset.zero,
-                        blurRadius: 2.w,
-                        spreadRadius: 2.w,
-                        blurStyle: BlurStyle.solid)
-                  ]),
-              child: getSimpleText("申请售后 ", 12.w, const Color(0xFF333333),
-                  textHeight: 1.1),
-            ),
-          )
-        ],
+        children: [buttons(controller.orderData)],
+      ),
+    );
+  }
+
+  Widget buttons(Map data) {
+    int status = (data["orderState"] ?? -1);
+    List<Widget> widgets = [];
+
+    if (status == 0) {
+      widgets.add(borderButton(
+        "取消订单",
+        onPressed: () {
+          myAlert("是否确认取消订单", () {
+            controller.cancelAction();
+          });
+        },
+      ));
+    } else if (status == 1) {
+      widgets.add(borderButton(
+        "查看详情",
+        onPressed: () {
+          push(const MallOrderStatusPage(), null,
+              binding: MallOrderStatusPageBinding(), arguments: {"data": data});
+        },
+      ));
+    } else if (status == 2) {
+      widgets.add(borderButton(
+        "确认收货",
+        onPressed: () {
+          myAlert("是否确认收货", () {
+            controller.confirmAction();
+          });
+        },
+      ));
+    }
+    return centRow(widgets);
+  }
+
+  myAlert(String title, Function() confirm) {
+    showAlert(
+      Global.navigatorKey.currentContext!,
+      title,
+      confirmOnPressed: () {
+        Get.back();
+        confirm();
+      },
+    );
+  }
+
+  Widget borderButton(String buttonTitle,
+      {Function()? onPressed, int type = 0}) {
+    return GestureDetector(
+      onTap: () {
+        if (onPressed != null) {
+          onPressed();
+        }
+        // print("button对应的事件");
+        // push(const RefundProgressPage(), null,
+        //     binding: RefundProgressPageBinding());
+      },
+      child: Container(
+        padding: EdgeInsets.fromLTRB(8.5.w, 7.w, 8.5.w, 7.w),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(4.w),
+          border: Border.all(
+            width: 0.5.w,
+            color: type == 0 ? AppColor.textGrey5 : AppColor.themeOrange,
+          ),
+        ),
+        child: getSimpleText(
+            buttonTitle, 12.w, type == 0 ? AppColor.text : AppColor.themeOrange,
+            textHeight: 1.1),
       ),
     );
   }

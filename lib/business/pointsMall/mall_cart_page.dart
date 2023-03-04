@@ -1,3 +1,5 @@
+import 'package:cxhighversion2/business/pointsMall/shopping_product_list.dart';
+import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:flutter/material.dart';
 
@@ -19,24 +21,31 @@ class MallCartPageBinding implements Bindings {
 class MallCartPageController extends GetxController {
   final dynamic datas;
   MallCartPageController({this.datas});
-  List MallTypeList = [];
+  List mallTypeList = [];
 
   final _currentIndex = 0.obs; // 默认第一个
   int get currentIndex => _currentIndex.value;
   set currentIndex(v) => _currentIndex.value = v;
 
+  final _isLoading = false.obs;
+  bool get isLoading => _isLoading.value;
+  set isLoading(v) => _isLoading.value = v;
+
   loadData({String? searchStr}) {
+    isLoading = true;
     simpleRequest(
         url: Urls.userShopAllClass,
         params: {},
         success: (success, json) {
           if (success) {
             // Map data = json["data"] ?? {};
-            MallTypeList = json["data"] ?? [];
+            mallTypeList = json["data"] ?? [];
             update();
           }
         },
-        after: () {},
+        after: () {
+          isLoading = false;
+        },
         useCache: true);
   }
 
@@ -122,7 +131,7 @@ class MallCartPage extends StatelessWidget {
             ),
             child: Center(
               child: sbRow([
-                Text('请输入想要搜索的商品'),
+                getSimpleText("请输入想要搜索的商品", 14, AppColor.assisText),
                 Image.asset(
                   assetsName("business/mall/icon_search"),
                   width: 18.w,
@@ -130,7 +139,11 @@ class MallCartPage extends StatelessWidget {
               ], width: 345 - 20.5 * 2),
             ),
           ),
-          onPressed: () => print(""),
+          onPressed: () {
+            push(const ShoppingProductList(), null,
+                binding: ShoppingProductListBinding(),
+                arguments: {"isSearch": true});
+          },
         ),
         ghb(9.5.w),
       ]),
@@ -146,8 +159,8 @@ class MallCartPage extends StatelessWidget {
         return SizedBox(
           width: 90.w,
           child: Column(
-            children: List.generate((controller.MallTypeList ?? []).length, (index) {
-              Map data = controller.MallTypeList[index ?? 0] ?? [];
+            children: List.generate(controller.mallTypeList.length, (index) {
+              Map data = controller.mallTypeList[index];
 
               return GetBuilder<MallCartPageController>(
                 builder: (_) {
@@ -156,13 +169,20 @@ class MallCartPage extends StatelessWidget {
                   }, child: GetX<MallCartPageController>(
                     builder: (controller) {
                       return Container(
-                        decoration: BoxDecoration(color: Color(controller.currentIndex == index ? 0xFFFFFFFF : 0xFFF5F5F7)),
+                        decoration: BoxDecoration(
+                            color: Color(controller.currentIndex == index
+                                ? 0xFFFFFFFF
+                                : 0xFFF5F5F7)),
                         alignment: Alignment.center,
                         width: 90.w,
                         height: 50.w,
                         child: Text(
                           data['title'] ?? '',
-                          style: TextStyle(fontSize: 15, color: Color(controller.currentIndex == index ? 0xFFFF6231 : 0xFF333333)),
+                          style: TextStyle(
+                              fontSize: 15,
+                              color: Color(controller.currentIndex == index
+                                  ? 0xFFFF6231
+                                  : 0xFF333333)),
                         ),
                       );
                     },
@@ -179,56 +199,119 @@ class MallCartPage extends StatelessWidget {
   // 分类区域
 
   Widget categoryContent() {
-    return Container(
-      width: 285.w,
-      padding: EdgeInsets.all(8.w),
-      child:
-          // Container(child: Text("${controller.MallTypeList[controller.currentIndex]['children']}")
-          GetX<MallCartPageController>(
+    return GetBuilder<MallCartPageController>(
         init: MallCartPageController(),
-        initState: (_) {},
         builder: (controller) {
-          return Column(
-            children: List.generate((controller.MallTypeList[controller.currentIndex]['child'] ?? []).length, (level2Index) {
-              Map _level2Item = (controller.MallTypeList[controller.currentIndex]['child'])[level2Index] ?? [];
-              List _level3data = _level2Item['child'] ?? [];
-              return Column(
-                children: [
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(_level2Item['title'] ?? ""),
-                  ),
-                  ghb(10.5.w),
-                  // Text('${level2data["children"]}')
-                  SizedBox(
-                    child: Wrap(
-                      spacing: 10.w,
-                      runSpacing: 20.w,
-                      children: List.generate((_level3data ?? []).length, (level3Index) {
-                        Map level3item = _level3data[level3Index] ?? [];
-                        return Container(
-                          child: Column(children: [
-                            // Image.network("${level3item['imgUrl']}"),
-                            CustomNetworkImage(
-                              src: AppDefault().imageUrl + (level3item["icon"] ?? ""),
-                              width: 70.w,
-                              height: 70.w,
+          return controller.mallTypeList.isEmpty
+              ? GetX<MallCartPageController>(
+                  builder: (controller) {
+                    return Center(
+                      child: CustomEmptyView(
+                        isLoading: controller.isLoading,
+                      ),
+                    );
+                  },
+                )
+              : Container(
+                  width: 285.w,
+                  padding: EdgeInsets.all(8.w),
+                  child:
+                      // Container(child: Text("${controller.MallTypeList[controller.currentIndex]['children']}")
+                      GetX<MallCartPageController>(
+                    init: MallCartPageController(),
+                    initState: (_) {},
+                    builder: (controller) {
+                      List childList = controller
+                              .mallTypeList[controller.currentIndex]['child'] ??
+                          [];
+                      return SingleChildScrollView(
+                        physics: const BouncingScrollPhysics(),
+                        child: Column(
+                          children: [
+                            ghb(33),
+                            SizedBox(
+                              width: 250.w,
+                              child: Wrap(
+                                runSpacing: 10.w,
+                                spacing: (250.w - (70.w * 3)) / 2 - 0.1.w,
+                                children:
+                                    List.generate(childList.length, (index) {
+                                  Map data = childList[index];
+                                  return CustomButton(
+                                    onPressed: () {
+                                      push(const ShoppingProductList(), null,
+                                          binding: ShoppingProductListBinding(),
+                                          arguments: {
+                                            "categoryId1": controller
+                                                    .mallTypeList[
+                                                controller.currentIndex]["id"],
+                                            "categoryId2": data["id"],
+                                          });
+                                    },
+                                    child: centClm([
+                                      CustomNetworkImage(
+                                        src: AppDefault().imageUrl +
+                                            (data["icon"] ?? ""),
+                                        width: 70.w,
+                                        height: 70.w,
+                                        fit: BoxFit.fill,
+                                      ),
+                                      ghb(3),
+                                      getSimpleText(data["title"] ?? "", 12,
+                                          AppColor.text),
+                                    ]),
+                                  );
+                                }),
+                              ),
                             ),
+                            ghb(33),
+                          ],
+                          //     List.generate(childList.length, (level2Index) {
+                          //   Map _level2Item = childList[level2Index];
+                          //   List _level3data = _level2Item['child'] ?? [];
+                          //   return Column(
+                          //     children: [
+                          //       Align(
+                          //         alignment: Alignment.centerLeft,
+                          //         child: Text(_level2Item['title'] ?? ""),
+                          //       ),
+                          //       ghb(10.5.w),
+                          //       // Text('${level2data["children"]}')
+                          //       SizedBox(
+                          //         child: Wrap(
+                          //           spacing: 10.w,
+                          //           runSpacing: 20.w,
+                          //           children:
+                          //               List.generate((_level3data ?? []).length,
+                          //                   (level3Index) {
+                          //             Map level3item =
+                          //                 _level3data[level3Index] ?? [];
+                          //             return Container(
+                          //               child: Column(children: [
+                          //                 // Image.network("${level3item['imgUrl']}"),
+                          //                 CustomNetworkImage(
+                          //                   src: AppDefault().imageUrl +
+                          //                       (level3item["icon"] ?? ""),
+                          //                   width: 70.w,
+                          //                   height: 70.w,
+                          //                 ),
 
-                            Text("${level3item['title'] ?? ''}"),
-                          ]),
-                        );
-                      }),
-                    ),
+                          //                 Text("${level3item['title'] ?? ''}"),
+                          //               ]),
+                          //             );
+                          //           }),
+                          //         ),
+                          //       ),
+                          //       ghb(10.5.w),
+                          //     ],
+                          //   );
+                          // }),
+                        ),
+                      );
+                    },
                   ),
-                  ghb(10.5.w),
-                ],
-              );
-            }),
-          );
-        },
-      ),
-    );
+                );
+        });
   }
 }
 

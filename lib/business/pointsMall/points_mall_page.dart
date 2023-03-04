@@ -11,6 +11,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import 'package:cxhighversion2/business/mallQuickEntry/redemption_list.dart';
+
 import 'mall_cart_page.dart';
 import 'user_mall_page.dart';
 
@@ -303,7 +305,18 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               }
 
               return CustomButton(
-                onPressed: () {},
+                onPressed: () {
+                  switch (index) {
+                    case 0:
+                      push(
+                        RedemptionListPage(),
+                        null,
+                        binding: RedemptionListPageBinding(),
+                      );
+                      break;
+                    default:
+                  }
+                },
                 child: centClm([
                   Image.asset(
                     assetsName(img),

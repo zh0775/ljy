@@ -5,6 +5,14 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:cxhighversion2/business/mallCollect/mall_collect_page.dart';
 import 'package:cxhighversion2/business/afterSale/after_sale_page.dart';
+
+import 'package:cxhighversion2/business/afterSale/my_after_sale_page.dart';
+import 'package:cxhighversion2/business/mallOrder/mall_order_page.dart';
+import 'package:cxhighversion2/business/mallEvaluate/mall_evaluate_page.dart';
+import 'package:cxhighversion2/business/afterSale/refund_ progress_page.dart';
+
+import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
+
 import 'package:get/get.dart';
 
 class UserMallPageBinding implements Bindings {
@@ -23,12 +31,11 @@ class UserMallPageController extends GetxController {
   void onInit() {
     Map data = AppDefault().homeData;
     mallUserInfo["phone"] = data["u_Mobile"];
-    mallUserInfo["username"] =
-        data["nickName"] != null && data["nickName"].isNotEmpty
-            ? data["nickName"]
-            : data["u_Name"] != null && data["u_Name"].isNotEmpty
-                ? data["u_Name"]
-                : data["u_Mobile"] ?? "";
+    mallUserInfo["username"] = data["nickName"] != null && data["nickName"].isNotEmpty
+        ? data["nickName"]
+        : data["u_Name"] != null && data["u_Name"].isNotEmpty
+            ? data["u_Name"]
+            : data["u_Mobile"] ?? "";
     mallUserInfo["userAvatar"] = data["userAvatar"] ?? "";
     super.onInit();
   }
@@ -75,7 +82,9 @@ class UserMallPage extends StatelessWidget {
                       businessCircleCell("商业圈"),
                       ghb(15.w),
                       CustomButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          push(const MallOrderConfirmPage(), null, binding: MallOrderConfirmPageBinding());
+                        },
                         child: Image.asset(
                           assetsName("business/bg_apply_card"),
                           width: 345.w,
@@ -107,8 +116,7 @@ class UserMallPage extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(30.w),
                 child: CustomNetworkImage(
-                  src: AppDefault().imageUrl +
-                      controller.mallUserInfo["userAvatar"],
+                  src: AppDefault().imageUrl + controller.mallUserInfo["userAvatar"],
                   width: 60.w,
                   height: 60.w,
                   fit: BoxFit.cover,
@@ -120,12 +128,9 @@ class UserMallPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  getSimpleText(
-                      controller.mallUserInfo['username'], 18.w, Colors.white,
-                      isBold: true),
+                  getSimpleText(controller.mallUserInfo['username'], 18.w, Colors.white, isBold: true),
                   ghb(5.w),
-                  getSimpleText("手机号：${controller.mallUserInfo['phone']}", 12.w,
-                      Colors.white),
+                  getSimpleText("手机号：${controller.mallUserInfo['phone']}", 12.w, Colors.white),
                 ],
               )
               // centClm([
@@ -147,16 +152,7 @@ class UserMallPage extends StatelessWidget {
 
   Widget userOrderType() {
     return Container(
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.w),
-          boxShadow: [
-            BoxShadow(
-                color: const Color(0xFFE9EDF5),
-                offset: Offset(0, 5.w),
-                blurRadius: 5.w,
-                spreadRadius: 0.w)
-          ]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.w), boxShadow: [BoxShadow(color: const Color(0xFFE9EDF5), offset: Offset(0, 5.w), blurRadius: 5.w, spreadRadius: 0.w)]),
       padding: EdgeInsets.fromLTRB(19.w, 11.5.w, 19.w, 11.5.w),
       width: 345.w,
       height: 120.w,
@@ -164,7 +160,9 @@ class UserMallPage extends StatelessWidget {
         sbhRow([
           nSimpleText("我的订单", 18, isBold: true),
           GestureDetector(
-            onTap: () => print("点击事件"),
+            onTap: () {
+              push(const MallOrderPage(), null, binding: MallOrderPageBinding(), arguments: {"index": 0});
+            },
             child: centRow([
               nSimpleText("查看全部", 14, color: AppColor.text3, textHeight: 1.2),
               Image.asset(
@@ -199,9 +197,20 @@ class UserMallPage extends StatelessWidget {
           }
           return CustomButton(
             onPressed: () {
-              if (index == 3) {
-                push(const AfterSalePage(), null,
-                    binding: AfterSalePageBinding());
+              switch (index) {
+                case 0:
+                  push(const MallOrderPage(), null, binding: MallOrderPageBinding(), arguments: {"index": 1});
+                  break;
+                case 1:
+                  push(const MallOrderPage(), null, binding: MallOrderPageBinding(), arguments: {"index": 2});
+                  break;
+                case 2:
+                  push(const MallEvaluatePage(), null, binding: MallEvaluatePageBinding(), arguments: {"index": 0});
+                  break;
+                case 3:
+                  push(const MyAfterSalePage(), null, binding: MyAfterSalePageBinding(), arguments: {"index": 0});
+                  break;
+                default:
               }
             },
             child: centClm([
@@ -227,16 +236,7 @@ class UserMallPage extends StatelessWidget {
     return Container(
       width: 345.w,
       padding: EdgeInsets.symmetric(vertical: 4.25.w),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(8.w),
-          boxShadow: [
-            BoxShadow(
-                color: const Color(0xFFE9EDF5),
-                offset: Offset(0, 8.5.w),
-                blurRadius: 25.5.w,
-                spreadRadius: 15.5.w)
-          ]),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.w), boxShadow: [BoxShadow(color: const Color(0xFFE9EDF5), offset: Offset(0, 8.5.w), blurRadius: 25.5.w, spreadRadius: 15.5.w)]),
       child: Column(
         children: List.generate(3, (index) {
           String title = "";
@@ -256,8 +256,7 @@ class UserMallPage extends StatelessWidget {
             onPressed: () {
               switch (index) {
                 case 0:
-                  push(const MallCollectPage(), null,
-                      binding: MallCollectPageBinding());
+                  push(const MallCollectPage(), null, binding: MallCollectPageBinding());
                   break;
                 case 1:
                   break;
@@ -276,8 +275,7 @@ class UserMallPage extends StatelessWidget {
                 width: 345.w,
                 child: Center(
                   child: sbRow([
-                    getSimpleText(title, 14, const Color(0xFF333333),
-                        textHeight: 1.1, isBold: true),
+                    getSimpleText(title, 14, const Color(0xFF333333), textHeight: 1.1, isBold: true),
                     Image.asset(
                       assetsName("mine/icon_right_arrow"),
                       width: 11.w,
@@ -300,21 +298,23 @@ class UserMallPage extends StatelessWidget {
 
   Widget businessCircleCell(String title) {
     return Container(
-      width: 345.w,
-      height: 60.w,
-      decoration: BoxDecoration(
-          color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
-      child: Center(
-        child: sbRow([
-          getSimpleText(title, 14, const Color(0xFF333333),
-              textHeight: 1.1, isBold: true),
-          Image.asset(
-            assetsName("mine/icon_right_arrow"),
-            width: 11.w,
-            fit: BoxFit.fitWidth,
-          )
-        ], width: 345 - 20 * 2 - 0.1),
-      ),
-    );
+        width: 345.w,
+        height: 60.w,
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
+        child: GestureDetector(
+          onTap: () {
+            push(const RefundProgressPage(), null, binding: RefundProgressPageBinding());
+          },
+          child: Center(
+            child: sbRow([
+              getSimpleText(title, 14, const Color(0xFF333333), textHeight: 1.1, isBold: true),
+              Image.asset(
+                assetsName("mine/icon_right_arrow"),
+                width: 11.w,
+                fit: BoxFit.fitWidth,
+              )
+            ], width: 345 - 20 * 2 - 0.1),
+          ),
+        ));
   }
 }

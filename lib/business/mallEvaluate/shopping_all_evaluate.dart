@@ -1,61 +1,33 @@
 // 商品所有的评价列表
 
+import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
+import 'package:easy_refresh/easy_refresh.dart';
+
+import 'package:intl/intl.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
 class ShoppingAllEvaluateBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<ShoppingAllEvaluateController>(
-        ShoppingAllEvaluateController(shopIds: Get.arguments));
+    Get.put<ShoppingAllEvaluateController>(ShoppingAllEvaluateController(datas: Get.arguments));
   }
 }
 
 class ShoppingAllEvaluateController extends GetxController {
-  final dynamic shopIds;
-  ShoppingAllEvaluateController({this.shopIds});
+  final dynamic datas;
+  ShoppingAllEvaluateController({this.datas});
 
   final _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
   set isLoading(v) => _isLoading.value = v;
 
-  List shopAllEvaluateList = [
-    {
-      "id": 1,
-      "orderNo": "201545130123056460",
-      "orderStatusList": [1],
-      "title": "自动伞十二骨全自动雨 伞抗风防晒黑胶伞",
-      "orderType": 1,
-      "orderTypeText": "已完成",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 540,
-      "integralTotal": 1080,
-      "num": 2,
-      "logisticsId": 1,
-      "porductImgUrl":
-          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
-    },
-    {
-      "id": 2,
-      "orderNo": "201545130123056469",
-      "orderStatusList": [1],
-      "title": "1自动伞十二骨全自动雨 伞抗风防晒黑胶伞",
-      "orderType": 1,
-      "orderTypeText": "已完成",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 540,
-      "integralTotal": 540,
-      "num": 1,
-      "logisticsId": 1,
-      "porductImgUrl":
-          "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
-    }
-  ];
+  List shopAllEvaluateList = [];
 
   // 获取商品全部评价
   int pageSize = 10;
@@ -71,11 +43,10 @@ class ShoppingAllEvaluateController extends GetxController {
     Map<String, dynamic> params = {
       "pageSize": pageSize,
       "pageNo": pageNo,
-      "isBoutique": 1,
-      "shop_Type": 2,
+      "productID": datas["data"]['productId'],
     };
     simpleRequest(
-      url: Urls.userProductList,
+      url: Urls.userCommentList,
       params: params,
       success: (success, json) {
         if (success) {
@@ -92,7 +63,7 @@ class ShoppingAllEvaluateController extends GetxController {
 
   @override
   void onInit() {
-    // TODO: implement onInit
+    loadList();
     super.onInit();
   }
 }
@@ -115,14 +86,32 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
     return GetBuilder<ShoppingAllEvaluateController>(
       initState: (_) {},
       builder: (_) {
-        return Container(
-          child: Column(
-            children:
-                List.generate(controller.shopAllEvaluateList.length, (index) {
-              Map data = controller.shopAllEvaluateList[index];
-              return myEvaluateItem(data);
-            }),
-          ),
+        return EasyRefresh(
+          header: const CupertinoHeader(),
+          footer: const CupertinoFooter(),
+          onLoad: controller.shopAllEvaluateList.length >= controller.count ? null : () => controller.loadList(isLoad: true),
+          onRefresh: () => controller.loadList(),
+          child: controller.shopAllEvaluateList.isEmpty
+              ? SingleChildScrollView(
+                  child: Center(
+                    child: GetX<ShoppingAllEvaluateController>(
+                      builder: (_) {
+                        return CustomEmptyView(type: CustomEmptyType.carNoData, isLoading: controller.isLoading, bottomSpace: 200.w);
+                      },
+                    ),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: controller.shopAllEvaluateList.length,
+                  itemBuilder: (context, index) {
+                    return Column(
+                      children: List.generate((controller.shopAllEvaluateList ?? []).length, (index) {
+                        Map data = controller.shopAllEvaluateList[index] ?? [];
+                        return myEvaluateItem(data);
+                      }),
+                    );
+                  },
+                ),
         );
       },
     );
@@ -155,8 +144,7 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         getSimpleText('喵喵爱吃鱼', 15, const Color(0xFF333333)),
-                        getSimpleText(
-                            "2022-11-18", 12, const Color(0xFF333333)),
+                        getSimpleText("2022-11-18", 12, const Color(0xFF333333)),
                       ],
                     ),
                     Container(

@@ -122,19 +122,14 @@ class MallCollectPage extends GetView<MallCollectPageController> {
             header: const CupertinoHeader(),
             footer: const CupertinoFooter(),
 
-            onLoad: controller.collectList.length >= controller.count
-                ? null
-                : () => controller.loadList(isLoad: true),
+            onLoad: controller.collectList.length >= controller.count ? null : () => controller.loadList(isLoad: true),
             onRefresh: () => controller.loadList(),
             child: controller.collectList.isEmpty
                 ? SingleChildScrollView(
                     child: Center(
                       child: GetX<MallCollectPageController>(
                         builder: (_) {
-                          return CustomEmptyView(
-                              type: CustomEmptyType.carNoData,
-                              isLoading: controller.isLoading,
-                              bottomSpace: 200.w);
+                          return CustomEmptyView(type: CustomEmptyType.carNoData, isLoading: controller.isLoading, bottomSpace: 200.w);
                         },
                       ),
                     ),
@@ -171,11 +166,9 @@ class MallCollectPage extends GetView<MallCollectPageController> {
   Widget collectItem(item) {
     return CustomButton(
       onPressed: () {
-        push(const ShoppingProductDetail(), null,
-            binding: ShoppingProductDetailBinding(),
-            arguments: {
-              "data": item,
-            });
+        push(const ShoppingProductDetail(), null, binding: ShoppingProductDetailBinding(), arguments: {
+          "data": item,
+        });
       },
       child: Center(
         child: Container(
@@ -198,18 +191,11 @@ class MallCollectPage extends GetView<MallCollectPageController> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    getWidthText(
-                        item['shopName'], 15, AppColor.textBlack, 209.w, 2,
-                        textAlign: TextAlign.left,
-                        alignment: Alignment.topLeft),
+                    getWidthText(item['shopName'], 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
                     ghb(15.w),
-                    getSimpleText(
-                        "${item['nowPrice'] ?? "0"}积分", 18, AppColor.theme3,
-                        isBold: true, textAlign: TextAlign.left),
+                    getSimpleText("${item['nowPrice'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
                     sbhRow([
-                      getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12,
-                          AppColor.textGrey5,
-                          textAlign: TextAlign.left),
+                      getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
                       centRow([
                         GetBuilder<MallCollectPageController>(
                           builder: (_) {
@@ -224,9 +210,7 @@ class MallCollectPage extends GetView<MallCollectPageController> {
                                 controller.update();
                               },
                               child: Image.asset(
-                                assetsName((item["isCollect"] ?? 0) == 0
-                                    ? 'business/mall/btn_iscollect'
-                                    : 'business/mall/btn_collect'),
+                                assetsName((item["isCollect"] ?? 0) == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
                                 width: 32.w,
                                 height: 28.w,
                               ),

@@ -44,6 +44,32 @@ class RedemptionListPageController extends GetxController {
     );
   }
 
+  loadAddCollect(Map data) {
+    simpleRequest(
+      url: Urls.userAddProductCollection(data["productId"], 1),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  loadRemoveCollect(Map data) {
+    simpleRequest(
+      url: Urls.userDeleteCollection(data["productId"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {},
+    );
+  }
+
   @override
   void onInit() {
     loadData();
@@ -116,6 +142,7 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
               width: 120.w,
               height: 120.w,
               AppDefault().imageUrl + (item["shopImg"] ?? ""),
+              fit: BoxFit.cover,
             ),
           ),
           gwb(8),
@@ -139,7 +166,11 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
                       builder: (_) {
                         return CustomButton(
                           onPressed: () {
-                            // item["isCollect"] = !item["isCollect"];
+                            if ((item["isCollect"] ?? 0) == 0) {
+                              controller.loadAddCollect(item);
+                            } else {
+                              controller.loadRemoveCollect(item);
+                            }
 
                             controller.update();
                           },

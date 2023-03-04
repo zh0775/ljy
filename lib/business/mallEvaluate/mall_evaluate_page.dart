@@ -5,7 +5,7 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
-
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
@@ -35,6 +35,7 @@ class MallEvaluatePageController extends GetxController {
 
   final _isLoading = true.obs;
   bool get isLoading => _isLoading.value;
+
   set isLoading(v) => _isLoading.value = v;
 
   final _topIndex = 0.obs;
@@ -47,63 +48,72 @@ class MallEvaluatePageController extends GetxController {
     }
   }
 
-  int mallAllCount = 0;
-  int mallProcessingCount = 0;
+  int pageSize = 10;
+  int userHasEvalutePageNo = 1; // 我的评价页码
+  int userHasEvaluteCount = 0; // 我的评价
+  final _userHasEvaluteOrderData = Rx<List>([]);
+  List get userHasEvaluteOrderList => _userHasEvaluteOrderData.value;
+  set userHasEvaluteOrderList(v) => _userHasEvaluteOrderData.value = v;
 
-  final _mallAllOrderData = Rx<List>([
-    {
-      "id": 1,
-      "orderNo": "201545130123056460",
-      "orderStatusList": [1],
-      "title": "自动伞十二骨全自动雨 伞抗风防晒黑胶伞",
-      "orderType": 1,
-      "orderTypeText": "已完成",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 540,
-      "integralTotal": 1080,
-      "num": 2,
-      "logisticsId": 1,
-      "porductImgUrl": "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
-    },
-    {
-      "id": 2,
-      "orderNo": "201545130123056469",
-      "orderStatusList": [1],
-      "title": "1自动伞十二骨全自动雨 伞抗风防晒黑胶伞",
-      "orderType": 1,
-      "orderTypeText": "已完成",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 540,
-      "integralTotal": 540,
-      "num": 1,
-      "logisticsId": 1,
-      "porductImgUrl": "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
+  // 获取已经评价数据
+  loadHasEvaluteList({bool isLoad = false}) {
+    isLoad ? userHasEvalutePageNo++ : userHasEvalutePageNo = 1;
+    if (userHasEvaluteOrderList.isEmpty) {
+      isLoading = true;
     }
-  ]);
-  List get mallAllOrderList => _mallAllOrderData.value;
-  set mallAllOrderList(v) => _mallAllOrderData.value = v;
 
-  final _mallProcessingOrderData = Rx<List>([
-    {
-      "id": 1,
-      "orderNo": "201545130123056466",
-      "orderStatusList": [1],
-      "title": "酒店枕芯五星级宾馆枕头仿羽布羽丝棉仿...",
-      "orderType": 1,
-      "orderTypeText": "待发货",
-      "selectTypeList": [1],
-      "selectTypeTextList": ["商务蓝"],
-      "integralNum": 1064,
-      "integralTotal": 1064,
-      "num": 1,
-      "logisticsId": 1,
-      "porductImgUrl": "https://t7.baidu.com/it/u=852388090,130270862&fm=193&f=GIF"
+    Map<String, dynamic> params = {
+      "pageSize": pageSize,
+      "pageNo": userHasEvalutePageNo,
+      "cType": 2,
+    };
+    simpleRequest(
+      url: Urls.userProductList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          userHasEvaluteOrderList = data["data"] ?? [];
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  // 未评价分页大小
+  int userNotEvalutePageNo = 1; // 未评价页码
+  int userNotEvaluteCount = 0; // 待评价总数
+
+  final _mallNotEvaluteOrderData = Rx<List>([]); // 待评价数据
+  List get mallNotEvaluteOrderList => _mallNotEvaluteOrderData.value;
+  set mallNotEvaluteOrderList(v) => _mallNotEvaluteOrderData.value = v;
+
+  // 获取待评价数据
+  loadNotEvaluteList({bool isLoad = false}) {
+    isLoad ? userNotEvalutePageNo++ : userNotEvalutePageNo = 1;
+    if (mallNotEvaluteOrderList.isEmpty) {
+      isLoading = true;
     }
-  ]);
-  List get mallProcessingOrderList => _mallProcessingOrderData.value;
-  set mallProcessingOrderList(v) => _mallProcessingOrderData.value = v;
+
+    Map<String, dynamic> params = {
+      "pageSize": pageSize,
+      "pageNo": userNotEvalutePageNo,
+      "cType": 1,
+    };
+    simpleRequest(
+      url: Urls.userProductList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          mallNotEvaluteOrderList = data["data"] ?? [];
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
 
   loadList({bool isLoad = false, required int status}) {
     RefreshController pullCtrl;
@@ -140,6 +150,8 @@ class MallEvaluatePageController extends GetxController {
     pageCtrl = PageController(initialPage: datas["index"] ?? 0);
     topIndex = datas["index"] ?? 0;
     isFirst = false;
+
+    loadNotEvaluteList();
     super.onInit();
   }
 }
@@ -239,7 +251,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
         GetBuilder<MallEvaluatePageController>(
           init: controller,
           builder: (_) {
-            return mallEvaluateList(controller.mallAllOrderList, controller.mallAllCount, 0, 0, controller.allPullCtrl, () async {
+            return mallEvaluateList(controller.userHasEvaluteOrderList, controller.userHasEvaluteCount, 0, 0, controller.allPullCtrl, () async {
               controller.onRefresh(0);
             }, () async {
               controller.onLoad(0);
@@ -249,7 +261,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
         GetBuilder<MallEvaluatePageController>(
           init: controller,
           builder: (_) {
-            return mallEvaluateList(controller.mallProcessingOrderList, controller.mallProcessingCount, 0, 1, controller.processingPullCtrl, () async {
+            return mallEvaluateList(controller.mallNotEvaluteOrderList, controller.userNotEvaluteCount, 0, 1, controller.processingPullCtrl, () async {
               controller.onRefresh(0);
             }, () async {
               controller.onLoad(0);

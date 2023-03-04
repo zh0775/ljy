@@ -65,7 +65,7 @@ class MallCollectPageController extends GetxController {
   loadAddCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userAddProductCollection(data["productListId"], 2),
+      url: Urls.userAddProductCollection(data["productId"], 1),
       params: {},
       success: (success, json) {
         if (success) {
@@ -81,7 +81,7 @@ class MallCollectPageController extends GetxController {
   loadRemoveCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userDeleteCollection(data["productListId"]),
+      url: Urls.userDeleteCollection(data["productId"]),
       params: {},
       success: (success, json) {
         if (success) {

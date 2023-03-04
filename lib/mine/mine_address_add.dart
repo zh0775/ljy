@@ -422,8 +422,13 @@ class MineAddressAdd extends GetView<MineAddressAddController> {
   final Map? address;
   final Function(Map address)? addressCallBack;
   final bool fromOther;
+  final bool orangeTheme;
   const MineAddressAdd(
-      {Key? key, this.address, this.addressCallBack, this.fromOther = false})
+      {Key? key,
+      this.address,
+      this.addressCallBack,
+      this.fromOther = false,
+      this.orangeTheme = false})
       : super(key: key);
 
   @override
@@ -442,7 +447,7 @@ class MineAddressAdd extends GetView<MineAddressAddController> {
               controller.saveAddress();
             },
                 enable: controller.buttonEnable,
-                color: AppColor.theme,
+                color: orangeTheme ? AppColor.themeOrange : AppColor.theme,
                 height: 45);
           },
         ), children: [

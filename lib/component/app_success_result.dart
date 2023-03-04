@@ -11,6 +11,7 @@ class AppSuccessResult extends StatelessWidget {
   final List buttonTitles;
   final Function(int index)? onPressed;
   final Function()? backPressed;
+  final bool orangeThame;
   const AppSuccessResult({
     super.key,
     this.title = "",
@@ -19,6 +20,7 @@ class AppSuccessResult extends StatelessWidget {
     this.content = "",
     this.onPressed,
     this.backPressed,
+    this.orangeThame = false,
     this.buttonTitles = const [],
   });
 
@@ -70,12 +72,19 @@ class AppSuccessResult extends StatelessWidget {
                                 decoration: BoxDecoration(
                                     color: Colors.transparent,
                                     border: Border.all(
-                                        width: 0.7.w, color: AppColor.theme),
+                                        width: 0.7.w,
+                                        color: orangeThame
+                                            ? AppColor.themeOrange
+                                            : AppColor.theme),
                                     borderRadius:
                                         BorderRadius.circular(22.5.w)),
                                 child: Center(
                                   child: getSimpleText(
-                                      buttonTitles[index], 15, AppColor.theme,
+                                      buttonTitles[index],
+                                      15,
+                                      orangeThame
+                                          ? AppColor.themeOrange
+                                          : AppColor.theme,
                                       textHeight: 1.3),
                                 ),
                               ),

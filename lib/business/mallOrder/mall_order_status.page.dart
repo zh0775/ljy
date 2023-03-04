@@ -11,7 +11,8 @@ import 'package:get/get.dart';
 class MallOrderStatusPageBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<MallOrderStatusPageController>(MallOrderStatusPageController(id: Get.arguments));
+    Get.put<MallOrderStatusPageController>(
+        MallOrderStatusPageController(id: Get.arguments));
   }
 }
 
@@ -108,7 +109,8 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                           gwb(10.5),
                           getSimpleText("李志明", 15, const Color(0xFF000000)),
                           gwb(14.5),
-                          getSimpleText("13246870069", 15, const Color(0xFF000000)),
+                          getSimpleText(
+                              "13246870069", 15, const Color(0xFF000000)),
                         ],
                       ),
                       ghb(15.w),
@@ -116,7 +118,10 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                         width: 242.w,
                         child: Text(
                           '武汉市共东西湖区金银滩大道18号碧桂园天然 公寓2栋1812',
-                          style: TextStyle(color: const Color(0xFF999999), fontSize: 12.w, height: 1.5),
+                          style: TextStyle(
+                              color: const Color(0xFF999999),
+                              fontSize: 12.w,
+                              height: 1.5),
                         ),
                       ),
                     ],
@@ -173,8 +178,12 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     heigth: 40,
                     maxLines: 2,
                     maxLength: 50,
-                    placeholderStyle: TextStyle(fontSize: 14.sp, color: AppColor.assisText, height: 1.3),
-                    style: TextStyle(fontSize: 14.sp, color: AppColor.text2, height: 1.3),
+                    placeholderStyle: TextStyle(
+                        fontSize: 14.sp,
+                        color: AppColor.assisText,
+                        height: 1.3),
+                    style: TextStyle(
+                        fontSize: 14.sp, color: AppColor.text2, height: 1.3),
                   )
                 ],
               ),
@@ -225,7 +234,8 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     children: [
                       nSimpleText('订单编号', 14, color: const Color(0xFF999999)),
                       gwb(14.5),
-                      nSimpleText('201545130123056460', 14, color: const Color(0xFF333333)),
+                      nSimpleText('201545130123056460', 14,
+                          color: const Color(0xFF333333)),
                     ],
                   ),
                 ),
@@ -235,7 +245,8 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                     children: [
                       nSimpleText('兑换时间', 14, color: const Color(0xFF999999)),
                       gwb(14.5),
-                      nSimpleText('13:26:09', 14, color: const Color(0xFF333333)),
+                      nSimpleText('13:26:09', 14,
+                          color: const Color(0xFF333333)),
                     ],
                   ),
                 ),
@@ -303,7 +314,14 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
           width: 1.0.w,
           color: Colors.white,
         )),
-        boxShadow: [BoxShadow(color: Colors.white, offset: Offset.zero, blurRadius: 2.w, spreadRadius: 2.w, blurStyle: BlurStyle.solid)],
+        boxShadow: [
+          BoxShadow(
+              color: Colors.white,
+              offset: Offset.zero,
+              blurRadius: 2.w,
+              spreadRadius: 2.w,
+              blurStyle: BlurStyle.solid)
+        ],
       ),
       padding: EdgeInsets.only(top: 6.w, left: 8.w, bottom: 6.w, right: 8.w),
       child: Row(
@@ -318,8 +336,16 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
                   border: Border.all(
                     color: Color(0xFF999999),
                   ),
-                  boxShadow: [BoxShadow(color: Colors.white, offset: Offset.zero, blurRadius: 2.w, spreadRadius: 2.w, blurStyle: BlurStyle.solid)]),
-              child: getSimpleText("申请售后 ", 12.w, const Color(0xFF333333), textHeight: 1.1),
+                  boxShadow: [
+                    BoxShadow(
+                        color: Colors.white,
+                        offset: Offset.zero,
+                        blurRadius: 2.w,
+                        spreadRadius: 2.w,
+                        blurStyle: BlurStyle.solid)
+                  ]),
+              child: getSimpleText("申请售后 ", 12.w, const Color(0xFF333333),
+                  textHeight: 1.1),
             ),
           )
         ],

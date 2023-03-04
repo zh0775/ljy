@@ -115,7 +115,7 @@ class StatisticsUserManageController extends GetxController {
         ztFilterIdx = clickIdx;
         realZtFilterIdx = ztFilterIdx;
       }
-    } else if (userType == 1 || userType == 2) {
+    } else if (userType == 1 || userType == 2 || userType == 4) {
       ztFilterIdx = clickIdx;
       realZtFilterIdx = ztFilterIdx;
     } else if (userType == 3) {
@@ -223,6 +223,7 @@ class StatisticsUserManageController extends GetxController {
         break;
       case 1:
       case 2:
+      case 4:
         url = Urls.userTeamByLeaderList;
         break;
       case 3:
@@ -273,7 +274,7 @@ class StatisticsUserManageController extends GetxController {
           if (userType == 0) {
             data = mainData;
             // 盘主、合伙人
-          } else if (userType == 1 || userType == 2) {
+          } else if (userType == 1 || userType == 2 || userType == 4) {
             data = mainData["userTeamLeaderData"] ?? {};
             // 商户
           } else {
@@ -315,6 +316,9 @@ class StatisticsUserManageController extends GetxController {
         title = "合伙人管理";
         break;
       case 3:
+        title = "商户管理";
+        break;
+      case 4:
         title = "商家管理";
         break;
       default:
@@ -328,7 +332,7 @@ class StatisticsUserManageController extends GetxController {
         {"id": 3, "name": "禁止提现"},
         {"id": 4, "name": "禁止登录"},
       ];
-    } else if (userType == 1 || userType == 2) {
+    } else if (userType == 1 || userType == 2 || userType == 4) {
       ztFilterDatas = [
         {"id": -1, "name": "全部"},
         {"id": 1, "name": "无效"},
@@ -448,7 +452,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                     ],
                   ),
                 )),
-            controller.userType == 1 || controller.userType == 2
+            controller.userType == 1 ||
+                    controller.userType == 2 ||
+                    controller.userType == 4
                 ? Positioned(
                     top: 55.w,
                     left: 0,
@@ -458,7 +464,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                 : gemp(),
             Positioned(
                 top: 55.w +
-                    (controller.userType == 1 || controller.userType == 2
+                    (controller.userType == 1 ||
+                            controller.userType == 2 ||
+                            controller.userType == 4
                         ? 150.w
                         : 0),
                 left: 0,
@@ -471,7 +479,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                 )),
             Positioned.fill(
                 top: 105.w +
-                    (controller.userType == 1 || controller.userType == 2
+                    (controller.userType == 1 ||
+                            controller.userType == 2 ||
+                            controller.userType == 4
                         ? 150.w
                         : 0),
                 child: GetBuilder<StatisticsUserManageController>(
@@ -495,7 +505,8 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                               itemCount: controller.dataList.length,
                               itemBuilder: (context, index) {
                                 if (controller.userType == 1 ||
-                                    controller.userType == 2) {
+                                    controller.userType == 2 ||
+                                    controller.userType == 4) {
                                   return teamListCell(
                                       index, controller.dataList[index]);
                                 } else if (controller.userType == 3) {
@@ -586,7 +597,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
       } else {
         height = controller.ztFilterDatas.length * 40.0.w;
       }
-    } else if (controller.userType == 1 || controller.userType == 2) {
+    } else if (controller.userType == 1 ||
+        controller.userType == 2 ||
+        controller.userType == 4) {
       height = controller.ztFilterDatas.length * 40.0.w;
     } else if (controller.userType == 3) {
       if (index == 0) {
@@ -617,7 +630,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                 datas = controller.ztFilterDatas;
                 idx = controller.ztFilterIdx;
               }
-            } else if (controller.userType == 1 || controller.userType == 2) {
+            } else if (controller.userType == 1 ||
+                controller.userType == 2 ||
+                controller.userType == 4) {
               datas = controller.ztFilterDatas;
               idx = controller.ztFilterIdx;
             } else if (controller.userType == 3) {
@@ -694,7 +709,9 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
           },
         ),
       ]);
-    } else if (controller.userType == 1 || controller.userType == 2) {
+    } else if (controller.userType == 1 ||
+        controller.userType == 2 ||
+        controller.userType == 4) {
       return centRow([
         filterBtn(
           "按注册时间",

@@ -181,17 +181,17 @@ class Statistics extends GetView<StatisticsController> {
 
               return CustomButton(
                 onPressed: () {
-                  int idx = index;
-                  if (index == 0) {
-                    idx = 3;
-                  } else if (index == 1) {
-                    idx = 2;
-                  } else if (index == 2) {
-                    idx = 1;
-                  }
-                  push(const StatisticsUserManage(), null,
-                      binding: StatisticsUserManageBinding(),
-                      arguments: {"type": idx});
+                  // int idx = index;
+                  // if (index == 0) {
+                  //   idx = 3;
+                  // } else if (index == 1) {
+                  //   idx = 2;
+                  // } else if (index == 2) {
+                  //   idx = 1;
+                  // }
+                  // push(const StatisticsUserManage(), null,
+                  //     binding: StatisticsUserManageBinding(),
+                  //     arguments: {"type": idx});
                 },
                 child: Container(
                   padding: EdgeInsets.only(top: 10.w, bottom: 10.w),
@@ -206,19 +206,19 @@ class Statistics extends GetView<StatisticsController> {
                       centRow([
                         getSimpleText(
                             index == 0
-                                ? "商户"
+                                ? "商家"
                                 : index == 1
                                     ? "合伙人"
                                     : "盘主",
                             12,
                             AppColor.text,
                             textHeight: 1.3),
-                        gwb(3),
-                        Image.asset(
-                          assetsName("statistics/icon_arrow_right_gray"),
-                          width: 12.w,
-                          fit: BoxFit.fitWidth,
-                        )
+                        // gwb(3),
+                        // Image.asset(
+                        //   assetsName("statistics/icon_arrow_right_gray"),
+                        //   width: 12.w,
+                        //   fit: BoxFit.fitWidth,
+                        // )
                       ]),
                       ghb(4),
                       getSimpleText(num, 14, AppColor.text, isBold: true)

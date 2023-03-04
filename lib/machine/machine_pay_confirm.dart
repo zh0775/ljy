@@ -28,6 +28,8 @@ class MachinePayConfirmController extends GetxController {
 
   Map payType = {};
 
+  List playTypeList = [];
+
   final _buyTypeList = Rx<List>([]);
   List get buyTypeList => _buyTypeList.value;
   set buyTypeList(v) => _buyTypeList.value = v;

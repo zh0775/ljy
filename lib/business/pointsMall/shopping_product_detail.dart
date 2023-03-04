@@ -1,5 +1,5 @@
+import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/service/urls.dart';
@@ -9,7 +9,6 @@ import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-
 import 'package:get/get.dart';
 
 class ShoppingProductDetailBinding implements Bindings {
@@ -32,6 +31,10 @@ class ShoppingProductDetailController extends GetxController {
 
   final numInputNode = FocusNode();
 
+  String subSelectBuildId = "ShoppingProductDetailController_subSelectBuildId";
+
+  List subSelects = [];
+
   Map productData = {};
   Map productDetailData = {};
   List childProducts = [];
@@ -39,6 +42,10 @@ class ShoppingProductDetailController extends GetxController {
   final _childProductIdx = 0.obs;
   int get childProductIdx => _childProductIdx.value;
   set childProductIdx(v) => _childProductIdx.value = v;
+
+  final _subProductIdx = 0.obs;
+  int get subProductIdx => _subProductIdx.value;
+  set subProductIdx(v) => _subProductIdx.value = v;
 
   final _payTypeIdx = 0.obs;
   int get payTypeIdx => _payTypeIdx.value;
@@ -98,6 +105,16 @@ class ShoppingProductDetailController extends GetxController {
         if (success) {
           productDetailData = json["data"] ?? {};
           childProducts = productDetailData["childProduct"] ?? [];
+          if (subSelects.isEmpty) {
+            for (var e in childProducts) {
+              List select = [];
+              List pList = e["shopPropertyList"] ?? [];
+              for (var e2 in pList) {
+                select.add(0);
+              }
+              subSelects.add(select);
+            }
+          }
           update();
         }
       },
@@ -111,8 +128,16 @@ class ShoppingProductDetailController extends GetxController {
     } else {
       if (int.tryParse(numInputCtrl.text) == null) {
         ShowToast.normal("请输入正确的数量");
+        numInputCtrl.text = "$productNum";
+      } else if (int.parse(numInputCtrl.text) >
+          (childProducts[childProductIdx]["shopStock"] ?? 1)) {
+        numInputCtrl.text =
+            "${(childProducts[childProductIdx]["shopStock"] ?? 1)}";
+        productNum = (childProducts[childProductIdx]["shopStock"] ?? 1);
+        ShowToast.normal("输入的数量大于库存");
+      } else {
+        productNum = int.parse(numInputCtrl.text);
       }
-      numInputCtrl.text = "$productNum";
     }
   }
 
@@ -276,30 +301,77 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                                               14, AppColor.text, 40, 1,
                                               textHeight: 1.3),
                                           index == 0
-                                              ? GetX<
+                                              ? GetBuilder<
                                                   ShoppingProductDetailController>(
+                                                  id: controller
+                                                      .subSelectBuildId,
                                                   builder: (_) {
-                                                    String str = "默认";
-                                                    if (controller.childProducts
-                                                            .isEmpty &&
-                                                        controller
-                                                                .childProductIdx >=
-                                                            0) {
-                                                      str = "默认";
-                                                    } else {
-                                                      str = controller.childProducts[
-                                                                  controller
-                                                                      .childProductIdx]
-                                                              ["shopTitle"] ??
-                                                          "";
-                                                    }
-                                                    return getWidthText(
-                                                        str,
-                                                        14,
-                                                        AppColor.textGrey5,
-                                                        261,
-                                                        1,
-                                                        textHeight: 1.3);
+                                                    return GetX<
+                                                        ShoppingProductDetailController>(
+                                                      builder: (_) {
+                                                        String str2 = "";
+                                                        if (controller
+                                                            .childProducts
+                                                            .isNotEmpty) {
+                                                          List
+                                                              shopPropertyList =
+                                                              controller.childProducts[
+                                                                          controller
+                                                                              .childProductIdx]
+                                                                      [
+                                                                      "shopPropertyList"] ??
+                                                                  [];
+
+                                                          for (var i = 0;
+                                                              i <
+                                                                  shopPropertyList
+                                                                      .length;
+                                                              i++) {
+                                                            int idx = controller
+                                                                    .subSelects[
+                                                                controller
+                                                                    .childProductIdx][i];
+                                                            if (idx >
+                                                                (shopPropertyList[i]["value"] ??
+                                                                            [])
+                                                                        .length -
+                                                                    1) {
+                                                            } else {
+                                                              str2 += " ";
+
+                                                              str2 += (shopPropertyList[
+                                                                          i][
+                                                                      "value"] ??
+                                                                  [])[idx];
+                                                            }
+                                                          }
+                                                        }
+
+                                                        String str = "默认";
+                                                        if (controller
+                                                                .childProducts
+                                                                .isEmpty &&
+                                                            controller
+                                                                    .childProductIdx >=
+                                                                0) {
+                                                          str = "默认";
+                                                        } else {
+                                                          str = controller.childProducts[
+                                                                      controller
+                                                                          .childProductIdx]
+                                                                  [
+                                                                  "shopTitle"] ??
+                                                              "";
+                                                        }
+                                                        return getWidthText(
+                                                            str + str2,
+                                                            14,
+                                                            AppColor.textGrey5,
+                                                            261,
+                                                            1,
+                                                            textHeight: 1.3);
+                                                      },
+                                                    );
                                                   },
                                                 )
                                               : getWidthText("在线支付免运费", 14,
@@ -336,7 +408,9 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                               child: Center(
                                 child: centRow([
                                   getSimpleText(
-                                      "查看全部(9)", 14, AppColor.textGrey5),
+                                      "查看全部(${controller.productDetailData["commentNum"] ?? 0})",
+                                      14,
+                                      AppColor.textGrey5),
                                   Image.asset(
                                     assetsName("business/mall/arrow_right"),
                                     width: 18.w,
@@ -430,7 +504,22 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                             if (index == 0) {
                               controller.addCarAction();
                             } else {
-                              showSelectModel();
+                              // showSelectModel();
+                              if (controller.childProducts.isEmpty) {
+                                ShowToast.normal("数据获取中，请稍等");
+                                return;
+                              }
+                              push(const MallOrderConfirmPage(), context,
+                                  binding: MallOrderConfirmPageBinding(),
+                                  arguments: {
+                                    "data": controller.childProducts[
+                                        controller.childProductIdx],
+                                    "payType": controller.payTypeIdx,
+                                    "num": controller.productNum,
+                                    "mainData": controller.productDetailData,
+                                    "subSelectList": controller
+                                        .subSelects[controller.childProductIdx],
+                                  });
                             }
                           },
                           child: Container(
@@ -497,201 +586,272 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
               color: Colors.white,
               borderRadius: BorderRadius.vertical(top: Radius.circular(12.w)),
             ),
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  sbRow([
-                    Padding(
-                      padding: EdgeInsets.only(top: 18.5.w),
-                      child: centRow([
-                        gwb(15),
-                        CustomNetworkImage(
-                          src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
-                          width: 105.w,
-                          height: 105.w,
-                          fit: BoxFit.cover,
-                        ),
-                        gwb(15),
-                        sbClm([
-                          getWidthText(
-                              controller.productDetailData["shopName"] ?? "",
-                              15,
-                              AppColor.text,
-                              375 - 105 - 15 - 15 - 40,
-                              2,
-                              isBold: true),
-                          getSimpleText(
-                              "库存：${controller.childProducts[controller.childProductIdx]["shopStock"] ?? 0}",
-                              12,
-                              AppColor.textGrey5),
-                          getSimpleText(
-                              "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPrice"] ?? 0, savePoint: 0)}积分",
-                              18,
-                              AppColor.themeOrange,
-                              isBold: true),
-                        ],
-                            height: 105,
-                            crossAxisAlignment: CrossAxisAlignment.start),
-                      ]),
-                    ),
-                    CustomButton(
-                      onPressed: () {
-                        Get.back();
-                      },
-                      child: SizedBox(
-                        height: 40.w,
-                        width: 40.w,
-                        child: Center(
-                          child: Image.asset(
-                            assetsName("statistics/machine/btn_model_close"),
-                            width: 12.w,
-                            fit: BoxFit.fitWidth,
-                          ),
+            child: Column(
+              children: [
+                sbRow([
+                  Padding(
+                    padding: EdgeInsets.only(top: 18.5.w),
+                    child: centRow([
+                      gwb(15),
+                      CustomNetworkImage(
+                        src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
+                        width: 105.w,
+                        height: 105.w,
+                        fit: BoxFit.cover,
+                      ),
+                      gwb(15),
+                      sbClm([
+                        getWidthText(
+                            controller.productDetailData["shopName"] ?? "",
+                            15,
+                            AppColor.text,
+                            375 - 105 - 15 - 15 - 40,
+                            2,
+                            isBold: true),
+                        getSimpleText(
+                            "库存：${controller.childProducts[controller.childProductIdx]["shopStock"] ?? 0}",
+                            12,
+                            AppColor.textGrey5),
+                        getSimpleText(
+                            "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPrice"] ?? 0, savePoint: 0)}积分",
+                            18,
+                            AppColor.themeOrange,
+                            isBold: true),
+                      ],
+                          height: 105,
+                          crossAxisAlignment: CrossAxisAlignment.start),
+                    ]),
+                  ),
+                  CustomButton(
+                    onPressed: () {
+                      Get.back();
+                    },
+                    child: SizedBox(
+                      height: 40.w,
+                      width: 40.w,
+                      child: Center(
+                        child: Image.asset(
+                          assetsName("statistics/machine/btn_model_close"),
+                          width: 12.w,
+                          fit: BoxFit.fitWidth,
                         ),
                       ),
-                    )
-                  ], width: 375, crossAxisAlignment: CrossAxisAlignment.start),
-                  ghb(19.5),
-                  gline(345, 1),
-                  ghb(13.5),
-                  sbhRow([
-                    getSimpleText("规格", 14, AppColor.text),
-                  ], height: 45, width: 345),
-                  SizedBox(
-                    width: 345.w,
-                    child: Wrap(
-                      spacing: 15.w,
-                      runSpacing: 10.w,
-                      children: List.generate(controller.childProducts.length,
-                          (index) {
-                        return CustomButton(
-                          onPressed: () {
-                            controller.childProductIdx = index;
-                          },
-                          child: GetX<ShoppingProductDetailController>(
-                              builder: (_) {
-                            return selectBtn(
-                                controller.childProducts[index]["shopTitle"],
-                                controller.childProductIdx == index);
-                          }),
+                    ),
+                  )
+                ], width: 375, crossAxisAlignment: CrossAxisAlignment.start),
+                ghb(19.5),
+                gline(345, 1),
+                SizedBox(
+                  height: 180.w,
+                  width: 375.w,
+                  child: Scrollbar(
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child:
+                          GetX<ShoppingProductDetailController>(builder: (_) {
+                        List shopPropertyList = (controller
+                                    .childProducts[controller.childProductIdx]
+                                ["shopPropertyList"] ??
+                            []);
+                        return Column(
+                          children: [
+                            ghb(13.5),
+                            sbhRow([
+                              getSimpleText("类型", 14, AppColor.text),
+                            ], height: 45, width: 345),
+                            SizedBox(
+                              width: 345.w,
+                              child: Wrap(
+                                spacing: 15.w,
+                                runSpacing: 10.w,
+                                children: List.generate(
+                                    controller.childProducts.length, (index) {
+                                  return CustomButton(
+                                    onPressed: () {
+                                      controller.childProductIdx = index;
+                                    },
+                                    child: selectBtn(
+                                        controller.childProducts[index]
+                                            ["shopTitle"],
+                                        controller.childProductIdx == index),
+                                  );
+                                }),
+                              ),
+                            ),
+                            ...List.generate(shopPropertyList.length,
+                                (propertyIndex) {
+                              Map pData = shopPropertyList[propertyIndex];
+                              return centClm([
+                                sbhRow([
+                                  getSimpleText(
+                                      pData["key"] ?? "", 14, AppColor.text),
+                                ], height: 45, width: 345),
+                                GetBuilder<ShoppingProductDetailController>(
+                                    id: controller.subSelectBuildId,
+                                    builder: (_) {
+                                      return SizedBox(
+                                        width: 345.w,
+                                        child: Wrap(
+                                          spacing: 15.w,
+                                          runSpacing: 10.w,
+                                          children: List.generate(
+                                              (pData["value"] ?? []).length,
+                                              (valueIndex) {
+                                            String vData = (pData["value"] ??
+                                                [])[valueIndex];
+                                            return CustomButton(
+                                              onPressed: () {
+                                                controller.subSelects[controller
+                                                            .childProductIdx]
+                                                        [propertyIndex] =
+                                                    valueIndex;
+                                                controller.update([
+                                                  controller.subSelectBuildId
+                                                ]);
+                                              },
+                                              child: selectBtn(
+                                                  vData,
+                                                  // index == 0
+                                                  //     ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
+                                                  //     : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 2, savePoint: 0)}元",
+                                                  controller.subSelects[controller
+                                                              .childProductIdx]
+                                                          [propertyIndex] ==
+                                                      valueIndex),
+                                            );
+                                          }),
+                                        ),
+                                      );
+                                    })
+                              ]);
+                            }),
+                            ghb(12),
+                            sbhRow([
+                              getSimpleText("支付方式", 14, AppColor.text),
+                            ], height: 45, width: 345),
+                            SizedBox(
+                              width: 345.w,
+                              child: Wrap(
+                                spacing: 15.w,
+                                runSpacing: 10.w,
+                                children: List.generate(
+                                    (controller.childProducts[controller
+                                                        .childProductIdx]
+                                                    ["cashPrice"] ??
+                                                0) >
+                                            0
+                                        ? 2
+                                        : 1, (index) {
+                                  return CustomButton(
+                                    onPressed: () {
+                                      controller.payTypeIdx = index;
+                                    },
+                                    child:
+                                        GetX<ShoppingProductDetailController>(
+                                            builder: (_) {
+                                      return selectBtn(
+                                          index == 0
+                                              ? "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPrice"] ?? 0, savePoint: 0)}积分"
+                                              : "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.childProducts[controller.childProductIdx]["cashPrice"] ?? 0, savePoint: 0)}元",
+                                          // index == 0
+                                          //     ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
+                                          //     : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 2, savePoint: 0)}元",
+                                          controller.payTypeIdx == index);
+                                    }),
+                                  );
+                                }),
+                              ),
+                            ),
+                            ghb(15),
+                          ],
                         );
                       }),
                     ),
                   ),
-                  ghb(12),
-                  sbhRow([
-                    getSimpleText("支付方式", 14, AppColor.text),
-                  ], height: 45, width: 345),
-                  SizedBox(
-                    width: 345.w,
-                    child: Wrap(
-                      spacing: 15.w,
-                      runSpacing: 10.w,
-                      children: List.generate(
-                          (controller.productData["cashPrice"] ?? 0) > 0
-                              ? 2
-                              : 1, (index) {
-                        return CustomButton(
-                          onPressed: () {
-                            controller.payTypeIdx = index;
-                          },
-                          child: GetX<ShoppingProductDetailController>(
-                              builder: (_) {
-                            return selectBtn(
-                                // index == 0
-                                //     ? "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPrice"] ?? 0, savePoint: 0)}积分"
-                                //     : "${priceFormat(controller.childProducts[controller.childProductIdx]["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.childProducts[controller.childProductIdx]["cashPrice"] ?? 2, savePoint: 0)}元",
-                                index == 0
-                                    ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
-                                    : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 2, savePoint: 0)}元",
-                                controller.payTypeIdx == index);
-                          }),
-                        );
-                      }),
-                    ),
-                  ),
-                  ghb(27),
-                  sbRow([
-                    getSimpleText("数量", 14, AppColor.text),
-                    Container(
-                        width: 90.w,
-                        height: 25.w,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.5.w),
-                            color: AppColor.pageBackgroundColor,
-                            border: Border.all(
-                                width: 0.5.w, color: AppColor.lineColor)),
-                        child: Row(
-                          children: List.generate(
-                              3,
-                              (idx) => idx == 1
-                                  ? Container(
+                ),
+                sbRow([
+                  getSimpleText("数量", 14, AppColor.text),
+                  Container(
+                      width: 90.w,
+                      height: 25.w,
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12.5.w),
+                          color: AppColor.pageBackgroundColor,
+                          border: Border.all(
+                              width: 0.5.w, color: AppColor.lineColor)),
+                      child: Row(
+                        children: List.generate(
+                            3,
+                            (idx) => idx == 1
+                                ? Container(
+                                    width: 40.w - 1.w,
+                                    height: 21.w,
+                                    color: Colors.white,
+                                    child: CustomInput(
                                       width: 40.w - 1.w,
-                                      height: 21.w,
-                                      color: Colors.white,
-                                      child: CustomInput(
-                                        width: 40.w - 1.w,
-                                        heigth: 21.w,
-                                        textEditCtrl: controller.numInputCtrl,
-                                        focusNode: controller.numInputNode,
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.number,
-                                        style: TextStyle(
-                                            fontSize: 15.w,
-                                            color: AppColor.text),
-                                        placeholderStyle: TextStyle(
-                                            fontSize: 15.w,
-                                            color: AppColor.assisText),
-                                      ),
-                                    )
-                                  : CustomButton(
-                                      onPressed: () {
-                                        int num = controller.productNum;
-                                        int count = controller.childProducts[
-                                                    controller.childProductIdx]
-                                                ["shopStock"] ??
-                                            1;
+                                      heigth: 21.w,
+                                      textEditCtrl: controller.numInputCtrl,
+                                      focusNode: controller.numInputNode,
+                                      textAlign: TextAlign.center,
+                                      keyboardType: TextInputType.number,
+                                      style: TextStyle(
+                                          fontSize: 15.w, color: AppColor.text),
+                                      placeholderStyle: TextStyle(
+                                          fontSize: 15.w,
+                                          color: AppColor.assisText),
+                                    ),
+                                  )
+                                : CustomButton(
+                                    onPressed: () {
+                                      int num = controller.productNum;
+                                      int count = controller.childProducts[
+                                                  controller.childProductIdx]
+                                              ["shopStock"] ??
+                                          1;
 
-                                        if (idx == 0) {
-                                          if (num > 1) {
-                                            controller.productNum -= 1;
-                                          }
-                                        } else {
-                                          if (num < count) {
-                                            controller.productNum += 1;
-                                          }
+                                      if (idx == 0) {
+                                        if (num > 1) {
+                                          controller.productNum -= 1;
                                         }
-                                        controller.numInputCtrl.text =
-                                            "${controller.productNum}";
-                                        controller.moveCountInputLastLine();
-                                      },
-                                      child: SizedBox(
-                                        width: 25.w - 0.1.w,
-                                        height: 25.w,
-                                        child: Center(
-                                          child: Icon(
-                                            idx == 0 ? Icons.remove : Icons.add,
-                                            size: 18.w,
-                                            color: idx == 0
-                                                ? (controller.productNum <= 1
-                                                    ? AppColor.assisText
-                                                    : AppColor.textBlack)
-                                                : (controller.productNum >=
-                                                        (controller.childProducts[
-                                                                    controller
-                                                                        .childProductIdx]
-                                                                ["shopStock"] ??
-                                                            1)
-                                                    ? AppColor.assisText
-                                                    : AppColor.textBlack),
-                                          ),
+                                      } else {
+                                        if (num < count) {
+                                          controller.productNum += 1;
+                                        }
+                                      }
+                                      controller.numInputCtrl.text =
+                                          "${controller.productNum}";
+                                      controller.moveCountInputLastLine();
+                                    },
+                                    child: SizedBox(
+                                      width: 25.w - 0.1.w,
+                                      height: 25.w,
+                                      child: Center(
+                                        child: Icon(
+                                          idx == 0 ? Icons.remove : Icons.add,
+                                          size: 18.w,
+                                          color: idx == 0
+                                              ? (controller.productNum <= 1
+                                                  ? AppColor.assisText
+                                                  : AppColor.textBlack)
+                                              : (controller.productNum >=
+                                                      (controller.childProducts[
+                                                                  controller
+                                                                      .childProductIdx]
+                                                              ["shopStock"] ??
+                                                          1)
+                                                  ? AppColor.assisText
+                                                  : AppColor.textBlack),
                                         ),
                                       ),
-                                    )),
-                        ))
-                  ], width: 345)
-                ],
-              ),
+                                    ),
+                                  )),
+                      ))
+                ], width: 345),
+                ghb(20),
+                getSubmitBtn("确定", () {
+                  Get.back();
+                }, fontSize: 15, color: AppColor.themeOrange, height: 45)
+              ],
             ),
           ),
         );

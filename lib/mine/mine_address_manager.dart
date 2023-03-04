@@ -166,12 +166,14 @@ class MineAddressManager extends GetView<MineAddressManagerController> {
   final dynamic getCtrl;
   final AddressType addressType;
   final Function(Map address)? addressCallBack;
-  const MineAddressManager(
-      {Key? key,
-      this.getCtrl,
-      this.addressType = AddressType.address,
-      this.addressCallBack})
-      : super(key: key);
+  final bool orangeTheme;
+  const MineAddressManager({
+    Key? key,
+    this.getCtrl,
+    this.addressType = AddressType.address,
+    this.addressCallBack,
+    this.orangeTheme = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -200,11 +202,15 @@ class MineAddressManager extends GetView<MineAddressManagerController> {
                     child: Center(
                       child: getSubmitBtn("新增地址", () {
                         Get.to(
-                            const MineAddressAdd(
+                            MineAddressAdd(
                               address: null,
+                              orangeTheme: orangeTheme,
                             ),
                             binding: MineAddressAddBinding());
-                      }, color: AppColor.theme),
+                      },
+                          color: orangeTheme
+                              ? AppColor.themeOrange
+                              : AppColor.theme),
                     ),
                   )),
           Positioned(
@@ -296,7 +302,9 @@ class MineAddressManager extends GetView<MineAddressManagerController> {
                       width: 30.w,
                       height: 16.w,
                       decoration: BoxDecoration(
-                          color: AppColor.theme,
+                          color: orangeTheme
+                              ? AppColor.themeOrange
+                              : AppColor.theme,
                           borderRadius: BorderRadius.circular(2.w)),
                       child: Center(
                           child: getSimpleText("默认", 12, Colors.white,
@@ -318,6 +326,7 @@ class MineAddressManager extends GetView<MineAddressManagerController> {
                       Get.to(
                           MineAddressAdd(
                             address: data,
+                            orangeTheme: orangeTheme,
                           ),
                           binding: MineAddressAddBinding());
                     },

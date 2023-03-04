@@ -226,8 +226,8 @@ class EarnParticulars extends GetView<EarnParticularsController> {
             break;
           case 1004:
             widgets.add(cellInfo("订单号", controller.earnData["order_NO"] ?? ""));
-            widgets.add(cellInfo(
-                "订单总额", controller.earnData["shopOrderTotalPrice"] ?? ""));
+            widgets.add(cellInfo("订单总额",
+                priceFormat(controller.earnData["shopOrderTotalPrice"] ?? "")));
             break;
           case 1005:
             widgets.add(cellInfo("订单号", controller.earnData["order_NO"] ?? ""));

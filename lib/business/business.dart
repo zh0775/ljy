@@ -7,6 +7,7 @@ import 'package:cxhighversion2/home/businessSchool/business_school_list_page.dar
 import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
+import 'package:cxhighversion2/util/toast.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -100,6 +101,8 @@ class Business extends GetView<BusinessController> {
                         push(const BusinessSchoolListPage(), context,
                             binding: BusinessSchoolListPageBinding(),
                             arguments: {"type": 1});
+                      } else {
+                        ShowToast.normal("敬请期待!");
                       }
                     },
                     child: centClm([

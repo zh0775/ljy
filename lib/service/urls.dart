@@ -583,4 +583,16 @@ class Urls {
 
   // 商品全部评价
   static const userCommentList = "/api/Product/User_CommentList";
+
+  // 查看购物车
+  static const userViewCart = "/api/Product/User_ViewCart";
+
+  // 加入购物车
+  static const userAddToCart = "/api/Product/User_AddToCart";
+
+  // 修改购物车
+  static const userModifyCart = "/api/Product/User_ModifyCart";
+
+  // 删除购物车
+  static String userRemoveFromCart(dynamic id) => "/api/Product/User_RemoveFromCart/$id";
 }

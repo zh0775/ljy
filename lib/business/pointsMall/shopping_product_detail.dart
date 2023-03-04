@@ -1,5 +1,7 @@
 import 'package:cxhighversion2/business/mallEvaluate/shopping_all_evaluate.dart';
 import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
+import 'package:cxhighversion2/business/pointsMall/points_mall_page.dart';
+import 'package:cxhighversion2/business/pointsMall/shopping_cart_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
@@ -60,8 +62,42 @@ class ShoppingProductDetailController extends GetxController {
   int get productNum => _productNum.value;
   set productNum(v) => _productNum.value = v;
 
-  addCarAction() {}
-  toCarAction() {}
+  addCarAction() {
+    List productPropertyList = [];
+    List shopPropertyList =
+        childProducts[childProductIdx]["shopPropertyList"] ?? [];
+    for (var i = 0; i < shopPropertyList.length; i++) {
+      Map e = shopPropertyList[i];
+      int sIdx = subSelects[childProductIdx][i];
+      if (sIdx <= (e["value"] ?? []).length - 1) {
+        productPropertyList.add({
+          "key": e["key"],
+          "value": e["value"][sIdx],
+        });
+      }
+    }
+    simpleRequest(
+      url: Urls.userAddToCart,
+      params: {
+        "product_Property_List": productPropertyList,
+        "product_ID": childProducts[childProductIdx]["productListId"],
+        "num": productNum,
+      },
+      success: (success, json) {
+        if (success) {
+          ShowToast.normal("已加入购物车");
+          Get.find<ShoppingCartPageController>().loadList();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  toCarAction() {
+    Get.find<PointsMallPageController>().tabIdx = 2;
+    Get.find<ShoppingCartPageController>().loadList();
+    Get.back();
+  }
 
   loadAddCollect(Map data) {
     isLoadCollect = true;
@@ -454,6 +490,7 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                       return CustomButton(
                         onPressed: () {
                           if (index == 0) {
+                            Get.find<PointsMallPageController>().tabIdx = 0;
                             Get.back();
                           } else if (index == 1) {
                             if ((controller.productDetailData["isCollect"] ??

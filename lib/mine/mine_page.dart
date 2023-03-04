@@ -1,3 +1,4 @@
+import 'package:cxhighversion2/business/mallOrder/mall_order_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/home/businessSchool/business_school_collect.dart';
@@ -468,7 +469,9 @@ class _MinePageState extends State<MinePage>
                       // } else if (index == 2) {
                       // } else if (index == 3) {}
                       if (index == 0) {
-                        ShowToast.normal("敬请期待!");
+                        push(const MallOrderPage(), null,
+                            binding: MallOrderPageBinding(),
+                            arguments: {"index": 0});
                       } else if (index == 1) {
                         push(const IntegralCashOrderList(), context,
                             binding: IntegralCashOrderListBinding());

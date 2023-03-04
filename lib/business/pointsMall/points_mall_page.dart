@@ -30,7 +30,10 @@ class PointsMallPageController extends GetxController {
   // final searchInputCtrl = TextEditingController();
 
   List<BannerData> banner = <BannerData>[
-    BannerData(imagePath: 'business/mall/mall_banner', id: '1', boxFit: BoxFit.fitHeight),
+    BannerData(
+        imagePath: 'business/mall/mall_banner',
+        id: '1',
+        boxFit: BoxFit.fitHeight),
   ];
 
   List productList = [];
@@ -144,7 +147,8 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 (index) => BottomNavigationBarItem(
                     icon: centClm([
                       Image.asset(
-                        assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
+                        assetsName(
+                            "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
                         width: 30.w,
                         fit: BoxFit.fitWidth,
                       ),
@@ -157,7 +161,8 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                 ? "购物车"
                                 : "我的",
                     activeIcon: Image.asset(
-                      assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
+                      assetsName(
+                          "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
                       width: 30.w,
                       fit: BoxFit.fitWidth,
                     ))),
@@ -213,16 +218,21 @@ class PointsMallPage extends GetView<PointsMallPageController> {
         gwb(375),
         CustomButton(
           onPressed: () {
-            push(const ShoppingProductList(), context, binding: ShoppingProductListBinding(), arguments: {"isSearch": true});
+            push(const ShoppingProductList(), context,
+                binding: ShoppingProductListBinding(),
+                arguments: {"isSearch": true});
           },
           child: Container(
             width: 345.w,
             height: 40.w,
-            decoration: BoxDecoration(color: AppColor.pageBackgroundColor, borderRadius: BorderRadius.circular(20.w)),
+            decoration: BoxDecoration(
+                color: AppColor.pageBackgroundColor,
+                borderRadius: BorderRadius.circular(20.w)),
             child: Row(
               children: [
                 gwb(20),
-                getWidthText("请输入想要搜索的商品名称", 12, AppColor.assisText, (345 - 20 - 62 - 1 - 0.1), 1),
+                getWidthText("请输入想要搜索的商品名称", 12, AppColor.assisText,
+                    (345 - 20 - 62 - 1 - 0.1), 1),
 
                 // CustomInput(
                 //   textEditCtrl: controller.searchInputCtrl,
@@ -261,7 +271,9 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               banners: controller.banner,
               borderRadius: 5,
               bannerClick: (data) {
-                push(const ShoppingProductList(), context, binding: ShoppingProductListBinding(), arguments: {"isSearch": false});
+                push(const ShoppingProductList(), context,
+                    binding: ShoppingProductListBinding(),
+                    arguments: {"isSearch": false});
               },
             ),
           ],
@@ -297,16 +309,16 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                   switch (index) {
                     case 0:
                       push(
-                        RedemptionListPage(),
+                        const RedemptionListPage(),
                         null,
                         binding: RedemptionListPageBinding(),
                       );
                       break;
                     case 3:
                       push(
-                        EvaluateFormPage(),
+                        const ShoppingProductList(),
                         null,
-                        binding: EvaluateFormPageBinding(),
+                        binding: ShoppingProductListBinding(),
                       );
                       break;
                     default:
@@ -340,9 +352,12 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               child: sbhRow([
                 nSimpleText("精品推荐", 16, isBold: true),
                 GestureDetector(
-                  onTap: () => push(const ShoppingProductList(), null, binding: ShoppingProductListBinding(), arguments: {"isSearch": false}),
+                  onTap: () => push(const ShoppingProductList(), null,
+                      binding: ShoppingProductListBinding(),
+                      arguments: {"isSearch": false}),
                   child: centRow([
-                    nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
+                    nSimpleText("查看更多", 12,
+                        color: AppColor.text3, textHeight: 1.2),
                     Image.asset(
                       assetsName("mine/icon_right_arrow"),
                       width: 12.w,
@@ -377,26 +392,37 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 Map data = controller.productList[index];
                 return CustomButton(
                   onPressed: () {
-                    push(const ShoppingProductDetail(), null, binding: ShoppingProductDetailBinding(), arguments: {
-                      "data": data,
-                    });
+                    push(const ShoppingProductDetail(), null,
+                        binding: ShoppingProductDetailBinding(),
+                        arguments: {
+                          "data": data,
+                        });
                   },
                   child: Container(
                     width: (375 - 15 * 2 - 10).w / 2 - 0.1.w,
 
-                    decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(3.w)),
                     // 167.5.w,
                     height: 270.w,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         ClipRRect(
-                          borderRadius: BorderRadius.vertical(top: Radius.circular(3.w)),
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(3.w)),
                           child: SizedBox(
                             width: 167.5.w,
                             height: 167.5.w,
                             child: Stack(children: [
-                              Positioned.fill(child: CustomNetworkImage(src: AppDefault().imageUrl + (data["shopImg"] ?? ""), width: 167.5.w, height: 167.5.w, fit: BoxFit.cover)),
+                              Positioned.fill(
+                                  child: CustomNetworkImage(
+                                      src: AppDefault().imageUrl +
+                                          (data["shopImg"] ?? ""),
+                                      width: 167.5.w,
+                                      height: 167.5.w,
+                                      fit: BoxFit.cover)),
                               (data["cashPrice"] ?? 0) > 0
                                   ? Align(
                                       alignment: Alignment.topLeft,
@@ -405,16 +431,20 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                         height: 15.w,
                                         alignment: Alignment.center,
                                         decoration: BoxDecoration(
-                                          gradient: const LinearGradient(colors: [
-                                            Color(0xFFFE5E00),
-                                            Color(0xFFFB7600),
-                                          ], begin: Alignment.centerLeft, end: Alignment.centerRight),
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFFFE5E00),
+                                                Color(0xFFFB7600),
+                                              ],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight),
                                           borderRadius: BorderRadius.only(
                                             topLeft: Radius.circular(4.w),
                                             bottomRight: Radius.circular(8.w),
                                           ),
                                         ),
-                                        child: getSimpleText("积分+现金", 10, Colors.white),
+                                        child: getSimpleText(
+                                            "积分+现金", 10, Colors.white),
                                       ),
                                     )
                                   : gemp(),
@@ -430,7 +460,10 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                             children: [
                               SizedBox(
                                 height: 45.w,
-                                child: getWidthText(data['shopName'] ?? "", 14.w, AppColor.textBlack, 149.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
+                                child: getWidthText(data['shopName'] ?? "",
+                                    14.w, AppColor.textBlack, 149.w, 2,
+                                    textAlign: TextAlign.left,
+                                    alignment: Alignment.topLeft),
                               ),
                               getSimpleText(
                                 "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
@@ -439,7 +472,9 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                 isBold: true,
                               ),
                               sbhRow([
-                                getSimpleText("已兑${data['shopBuyCount'] ?? 0}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
+                                getSimpleText("已兑${data['shopBuyCount'] ?? 0}个",
+                                    12, AppColor.textGrey5,
+                                    textAlign: TextAlign.left),
                                 centRow([
                                   GetBuilder<PointsMallPageController>(
                                     builder: (_) {
@@ -461,7 +496,11 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                           child: Align(
                                             alignment: Alignment.bottomRight,
                                             child: Image.asset(
-                                              assetsName((data["isCollect"] ?? 0) == 0 ? 'business/mall/btn_collect' : 'business/mall/btn_iscollect'),
+                                              assetsName((data["isCollect"] ??
+                                                          0) ==
+                                                      0
+                                                  ? 'business/mall/btn_collect'
+                                                  : 'business/mall/btn_iscollect'),
                                               width: 16.w,
                                               fit: BoxFit.fitWidth,
                                             ),

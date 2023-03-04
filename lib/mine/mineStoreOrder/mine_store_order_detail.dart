@@ -1,11 +1,7 @@
 import 'dart:async';
 
-import 'package:cxhighversion2/component/custom_alipay.dart';
-import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:cxhighversion2/component/bottom_paypassword.dart';
+import 'package:cxhighversion2/component/custom_alipay.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/mine/mineStoreOrder/mine_store_order_list.dart';
@@ -15,11 +11,14 @@ import 'package:cxhighversion2/util/EventBus.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/notify_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/src/size_extension.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:tobias/tobias.dart' as tobias;
 
 class MineStoreOrderDetailBinding implements Bindings {
   @override

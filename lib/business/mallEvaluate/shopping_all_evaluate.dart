@@ -1,11 +1,9 @@
 // 商品所有的评价列表
 
-import 'package:flutter/material.dart';
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 

@@ -157,6 +157,10 @@ class ShoppingProductListController extends GetxController {
     if (searcInputCtrl.text.isNotEmpty) {
       params["shop_Name"] = searcInputCtrl.text;
     }
+    if (categoryId1 != -1 && categoryId2 != -1) {
+      params["shop_Classe_1"] = categoryId1;
+      params["shop_Classe_2"] = categoryId2;
+    }
 
     simpleRequest(
       url: Urls.userProductList,
@@ -241,9 +245,13 @@ class ShoppingProductListController extends GetxController {
   }
 
   bool fromSearch = false;
+  int categoryId1 = -1;
+  int categoryId2 = -1;
   @override
   void onInit() {
     fromSearch = (datas ?? {})["isSearch"] ?? false;
+    categoryId1 = (datas ?? {})["categoryId1"] ?? -1;
+    categoryId2 = (datas ?? {})["categoryId2"] ?? -1;
     getHistory();
     searchNode.addListener(searchNodeListener);
     searcInputCtrl.addListener(searcInputCtrlListener);

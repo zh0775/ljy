@@ -57,6 +57,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:platform_device_id/platform_device_id.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import '../business/pointsMall/points_mall_page.dart';
 import 'businessSchool/business_school_list_page.dart';
 
 class HomeBinding extends Bindings {
@@ -1907,10 +1908,9 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             // 商户信息
             push(const MyBusiness(), context, binding: MyBusinessBinding());
           } else if (e["path"] == "/home/integralstore") {
-            // 产品采购
-            // push(const IntegralStore(shopType: 2), context,
-            //     binding: IntegralStoreBinding());
-            ShowToast.normal("敬请期待!");
+            // 积分商城
+            push(const PointsMallPage(), null,
+                binding: PointsMallPageBinding());
           } else if (e["path"] == "/home/machinetransfer") {
             // 机具划拨
             Get.to(

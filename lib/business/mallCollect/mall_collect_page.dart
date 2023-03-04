@@ -2,6 +2,7 @@
  * 积分商城收藏
  */
 
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/util/app_default.dart';
@@ -54,8 +55,9 @@ class MallCollectPageController extends GetxController {
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-          List tmp = data["data"] ?? [];
-          collectList = isLoad ? [...collectList, ...tmp] : tmp;
+          count = data["count"] ?? 0;
+          List tmpList = data["data"] ?? [];
+          collectList = isLoad ? [...collectList, ...tmpList] : tmpList;
           update();
         }
       },
@@ -135,7 +137,7 @@ class MallCollectPage extends GetView<MallCollectPageController> {
                 : ListView.builder(
                     itemCount: controller.collectList.length,
                     itemBuilder: (context, index) {
-                      return collectList();
+                      return collectItem(controller.collectList[index]);
                     },
                   ),
             // child: SingleChildScrollView(
@@ -151,70 +153,77 @@ class MallCollectPage extends GetView<MallCollectPageController> {
   }
 
   // 收藏列表
-  Widget collectList() {
-    return Column(
-      children: List.generate(controller.collectList.length, (index) {
-        Map data = controller.collectList[index];
-        return collectItem(data);
-      }),
-    );
-  }
+  // Widget collectList() {
+  //   return Column(
+  //     children: List.generate(controller.collectList.length, (index) {
+  //       Map data = controller.collectList[index];
+  //       return collectItem(data);
+  //     }),
+  //   );
+  // }
 
   // 收藏item
   Widget collectItem(item) {
-    return Center(
-      child: Container(
-        width: 345.w,
-        color: Colors.white,
-        margin: EdgeInsets.only(top: 15.w),
-        child: Row(
-          children: [
-            SizedBox(
-              child: CustomNetworkImage(
-                src: AppDefault().imageUrl + (item["shopImg"] ?? ""),
-                width: 120.w,
-                height: 120.w,
-                fit: BoxFit.fill,
+    return CustomButton(
+      onPressed: () {
+        push(const ShoppingProductDetail(), null, binding: ShoppingProductDetailBinding(), arguments: {
+          "data": item,
+        });
+      },
+      child: Center(
+        child: Container(
+          width: 345.w,
+          color: Colors.white,
+          margin: EdgeInsets.only(top: 15.w),
+          child: Row(
+            children: [
+              SizedBox(
+                child: CustomNetworkImage(
+                  src: AppDefault().imageUrl + (item["shopImg"] ?? ""),
+                  width: 120.w,
+                  height: 120.w,
+                  fit: BoxFit.fill,
+                ),
               ),
-            ),
-            Container(
-              width: 225.w,
-              padding: EdgeInsets.fromLTRB(8.w, 11.5.w, 8.w, 11.5.w),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  getWidthText(item['shopName'], 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
-                  ghb(15.w),
-                  getSimpleText("${item['nowPrice'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
-                  sbhRow([
-                    getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
-                    centRow([
-                      GetBuilder<MallCollectPageController>(
-                        builder: (_) {
-                          return CustomButton(
-                            onPressed: () {
-                              if ((item["isCollect"] ?? 0) == 0) {
-                                controller.loadAddCollect(item);
-                              } else {
-                                controller.loadRemoveCollect(item);
-                              }
+              Container(
+                width: 225.w,
+                padding: EdgeInsets.fromLTRB(8.w, 11.5.w, 8.w, 11.5.w),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    getWidthText(item['shopName'], 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
+                    ghb(15.w),
+                    getSimpleText("${item['nowPrice'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
+                    sbhRow([
+                      getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
+                      centRow([
+                        GetBuilder<MallCollectPageController>(
+                          builder: (_) {
+                            return CustomButton(
+                              onPressed: () {
+                                if ((item["isCollect"] ?? 0) == 0) {
+                                  controller.loadAddCollect(item);
+                                } else {
+                                  controller.loadRemoveCollect(item);
+                                }
 
-                              controller.update();
-                            },
-                            child: Image.asset(
-                              assetsName((item["isCollect"] ?? 0) == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
-                              width: 32.w,
-                              height: 28.w,
-                            ),
-                          );
-                        },
-                      )
-                    ])
-                  ], width: 245.w - 10 * 2, height: 12.w),
-                ],
-              ),
-            )
-          ],
+                                controller.update();
+                              },
+                              child: Image.asset(
+                                assetsName((item["isCollect"] ?? 0) == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
+                                width: 32.w,
+                                height: 28.w,
+                              ),
+                            );
+                          },
+                        )
+                      ])
+                    ], width: 245.w - 10 * 2, height: 15.w),
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -1,16 +1,18 @@
+import 'dart:convert' as convert;
+
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
-import 'package:cxhighversion2/home/fodderlib/fodder_lib_detail.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/user_default.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'dart:convert' as convert;
 
 class ShoppingProductListBinding implements Bindings {
   @override
@@ -38,7 +40,7 @@ class ShoppingProductListController extends GetxController {
   loadAddCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userAddProductCollection(data["productListId"], 2),
+      url: Urls.userAddProductCollection(data["productId"], 1),
       params: {},
       success: (success, json) {
         if (success) {
@@ -54,7 +56,7 @@ class ShoppingProductListController extends GetxController {
   loadRemoveCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userDeleteCollection(data["productListId"]),
+      url: Urls.userDeleteCollection(data["productId"]),
       params: {},
       success: (success, json) {
         if (success) {
@@ -67,7 +69,7 @@ class ShoppingProductListController extends GetxController {
     );
   }
 
-  RefreshController pullCtrl = RefreshController();
+  // RefreshController pullCtrl = RefreshController();
   final _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
   set isLoading(v) => _isLoading.value = v;
@@ -142,19 +144,19 @@ class ShoppingProductListController extends GetxController {
       "isBoutique": 0,
       "shop_Type": 2,
     };
-    // if (filterIdx == 0) {
-    //   params["nOrderTime"] = -1;
-    //   params["nOrderDownload"] = -1;
-    // } else if (filterIdx == 1) {
-    //   params["nOrderTime"] = buyCountSort == 0 ? 1 : 0;
-    //   params["nOrderDownload"] = -1;
-    // } else if (filterIdx == 2) {
-    //   params["nOrderTime"] = -1;
-    //   params["nOrderDownload"] = priceSore == 0 ? 1 : 0;
-    // }
-    // if (searcInputCtrl.text.isNotEmpty) {
-    //   params["description"] = searcInputCtrl.text;
-    // }
+    if (filterIdx == 0) {
+      // params["nOrderTime"] = -1;
+      // params["nOrderDownload"] = -1;
+    } else if (filterIdx == 1) {
+      params["shop_Buy_Count"] = buyCountSort == 0 ? 1 : 0;
+      // params["nOrderDownload"] = -1;
+    } else if (filterIdx == 2) {
+      // params["nOrderTime"] = -1;
+      params["shop_Price"] = priceSore == 0 ? 1 : 0;
+    }
+    if (searcInputCtrl.text.isNotEmpty) {
+      params["shop_Name"] = searcInputCtrl.text;
+    }
 
     simpleRequest(
       url: Urls.userProductList,
@@ -167,9 +169,9 @@ class ShoppingProductListController extends GetxController {
 
           dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
           update();
-          isLoad ? pullCtrl.loadComplete() : pullCtrl.refreshCompleted();
+          // isLoad ? pullCtrl.loadComplete() : pullCtrl.refreshCompleted();
         } else {
-          isLoad ? pullCtrl.loadFailed() : pullCtrl.refreshFailed();
+          // isLoad ? pullCtrl.loadFailed() : pullCtrl.refreshFailed();
         }
       },
       after: () {
@@ -267,79 +269,115 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
     return GestureDetector(
       onTap: () => takeBackKeyboard(context),
       child: Scaffold(
-        appBar: getDefaultAppBar(context, "",
-            flexibleSpace: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: EdgeInsets.only(bottom: 11.w, right: 5.w),
-                width: 285.w,
-                height: 30.w,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                    color: AppColor.pageBackgroundColor,
-                    borderRadius: BorderRadius.circular(15.w)),
-                child: sbRow([
-                  centRow([
-                    gwb(15),
-                    CustomInput(
-                      width: (285 - 15 - 10 - 27.5).w,
-                      heigth: 30.w,
-                      focusNode: controller.searchNode,
-                      textEditCtrl: controller.searcInputCtrl,
-                      placeholder: "请输入想要搜索的商品名称",
-                      maxLength: 15,
-                      style: TextStyle(
-                          fontSize: 12.sp, color: AppColor.text2, height: 1.3),
-                      placeholderStyle: TextStyle(
-                          fontSize: 12.sp,
-                          color: AppColor.assisText,
-                          height: 1.3),
-                      onSubmitted: (p0) {
-                        controller.searchAction();
-                      },
-                    )
-                  ]),
-                  GetX<ShoppingProductListController>(
-                    builder: (_) {
-                      return !controller.haveCleanInput
-                          ? gwb(0)
-                          : CustomButton(
-                              onPressed: () {
-                                controller.searcInputCtrl.clear();
-                              },
-                              child: SizedBox(
-                                width: 27.5.w,
-                                height: 30.w,
-                                child: Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Image.asset(
-                                    assetsName("common/btn_search_input_close"),
-                                    width: 15.w,
-                                    fit: BoxFit.fitWidth,
-                                  ),
-                                ),
-                              ),
-                            );
-                    },
-                  ),
-                ], width: 285),
-              ),
-            ),
-            action: [
-              CustomButton(
-                onPressed: () {
-                  controller.searchAction();
-                },
-                child: SizedBox(
+        appBar: getDefaultAppBar(context, "商品列表", action: [
+          CustomButton(
+            onPressed: () {
+              controller.isList = !controller.isList;
+            },
+            child: GetX<ShoppingProductListController>(
+              builder: (_) {
+                return SizedBox(
                   height: kToolbarHeight,
                   width: 50.w,
-                  child: Center(child: getSimpleText("搜索", 12, AppColor.text2)),
-                ),
-              )
-            ]),
+                  child: Center(
+                      child: Image.asset(
+                    assetsName(
+                      "business/mall/icon_list_${controller.isList ? "list" : "wrap"}",
+                    ),
+                    width: 24.w,
+                    fit: BoxFit.fitWidth,
+                  )),
+                );
+              },
+            ),
+          )
+        ]),
         body: Stack(children: [
           Positioned(
-            top: 0,
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 55.w,
+              child: Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    gwb(375),
+                    ghb(5.5),
+                    Container(
+                      width: 345.w,
+                      height: 40.w,
+                      decoration: BoxDecoration(
+                          color: AppColor.pageBackgroundColor,
+                          borderRadius: BorderRadius.circular(20.w)),
+                      child: Row(
+                        children: [
+                          gwb(20),
+                          CustomInput(
+                            textEditCtrl: controller.searcInputCtrl,
+                            focusNode: controller.searchNode,
+                            width: (345 - 20 - 45 - 1 - 0.1 - 27.5).w,
+                            heigth: 40.w,
+                            placeholder: "请输入想要搜索的商品名称",
+                            placeholderStyle: TextStyle(
+                                fontSize: 12.sp, color: AppColor.assisText),
+                            style: TextStyle(
+                                fontSize: 12.sp, color: AppColor.text),
+                            onSubmitted: (p0) {
+                              takeBackKeyboard(context);
+                              controller.searchAction();
+                            },
+                          ),
+                          GetX<ShoppingProductListController>(
+                            builder: (_) {
+                              return !controller.haveCleanInput
+                                  ? gwb(27.5)
+                                  : CustomButton(
+                                      onPressed: () {
+                                        controller.searcInputCtrl.clear();
+                                        takeBackKeyboard(context);
+                                      },
+                                      child: SizedBox(
+                                        width: 27.5.w,
+                                        height: 30.w,
+                                        child: Align(
+                                          alignment: Alignment.centerLeft,
+                                          child: Image.asset(
+                                            assetsName(
+                                                "common/btn_search_input_close"),
+                                            width: 15.w,
+                                            fit: BoxFit.fitWidth,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                            },
+                          ),
+                          CustomButton(
+                            onPressed: () {
+                              takeBackKeyboard(context);
+                              controller.searchAction();
+                            },
+                            child: SizedBox(
+                              width: 30.w,
+                              height: 40.w,
+                              child: Center(
+                                child: Image.asset(
+                                  assetsName("machine/icon_search"),
+                                  width: 18.w,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )),
+          Positioned(
+            top: 55.w,
             left: 0,
             right: 0,
             height: 55.w,
@@ -463,8 +501,7 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
                             return AnimatedPositioned(
                               top: 0,
                               left: ((375.w / 3) / 2 - 15.w / 2) +
-                                  (controller.filterIdx * (375.w / 3)) -
-                                  3.w,
+                                  (controller.filterIdx * (375.w / 3)),
                               duration: const Duration(milliseconds: 300),
                               child: Container(
                                 width: 15.w,
@@ -485,26 +522,46 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
             ),
           ),
           Positioned.fill(
-              top: 55.w,
+              top: 110.w,
               child: GetBuilder<ShoppingProductListController>(
                 builder: (_) {
-                  return SmartRefresher(
-                    controller: controller.pullCtrl,
-                    onLoading: () => controller.loadData(isLoad: true),
+                  return EasyRefresh(
+                    // controller: controller.pullCtrl,
+                    header: const CupertinoHeader(),
+                    footer: const CupertinoFooter(),
+
+                    onLoad: controller.dataList.length >= controller.count
+                        ? null
+                        : () => controller.loadData(isLoad: true),
+                    // onLoading: () => controller.loadData(isLoad: true),
                     onRefresh: () => controller.loadData(),
-                    enablePullUp: controller.count > controller.dataList.length,
+                    // enablePullUp: controller.count > controller.dataList.length,
                     child: controller.dataList.isEmpty
                         ? GetX<ShoppingProductListController>(
                             builder: (_) {
-                              return CustomEmptyView(
-                                isLoading: controller.isLoading,
+                              return SingleChildScrollView(
+                                child: Center(
+                                  child: CustomEmptyView(
+                                    isLoading: controller.isLoading,
+                                  ),
+                                ),
                               );
                             },
                           )
-                        : ListView.builder(
-                            itemCount: (controller.dataList.length / 2).ceil(),
-                            itemBuilder: (context, index) {
-                              return cell(index);
+                        : GetX<ShoppingProductListController>(
+                            builder: (_) {
+                              return ListView.builder(
+                                padding: EdgeInsets.only(bottom: 20.w),
+                                itemCount: controller.isList
+                                    ? controller.dataList.length
+                                    : (controller.dataList.length / 2).ceil(),
+                                itemBuilder: (context, index) {
+                                  return controller.isList
+                                      ? cellList(
+                                          index, controller.dataList[index])
+                                      : cell(index);
+                                },
+                              );
                             },
                           ),
                   );
@@ -517,7 +574,7 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
                   : Positioned(
                       left: 0,
                       right: 0,
-                      top: 0,
+                      top: 55.w,
                       height: 300.w,
                       child: Container(
                         decoration: BoxDecoration(
@@ -630,6 +687,117 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
     );
   }
 
+  Widget cellList(int index, Map data) {
+    return Center(
+      child: CustomButton(
+        onPressed: () {
+          push(const ShoppingProductDetail(), null,
+              binding: ShoppingProductDetailBinding(),
+              arguments: {
+                "data": data,
+              });
+        },
+        child: Container(
+          margin: EdgeInsets.only(top: 15.w),
+          width: 345.w,
+          height: 120.w,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
+          child: sbRow([
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3.w),
+              child: SizedBox(
+                width: 120.w,
+                height: 120.w,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                        child: CustomNetworkImage(
+                      src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
+                      width: 120.w,
+                      height: 120.w,
+                      fit: BoxFit.cover,
+                    )),
+                    (data["cashPrice"] ?? 0) > 0
+                        ? Align(
+                            alignment: Alignment.topLeft,
+                            child: Container(
+                              width: 55.w,
+                              height: 15.w,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFFFE5E00),
+                                      Color(0xFFFB7600),
+                                    ],
+                                    begin: Alignment.centerLeft,
+                                    end: Alignment.centerRight),
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(4.w),
+                                  bottomRight: Radius.circular(8.w),
+                                ),
+                              ),
+                              child: getSimpleText("积分+现金", 10, Colors.white),
+                            ),
+                          )
+                        : gemp(),
+                  ],
+                ),
+              ),
+            ),
+            sbClm([
+              getWidthText(data["shopName"] ?? "", 15, AppColor.text, 209, 2),
+              centClm([
+                getSimpleText(
+                    "${priceFormat(data["nowPrice"] ?? 0, savePoint: 0)}积分",
+                    18,
+                    AppColor.themeOrange,
+                    isBold: true),
+                sbRow([
+                  getSimpleText("已兑${data["shopBuyCount"] ?? 0}个", 12,
+                      AppColor.textGrey5),
+                  GetBuilder<ShoppingProductListController>(
+                    builder: (_) {
+                      return CustomButton(
+                        onPressed: () {
+                          if ((data["isCollect"] ?? 0) == 0) {
+                            controller.loadAddCollect(data);
+                          } else {
+                            controller.loadRemoveCollect(data);
+                          }
+                          // data["favoriteStatus"] =
+                          //     !data["favoriteStatus"];
+                          // //
+                          // controller.update();
+                        },
+                        child: SizedBox(
+                          width: 52.w,
+                          height: 28.w,
+                          child: Align(
+                            alignment: Alignment.center,
+                            child: Image.asset(
+                              assetsName((data["isCollect"] ?? 0) == 0
+                                  ? 'business/mall/btn_collect'
+                                  : 'business/mall/btn_iscollect'),
+                              width: 16.w,
+                              fit: BoxFit.fitWidth,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  )
+                ], width: 209),
+              ], crossAxisAlignment: CrossAxisAlignment.start)
+            ], crossAxisAlignment: CrossAxisAlignment.start, height: 100)
+          ], width: 345),
+        ),
+      ),
+    );
+  }
+
   Widget cell(int index) {
     return Padding(
       padding: EdgeInsets.only(top: 15.w),
@@ -642,94 +810,139 @@ class ShoppingProductList extends GetView<ShoppingProductListController> {
               }
               return data.isEmpty
                   ? gwb(0)
-                  : Container(
-                      width: 167.5.w,
+                  : CustomButton(
+                      onPressed: () {
+                        push(const ShoppingProductDetail(), null,
+                            binding: ShoppingProductDetailBinding(),
+                            arguments: {
+                              "data": data,
+                            });
+                      },
+                      child: Container(
+                        width: 167.5.w,
 
-                      decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(3.w)),
-                      // 167.5.w,
-                      height: 270.w,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(3.w)),
-                            child: CustomNetworkImage(
-                                src: AppDefault().imageUrl +
-                                    (data["shopImg"] ?? ""),
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(3.w)),
+                        // 167.5.w,
+                        height: 270.w,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.vertical(
+                                  top: Radius.circular(3.w)),
+                              child: SizedBox(
                                 width: 167.5.w,
                                 height: 167.5.w,
-                                fit: BoxFit.cover),
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(8.0.w),
-                            width: 167.5.w,
-                            height: 102.5.w,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 45.w,
-                                  child: getWidthText(data['shopName'] ?? "",
-                                      14.w, AppColor.textBlack, 149.w, 2,
-                                      textAlign: TextAlign.left,
-                                      alignment: Alignment.topLeft),
-                                ),
-                                getSimpleText(
-                                  "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
-                                  18,
-                                  AppColor.themeOrange,
-                                  isBold: true,
-                                ),
-                                sbhRow([
-                                  getSimpleText(
-                                      "已兑${data['shopBuyCount'] ?? 0}个",
-                                      12,
-                                      AppColor.textGrey5,
-                                      textAlign: TextAlign.left),
-                                  centRow([
-                                    GetBuilder<ShoppingProductListController>(
-                                      builder: (_) {
-                                        return CustomButton(
-                                          onPressed: () {
-                                            if ((data["isCollect"] ?? 0) == 0) {
-                                              controller.loadAddCollect(data);
-                                            } else {
-                                              controller
-                                                  .loadRemoveCollect(data);
-                                            }
-                                            // data["favoriteStatus"] =
-                                            //     !data["favoriteStatus"];
-                                            // //
-                                            // controller.update();
-                                          },
-                                          child: SizedBox(
-                                            width: 32.w,
-                                            height: 28.w,
-                                            child: Align(
-                                              alignment: Alignment.bottomRight,
-                                              child: Image.asset(
-                                                assetsName((data["isCollect"] ??
-                                                            0) ==
-                                                        0
-                                                    ? 'business/mall/btn_iscollect'
-                                                    : 'business/mall/btn_collect'),
-                                                width: 16.w,
-                                                fit: BoxFit.fitWidth,
+                                child: Stack(children: [
+                                  Positioned.fill(
+                                      child: CustomNetworkImage(
+                                          src: AppDefault().imageUrl +
+                                              (data["shopImg"] ?? ""),
+                                          width: 167.5.w,
+                                          height: 167.5.w,
+                                          fit: BoxFit.cover)),
+                                  (data["cashPrice"] ?? 0) > 0
+                                      ? Align(
+                                          alignment: Alignment.topLeft,
+                                          child: Container(
+                                            width: 55.w,
+                                            height: 15.w,
+                                            alignment: Alignment.center,
+                                            decoration: BoxDecoration(
+                                              gradient: const LinearGradient(
+                                                  colors: [
+                                                    Color(0xFFFE5E00),
+                                                    Color(0xFFFB7600),
+                                                  ],
+                                                  begin: Alignment.centerLeft,
+                                                  end: Alignment.centerRight),
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(4.w),
+                                                bottomRight:
+                                                    Radius.circular(8.w),
                                               ),
                                             ),
+                                            child: getSimpleText(
+                                                "积分+现金", 10, Colors.white),
                                           ),
-                                        );
-                                      },
-                                    )
-                                  ])
-                                ], width: 167.5 - 10 * 2, height: 15.w),
-                              ],
+                                        )
+                                      : gemp(),
+                                ]),
+                              ),
                             ),
-                          )
-                        ],
+                            Container(
+                              padding: EdgeInsets.all(8.0.w),
+                              width: 167.5.w,
+                              height: 102.5.w,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(
+                                    height: 45.w,
+                                    child: getWidthText(data['shopName'] ?? "",
+                                        14.w, AppColor.textBlack, 149.w, 2,
+                                        textAlign: TextAlign.left,
+                                        alignment: Alignment.topLeft),
+                                  ),
+                                  getSimpleText(
+                                    "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
+                                    18,
+                                    AppColor.themeOrange,
+                                    isBold: true,
+                                  ),
+                                  sbhRow([
+                                    getSimpleText(
+                                        "已兑${data['shopBuyCount'] ?? 0}个",
+                                        12,
+                                        AppColor.textGrey5,
+                                        textAlign: TextAlign.left),
+                                    centRow([
+                                      GetBuilder<ShoppingProductListController>(
+                                        builder: (_) {
+                                          return CustomButton(
+                                            onPressed: () {
+                                              if ((data["isCollect"] ?? 0) ==
+                                                  0) {
+                                                controller.loadAddCollect(data);
+                                              } else {
+                                                controller
+                                                    .loadRemoveCollect(data);
+                                              }
+                                              // data["favoriteStatus"] =
+                                              //     !data["favoriteStatus"];
+                                              // //
+                                              // controller.update();
+                                            },
+                                            child: SizedBox(
+                                              width: 32.w,
+                                              height: 28.w,
+                                              child: Align(
+                                                alignment:
+                                                    Alignment.bottomRight,
+                                                child: Image.asset(
+                                                  assetsName((data[
+                                                                  "isCollect"] ??
+                                                              0) ==
+                                                          0
+                                                      ? 'business/mall/btn_collect'
+                                                      : 'business/mall/btn_iscollect'),
+                                                  width: 16.w,
+                                                  fit: BoxFit.fitWidth,
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      )
+                                    ])
+                                  ], width: 167.5 - 10 * 2, height: 15.w),
+                                ],
+                              ),
+                            )
+                          ],
+                        ),
                       ),
                     );
             }),

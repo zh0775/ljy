@@ -657,6 +657,7 @@ class Urls {
 //添加收藏
   static String userAddProductCollection(dynamic id, dynamic type) =>
       "/api/Product/User_AddProductCollection/$id/$type";
+  // 删除收藏
   static String userDeleteCollection(dynamic collectionIds) =>
-      "/api/Product/User_DeleteCollection/$collectionIds";
+      "/api/Product/User_DeleteCollectionByProductId/$collectionIds";
 }

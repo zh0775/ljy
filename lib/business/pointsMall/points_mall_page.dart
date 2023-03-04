@@ -1,4 +1,5 @@
 import 'package:cxhighversion2/business/pointsMall/shopping_cart_page.dart';
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
 import 'package:cxhighversion2/business/pointsMall/shopping_product_list.dart';
 import 'package:cxhighversion2/component/app_banner.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
@@ -29,7 +30,10 @@ class PointsMallPageController extends GetxController {
   // final searchInputCtrl = TextEditingController();
 
   List<BannerData> banner = <BannerData>[
-    BannerData(imagePath: 'business/mall/mall_banner', id: '1', boxFit: BoxFit.fitHeight),
+    BannerData(
+        imagePath: 'business/mall/mall_banner',
+        id: '1',
+        boxFit: BoxFit.fitHeight),
   ];
 
   List productList = [];
@@ -45,7 +49,7 @@ class PointsMallPageController extends GetxController {
   loadAddCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userAddProductCollection(data["productListId"], 2),
+      url: Urls.userAddProductCollection(data["productId"], 1),
       params: {},
       success: (success, json) {
         if (success) {
@@ -61,7 +65,7 @@ class PointsMallPageController extends GetxController {
   loadRemoveCollect(Map data) {
     isLoadCollect = true;
     simpleRequest(
-      url: Urls.userDeleteCollection(data["productListId"]),
+      url: Urls.userDeleteCollection(data["productId"]),
       params: {},
       success: (success, json) {
         if (success) {
@@ -84,6 +88,7 @@ class PointsMallPageController extends GetxController {
     if (searchStr != null && searchStr.isNotEmpty) {
       params["shop_Name"] = searchStr;
     }
+
     simpleRequest(
       url: Urls.userProductList,
       params: params,
@@ -95,6 +100,7 @@ class PointsMallPageController extends GetxController {
         }
       },
       after: () {},
+      useCache: true,
     );
   }
 
@@ -141,7 +147,8 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                 (index) => BottomNavigationBarItem(
                     icon: centClm([
                       Image.asset(
-                        assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
+                        assetsName(
+                            "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}normal"),
                         width: 30.w,
                         fit: BoxFit.fitWidth,
                       ),
@@ -154,7 +161,8 @@ class PointsMallPage extends GetView<PointsMallPageController> {
                                 ? "购物车"
                                 : "我的",
                     activeIcon: Image.asset(
-                      assetsName("business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
+                      assetsName(
+                          "business/tabbar/${index == 0 ? "home_" : index == 1 ? "class_" : index == 2 ? "car_" : "mine_"}selected"),
                       width: 30.w,
                       fit: BoxFit.fitWidth,
                     ))),
@@ -210,16 +218,21 @@ class PointsMallPage extends GetView<PointsMallPageController> {
         gwb(375),
         CustomButton(
           onPressed: () {
-            push(const ShoppingProductList(), context, binding: ShoppingProductListBinding(), arguments: {"isSearch": true});
+            push(const ShoppingProductList(), context,
+                binding: ShoppingProductListBinding(),
+                arguments: {"isSearch": true});
           },
           child: Container(
             width: 345.w,
             height: 40.w,
-            decoration: BoxDecoration(color: AppColor.pageBackgroundColor, borderRadius: BorderRadius.circular(20.w)),
+            decoration: BoxDecoration(
+                color: AppColor.pageBackgroundColor,
+                borderRadius: BorderRadius.circular(20.w)),
             child: Row(
               children: [
                 gwb(20),
-                getWidthText("请输入想要搜索的商品名称", 12, AppColor.assisText, (345 - 20 - 62 - 1 - 0.1), 1),
+                getWidthText("请输入想要搜索的商品名称", 12, AppColor.assisText,
+                    (345 - 20 - 62 - 1 - 0.1), 1),
 
                 // CustomInput(
                 //   textEditCtrl: controller.searchInputCtrl,
@@ -258,7 +271,9 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               banners: controller.banner,
               borderRadius: 5,
               bannerClick: (data) {
-                push(const ShoppingProductList(), context, binding: ShoppingProductListBinding(), arguments: {"isSearch": false});
+                push(const ShoppingProductList(), context,
+                    binding: ShoppingProductListBinding(),
+                    arguments: {"isSearch": false});
               },
             ),
           ],
@@ -330,9 +345,12 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               child: sbhRow([
                 nSimpleText("精品推荐", 16, isBold: true),
                 GestureDetector(
-                  onTap: () => push(const ShoppingProductList(), null, binding: ShoppingProductListBinding(), arguments: {"isSearch": false}),
+                  onTap: () => push(const ShoppingProductList(), null,
+                      binding: ShoppingProductListBinding(),
+                      arguments: {"isSearch": false}),
                   child: centRow([
-                    nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
+                    nSimpleText("查看更多", 12,
+                        color: AppColor.text3, textHeight: 1.2),
                     Image.asset(
                       assetsName("mine/icon_right_arrow"),
                       width: 12.w,
@@ -365,74 +383,132 @@ class PointsMallPage extends GetView<PointsMallPageController> {
               runSpacing: 10.w,
               children: List.generate(controller.productList.length, (index) {
                 Map data = controller.productList[index];
-                return Container(
-                  width: (375 - 15 * 2 - 10).w / 2 - 0.1.w,
+                return CustomButton(
+                  onPressed: () {
+                    push(const ShoppingProductDetail(), null,
+                        binding: ShoppingProductDetailBinding(),
+                        arguments: {
+                          "data": data,
+                        });
+                  },
+                  child: Container(
+                    width: (375 - 15 * 2 - 10).w / 2 - 0.1.w,
 
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
-                  // 167.5.w,
-                  height: 270.w,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.vertical(top: Radius.circular(3.w)),
-                        child: CustomNetworkImage(src: AppDefault().imageUrl + (data["shopImg"] ?? ""), width: 167.5.w, height: 167.5.w, fit: BoxFit.cover),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(8.0.w),
-                        width: 167.5.w,
-                        height: 102.5.w,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(
-                              height: 45.w,
-                              child: getWidthText(data['shopName'] ?? "", 14.w, AppColor.textBlack, 149.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
-                            ),
-                            getSimpleText(
-                              "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
-                              18,
-                              AppColor.themeOrange,
-                              isBold: true,
-                            ),
-                            sbhRow([
-                              getSimpleText("已兑${data['shopBuyCount'] ?? 0}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
-                              centRow([
-                                GetBuilder<PointsMallPageController>(
-                                  builder: (_) {
-                                    return CustomButton(
-                                      onPressed: () {
-                                        if ((data["isCollect"] ?? 0) == 0) {
-                                          controller.loadAddCollect(data);
-                                        } else {
-                                          controller.loadRemoveCollect(data);
-                                        }
-                                        // data["favoriteStatus"] =
-
-                                        // //
-                                        // controller.update();
-                                      },
-                                      child: SizedBox(
-                                        width: 32.w,
-                                        height: 28.w,
-                                        child: Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Image.asset(
-                                            assetsName((data["isCollect"] ?? 0) == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
-                                            width: 16.w,
-                                            fit: BoxFit.fitWidth,
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(3.w)),
+                    // 167.5.w,
+                    height: 270.w,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ClipRRect(
+                          borderRadius:
+                              BorderRadius.vertical(top: Radius.circular(3.w)),
+                          child: SizedBox(
+                            width: 167.5.w,
+                            height: 167.5.w,
+                            child: Stack(children: [
+                              Positioned.fill(
+                                  child: CustomNetworkImage(
+                                      src: AppDefault().imageUrl +
+                                          (data["shopImg"] ?? ""),
+                                      width: 167.5.w,
+                                      height: 167.5.w,
+                                      fit: BoxFit.cover)),
+                              (data["cashPrice"] ?? 0) > 0
+                                  ? Align(
+                                      alignment: Alignment.topLeft,
+                                      child: Container(
+                                        width: 55.w,
+                                        height: 15.w,
+                                        alignment: Alignment.center,
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                              colors: [
+                                                Color(0xFFFE5E00),
+                                                Color(0xFFFB7600),
+                                              ],
+                                              begin: Alignment.centerLeft,
+                                              end: Alignment.centerRight),
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(4.w),
+                                            bottomRight: Radius.circular(8.w),
                                           ),
                                         ),
+                                        child: getSimpleText(
+                                            "积分+现金", 10, Colors.white),
                                       ),
-                                    );
-                                  },
-                                )
-                              ])
-                            ], width: 167.5 - 10 * 2, height: 15.w),
-                          ],
+                                    )
+                                  : gemp(),
+                            ]),
+                          ),
                         ),
-                      )
-                    ],
+                        Container(
+                          padding: EdgeInsets.all(8.0.w),
+                          width: 167.5.w,
+                          height: 102.5.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 45.w,
+                                child: getWidthText(data['shopName'] ?? "",
+                                    14.w, AppColor.textBlack, 149.w, 2,
+                                    textAlign: TextAlign.left,
+                                    alignment: Alignment.topLeft),
+                              ),
+                              getSimpleText(
+                                "${priceFormat(data['nowPrice'] ?? 0, savePoint: 0)}积分",
+                                18,
+                                AppColor.themeOrange,
+                                isBold: true,
+                              ),
+                              sbhRow([
+                                getSimpleText("已兑${data['shopBuyCount'] ?? 0}个",
+                                    12, AppColor.textGrey5,
+                                    textAlign: TextAlign.left),
+                                centRow([
+                                  GetBuilder<PointsMallPageController>(
+                                    builder: (_) {
+                                      return CustomButton(
+                                        onPressed: () {
+                                          if ((data["isCollect"] ?? 0) == 0) {
+                                            controller.loadAddCollect(data);
+                                          } else {
+                                            controller.loadRemoveCollect(data);
+                                          }
+                                          // data["favoriteStatus"] =
+                                          //     !data["favoriteStatus"];
+                                          // //
+                                          // controller.update();
+                                        },
+                                        child: SizedBox(
+                                          width: 32.w,
+                                          height: 28.w,
+                                          child: Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: Image.asset(
+                                              assetsName((data["isCollect"] ??
+                                                          0) ==
+                                                      0
+                                                  ? 'business/mall/btn_collect'
+                                                  : 'business/mall/btn_iscollect'),
+                                              width: 16.w,
+                                              fit: BoxFit.fitWidth,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                ])
+                              ], width: 167.5 - 10 * 2, height: 15.w),
+                            ],
+                          ),
+                        )
+                      ],
+                    ),
                   ),
                 );
               }),

@@ -1,4 +1,4 @@
-/// 积分商城 我的评价列表页面
+/// 积分商城 我的评价、待评价 列表页面
 
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/util/app_default.dart';
@@ -10,6 +10,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 import 'package:intl/intl.dart';
+import 'package:cxhighversion2/business/mallEvaluate/shopping_form_evaluate.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MallEvaluatePageBinding implements Bindings {
@@ -68,16 +69,22 @@ class MallEvaluatePageController extends GetxController {
       "cType": 2,
     };
     simpleRequest(
-      url: Urls.userProductList,
+      url: Urls.userMyCommentList,
       params: params,
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-          userHasEvaluteOrderList = data["data"] ?? [];
+          List tmp = data["data"] ?? [];
+          userHasEvaluteOrderList = isLoad ? [...userHasEvaluteOrderList, ...tmp] : tmp;
+          isLoad ? allPullCtrl.loadComplete() : allPullCtrl.refreshCompleted();
           update();
+        } else {
+          isLoad ? allPullCtrl.loadFailed() : allPullCtrl.refreshFailed();
         }
       },
-      after: () {},
+      after: () {
+        isLoading = false;
+      },
     );
   }
 
@@ -102,16 +109,24 @@ class MallEvaluatePageController extends GetxController {
       "cType": 1,
     };
     simpleRequest(
-      url: Urls.userProductList,
+      url: Urls.userMyCommentList,
       params: params,
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-          mallNotEvaluteOrderList = data["data"] ?? [];
+          userNotEvaluteCount = data['count'] ?? 0;
+          List tmp = data["data"] ?? [];
+          mallNotEvaluteOrderList = isLoad ? [...mallNotEvaluteOrderList, ...tmp] : tmp;
           update();
+
+          isLoad ? processingPullCtrl.loadComplete() : processingPullCtrl.refreshCompleted();
+        } else {
+          isLoad ? processingPullCtrl.loadFailed() : processingPullCtrl.refreshFailed();
         }
       },
-      after: () {},
+      after: () {
+        isLoading = false;
+      },
     );
   }
 
@@ -152,6 +167,7 @@ class MallEvaluatePageController extends GetxController {
     isFirst = false;
 
     loadNotEvaluteList();
+    loadHasEvaluteList();
     super.onInit();
   }
 }
@@ -161,28 +177,33 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: getDefaultAppBar(context, "我的评价"),
-      body: Stack(
-        children: [
-          // topBar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 51.w,
-            child: topBar(),
-          ),
+    return GetBuilder<MallEvaluatePageController>(
+      initState: (_) {},
+      builder: (_) {
+        return Scaffold(
+          appBar: getDefaultAppBar(context, "我的评价"),
+          body: Stack(
+            children: [
+              // topBar
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 51.w,
+                child: topBar(),
+              ),
 
-          Positioned(
-            top: 51.w,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            child: mallOrderPageView(),
-          )
-        ],
-      ),
+              Positioned(
+                top: 51.w,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: mallOrderPageView(),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -214,7 +235,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                         height: 55.w,
                         child: centClm([
                           getSimpleText(
-                            item.key == 0 ? "${item.value}(6)" : item.value,
+                            item.key == 0 ? "${item.value}(${controller.userNotEvaluteCount})" : item.value,
                             15,
                             controller.topIndex != item.key ? const Color(0xFFBCC0C9) : const Color(0xFFFF6231),
                           ),
@@ -251,20 +272,20 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
         GetBuilder<MallEvaluatePageController>(
           init: controller,
           builder: (_) {
-            return mallEvaluateList(controller.userHasEvaluteOrderList, controller.userHasEvaluteCount, 0, 0, controller.allPullCtrl, () async {
-              controller.onRefresh(0);
+            return mallEvaluateList(controller.mallNotEvaluteOrderList, controller.userNotEvaluteCount, 0, 0, controller.processingPullCtrl, () async {
+              controller.loadNotEvaluteList();
             }, () async {
-              controller.onLoad(0);
+              controller.loadNotEvaluteList(isLoad: true);
             });
           },
         ),
         GetBuilder<MallEvaluatePageController>(
           init: controller,
           builder: (_) {
-            return mallEvaluateList(controller.mallNotEvaluteOrderList, controller.userNotEvaluteCount, 0, 1, controller.processingPullCtrl, () async {
-              controller.onRefresh(0);
+            return mallEvaluateList(controller.userHasEvaluteOrderList, controller.userHasEvaluteCount, 0, 1, controller.allPullCtrl, () async {
+              controller.loadHasEvaluteList();
             }, () async {
-              controller.onLoad(0);
+              controller.loadHasEvaluteList(isLoad: true);
             });
           },
         ),
@@ -333,7 +354,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
             // padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
             child: sbRow([
               CustomNetworkImage(
-                src: "${data['porductImgUrl']}",
+                src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
                 width: 60.w,
                 height: 60.w,
                 fit: BoxFit.fitWidth,
@@ -346,11 +367,11 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    getSimpleText("${data['title']}", 12.w, const Color(0xFF333333)),
+                    getSimpleText("${data['shopName']}", 12.w, const Color(0xFF333333)),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-                        borderButton('评价', const Color(0xFFFF6231), data['logisticsId'], '1'),
+                        borderButton('评价', const Color(0xFFFF6231), data),
                       ],
                     ),
                   ],
@@ -379,12 +400,12 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
   Widget borderButton(
     String buttonTitle,
     Color color,
-    int id,
-    String type,
+    Map data,
   ) {
     return GestureDetector(
       onTap: () {
-        print("button对应的事件");
+        push(const EvaluateFormPage(), null, binding: EvaluateFormPageBinding(), arguments: data);
+        //
       },
       child: Container(
         padding: EdgeInsets.fromLTRB(20.w, 6.w, 20.w, 6.w),
@@ -413,10 +434,11 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
             children: [
               ClipRRect(
                 borderRadius: BorderRadius.circular(15.w),
-                child: Image.network(
-                  "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg",
+                child: CustomNetworkImage(
+                  src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
                   width: 30.w,
                   height: 30.w,
+                  fit: BoxFit.fitWidth,
                 ),
               ),
               gwb(6),
@@ -427,8 +449,8 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        getSimpleText('喵喵爱吃鱼', 15, const Color(0xFF333333)),
-                        getSimpleText("2022-11-18", 12, const Color(0xFF333333)),
+                        getSimpleText(data['u_Name'] ?? '', 15, const Color(0xFF333333)),
+                        getSimpleText(data['addTime'], 12, const Color(0xFF333333)),
                       ],
                     ),
                     Container(
@@ -442,7 +464,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
           ghb(13),
           SizedBox(
             child: Text(
-              "宝贝收到1了，我超喜欢，做工质地都好得没话说，服 务态度也超好， 很有心的店家，以后常光顾！",
+              data['comment'] ?? '',
               style: TextStyle(
                 fontSize: 15.w,
                 color: const Color(0xFF333333),
@@ -463,18 +485,6 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                   height: 100.w,
                   fit: BoxFit.cover,
                 ),
-                Image.network(
-                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-                  width: 100.w,
-                  height: 100.w,
-                  fit: BoxFit.cover,
-                ),
-                Image.network(
-                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-                  width: 100.w,
-                  height: 100.w,
-                  fit: BoxFit.cover,
-                )
               ],
             ),
           ),
@@ -489,17 +499,17 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
             padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
             child: Row(
               children: [
-                Image.network(
-                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                CustomNetworkImage(
+                  src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
                   width: 45.w,
                   height: 45.w,
-                  fit: BoxFit.cover,
+                  fit: BoxFit.fitWidth,
                 ),
                 gwb(12),
                 SizedBox(
                   width: 345.w - 45.w - 20.w - 12.w - 15.w,
                   child: getSimpleText(
-                    '自动伞十二骨全自动雨 伞抗风防晒黑胶伞胶伞胶伞胶伞胶伞',
+                    data['shopName'] ?? '',
                     12,
                     const Color(0xFF333333),
                   ),

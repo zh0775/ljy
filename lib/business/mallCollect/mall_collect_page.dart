@@ -54,7 +54,8 @@ class MallCollectPageController extends GetxController {
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-          collectList = data["data"] ?? [];
+          List tmp = data["data"] ?? [];
+          collectList = isLoad ? [...collectList, ...tmp] : tmp;
           update();
         }
       },

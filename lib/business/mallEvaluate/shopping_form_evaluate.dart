@@ -14,11 +14,14 @@ import 'package:get/get.dart';
 class EvaluateFormPageBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<EvaluateFormPageController>(EvaluateFormPageController());
+    Get.put<EvaluateFormPageController>(EvaluateFormPageController(datas: Get.arguments));
   }
 }
 
 class EvaluateFormPageController extends GetxController {
+  final dynamic datas;
+  EvaluateFormPageController({this.datas});
+
   final _isCurrentStar = (-1).obs;
   get currentStar => _isCurrentStar.value;
   set currentStar(v) => _isCurrentStar.value = v;
@@ -47,10 +50,10 @@ class EvaluateFormPageController extends GetxController {
     });
 
     simpleRequest(
-      url: Urls.userCustomerServiceApply,
+      url: Urls.userCommentAdd,
       params: {
-        "productID": '', // 商品ID
-        "orderID": '', // 订单ID
+        "productID": datas['productID'], // 商品ID
+        "orderID": datas['orderID'], // 订单ID
         "score": currentStar, // 分数
         "comment": descriptionInputCtrl.text, // 评论
         "images": certificate, // 图片
@@ -95,43 +98,48 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
 
   // 评论表单
   Widget evaluateFormBox() {
-    return Container(
-      child: Column(
-        children: [
-          Container(
-            width: 375.w - 15.w * 2,
-            padding: EdgeInsets.fromLTRB(9.w, 12.w, 9.w, 18.w),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8.w),
-            ),
-            child: Row(
-              children: [
-                const CustomNetworkImage(
-                  src: 'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-                  width: 60,
-                  height: 60,
-                  fit: BoxFit.cover,
+    return GetBuilder<EvaluateFormPageController>(
+      initState: (_) {},
+      builder: (_) {
+        return Container(
+          child: Column(
+            children: [
+              Container(
+                width: 375.w - 15.w * 2,
+                padding: EdgeInsets.fromLTRB(9.w, 12.w, 9.w, 18.w),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8.w),
                 ),
-                gwb(11.w),
-                SizedBox(
-                  width: 345.w - 60.w - 11.w - 16.w,
-                  height: 60.w,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      getSimpleText('无痕发夹欧阳娜娜同款流沙鸭嘴夹刘...', 15, const Color(0xFF333333)),
-                      SizedBox(
-                        child: starButton(),
-                      )
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
+                child: Row(
+                  children: [
+                    CustomNetworkImage(
+                      src: AppDefault().imageUrl + (controller.datas["shopImg"] ?? ""),
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                    ),
+                    gwb(11.w),
+                    SizedBox(
+                      width: 345.w - 60.w - 11.w - 16.w,
+                      height: 60.w,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          getSimpleText(controller.datas["shopName"] ?? '', 15, const Color(0xFF333333)),
+                          SizedBox(
+                            child: starButton(),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 

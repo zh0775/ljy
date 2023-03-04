@@ -605,7 +605,12 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
               // child: getSimpleText("- 下拉查看图文详情 -", 12, AppColor.assisText),
             ),
           ),
-          HtmlWidget("")
+          ghb(20),
+          SizedBox(
+              width: 315.w,
+              child: HtmlWidget(
+                  controller.productDetailData["shopParameter"] ?? "")),
+          ghb(20),
         ],
       ),
     );

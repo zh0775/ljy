@@ -396,7 +396,7 @@ class DealStatistics extends GetView<DealStatisticsController> {
 
           List<FlSpot> spots = List.generate(datas.length, (index) {
             int maxSumInt = data["maxSumInt"] ?? 0;
-            double num = datas[index]["num"] * 1.0;
+            double num = datas[index]["totalAmt"] * 1.0;
             double y = num / (maxSumInt <= 0 ? 1 : maxSumInt) * 4.0;
             return FlSpot((index) * 1.0, y);
           });
@@ -525,7 +525,7 @@ class DealStatistics extends GetView<DealStatisticsController> {
 
                                 if (value.floor() < datas.length) {
                                   text = getSimpleText(
-                                      datas[value.toInt()]["name"],
+                                      (datas[value.toInt()]["title"] ?? ""),
                                       12,
                                       AppColor.text3);
                                 } else {
@@ -604,7 +604,7 @@ class DealStatistics extends GetView<DealStatisticsController> {
               (index) => BarChartGroupData(x: index, barsSpace: 20.w, barRods: [
                     BarChartRodData(
                         borderRadius: BorderRadius.zero,
-                        toY: 4 * datas[index]["count"] / maxInt,
+                        toY: 4 * (datas[index]["totalNum"] ?? 1) / maxInt,
                         color: AppColor.theme,
                         width: 16.w),
                   ], showingTooltipIndicators: [

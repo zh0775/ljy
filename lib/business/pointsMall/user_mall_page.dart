@@ -2,7 +2,6 @@ import 'package:cxhighversion2/business/afterSale/my_after_sale_page.dart';
 import 'package:cxhighversion2/business/afterSale/refund_ progress_page.dart';
 import 'package:cxhighversion2/business/mallCollect/mall_collect_page.dart';
 import 'package:cxhighversion2/business/mallEvaluate/mall_evaluate_page.dart';
-import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
 import 'package:cxhighversion2/business/mallOrder/mall_order_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
@@ -11,6 +10,8 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+
+import '../finance/finance_space_card_list.dart';
 
 class UserMallPageBinding implements Bindings {
   @override
@@ -21,7 +22,6 @@ class UserMallPageBinding implements Bindings {
 
 class UserMallPageController extends GetxController {
   Map mallUserInfo = {"username": "", "phone": ""};
-
   Map homeData = {};
 
   @override
@@ -77,12 +77,14 @@ class UserMallPage extends StatelessWidget {
                     children: [
                       userCellList(context),
                       ghb(15.w),
-                      businessCircleCell("商业圈"),
-                      ghb(15.w),
+                      // businessCircleCell("商业圈"),
+                      // ghb(15.w),
                       CustomButton(
                         onPressed: () {
-                          push(const MallOrderConfirmPage(), null,
-                              binding: MallOrderConfirmPageBinding());
+                          // push(const MallOrderConfirmPage(), null,
+                          //     binding: MallOrderConfirmPageBinding());
+                          push(const FinanceSpaceCardList(), null,
+                              binding: FinanceSpaceCardListBinding());
                         },
                         child: Image.asset(
                           assetsName("business/bg_apply_card"),

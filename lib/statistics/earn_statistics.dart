@@ -495,7 +495,7 @@ class EarnStatistics extends GetView<EarnStatisticsController> {
       children: List.generate(length, (idx) {
         String str = "";
         if (index >= 0) {
-          Map data = tableDatas[index];
+          Map data = tableDatas;
           switch (idx) {
             case 0:
               str = data["title"] ?? "";

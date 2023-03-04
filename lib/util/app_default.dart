@@ -84,6 +84,8 @@ class AppDefault {
   bool checkDay = false;
   //设备推广记录选中设备
   List popularizeMachineSelectIds = [];
+  //积分商城记录购物车
+  List integralStoreCarSelectIds = [];
   bool safeAlert = true;
   Map publicHomeData = {};
   Map loginData = {};
@@ -2847,6 +2849,7 @@ Widget getSubmitBtn(
   double? radius,
   double? fontSize,
   LinearGradient? linearGradient,
+  bool isBold = false,
 }) {
   return CustomButton(
     onPressed: enable ? onPressed : null,
@@ -2873,10 +2876,8 @@ Widget getSubmitBtn(
         ),
         child: Center(
           child: getSimpleText(
-            title ?? "",
-            fontSize ?? 15,
-            textColor ?? Colors.white,
-          ),
+              title ?? "", fontSize ?? 15, textColor ?? Colors.white,
+              isBold: isBold),
         ),
       ),
     ),

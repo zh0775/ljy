@@ -117,7 +117,7 @@ class StatisticsUserManageController extends GetxController {
       }
     } else if (userType == 1 || userType == 2) {
       ztFilterIdx = clickIdx;
-      realZtFilterIdx = sfFilterIdx;
+      realZtFilterIdx = ztFilterIdx;
     } else if (userType == 3) {
       if (index == 0) {
         ztFilterIdx = clickIdx;
@@ -250,6 +250,8 @@ class StatisticsUserManageController extends GetxController {
       params["levelType"] = userType == 2 ? 1 : 2;
       params["typeTime"] = timeFilterList[timeFilterIdx]["id"];
       params["timeSort"] = isRegistDesc ? 0 : 1;
+      params["uFlag"] =
+          ztFilterDatas[realZtFilterIdx < 0 ? 0 : realZtFilterIdx]["id"];
     } else if (userType == 3) {
       params["tmInTime"] = isRegistDesc ? 1 : 0;
       params["status"] =
@@ -470,7 +472,7 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
             Positioned.fill(
                 top: 105.w +
                     (controller.userType == 1 || controller.userType == 2
-                        ? 180.w
+                        ? 150.w
                         : 0),
                 child: GetBuilder<StatisticsUserManageController>(
                   builder: (_) {

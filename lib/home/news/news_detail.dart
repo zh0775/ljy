@@ -3,6 +3,7 @@ import 'package:cxhighversion2/component/custom_html_view.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 import 'package:get/get.dart';
 
@@ -18,8 +19,8 @@ class NewsDetailController extends GetxController {
       params: {},
       success: (success, json) {
         if (success) {
-          Map data = json["data"];
-          newsData = data["cur"] ?? {};
+          newsData = json["data"] ?? {};
+          // newsData = data["cur"] ?? {};
           update();
         }
       },
@@ -74,17 +75,17 @@ class NewsDetail extends StatelessWidget {
                     // getSimpleText("${newsData["bS_View"] ?? 0}人阅读",
                     //     12, AppColor.textGrey5),
                   ], width: 375 - 16 * 2),
-                  ghb(10),
+                  ghb(15),
                   CustomHtmlView(
                     src: controller.newsData["content"] ?? "",
-                    width: 360,
+                    width: 345,
                     loadingWidget: Center(
                         child: getSimpleText("页面正在加载中", 15, AppColor.textGrey)),
                   ),
                   SizedBox(
                     height: paddingSizeBottom(context),
                   ),
-                  ghb(15),
+                  ghb(30),
                 ],
               ),
             ),

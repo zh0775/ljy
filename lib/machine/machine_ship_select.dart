@@ -7,6 +7,7 @@ import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
 import 'package:easy_refresh/easy_refresh.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -834,28 +835,30 @@ class MachineShipSelect extends GetView<MachineShipSelectController> {
                       placeholderStyle:
                           TextStyle(fontSize: 12.sp, color: AppColor.assisText),
                     ),
-                    CustomButton(
-                      onPressed: () {
-                        toScanBarCode(((barCode) {
-                          if (index == 0) {
-                            controller.startInputCtrl.text = barCode;
-                          } else {
-                            controller.endInputCtrl.text = barCode;
-                          }
-                        }));
-                      },
-                      child: SizedBox(
-                        width: 50.w,
-                        height: 40.w,
-                        child: Center(
-                          child: Image.asset(
-                            assetsName("machine/btn_scan_code"),
-                            width: 18.w,
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      ),
-                    )
+                    kIsWeb
+                        ? gwb(0)
+                        : CustomButton(
+                            onPressed: () {
+                              toScanBarCode(((barCode) {
+                                if (index == 0) {
+                                  controller.startInputCtrl.text = barCode;
+                                } else {
+                                  controller.endInputCtrl.text = barCode;
+                                }
+                              }));
+                            },
+                            child: SizedBox(
+                              width: 50.w,
+                              height: 40.w,
+                              child: Center(
+                                child: Image.asset(
+                                  assetsName("machine/btn_scan_code"),
+                                  width: 18.w,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            ),
+                          )
                   ],
                 ),
               );

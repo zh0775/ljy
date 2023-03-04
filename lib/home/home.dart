@@ -47,10 +47,9 @@ import 'package:cxhighversion2/util/tools.dart';
 import 'package:cxhighversion2/util/user_default.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:dynamic_icon_flutter/dynamic_icon_flutter.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -639,7 +638,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
   double jgTagMarginTop = 17;
   double jgTextHeight = 0;
 
-  final pullCtrl = RefreshController();
+  // final pullCtrl = RefreshController();
   final yjScrollCtrl =
       ScrollController(initialScrollOffset: 500 * 285.w - 15.w);
 
@@ -655,7 +654,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
     yjScrollCtrl.removeListener(yjScrollListener);
     yjScrollCtrl.dispose();
 
-    pullCtrl.dispose();
+    // pullCtrl.dispose();
     super.dispose();
   }
 
@@ -719,24 +718,25 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
               ),
             )),
         // backgroundColor: const Color(0xFFF7F7F7),
-        body: SmartRefresher(
-          physics: const BouncingScrollPhysics(),
-          controller: pullCtrl,
+        body: EasyRefresh(
+          header: const CupertinoHeader(),
+          // physics: const BouncingScrollPhysics(),
+          // controller: pullCtrl,
           onRefresh: () {
             ctrl.homeOnRefresh(
               succ: (success) {
-                if (pullCtrl.isRefresh) {
-                  success
-                      ? pullCtrl.refreshCompleted()
-                      : pullCtrl.refreshFailed();
-                }
+                // if (pullCtrl.isRefresh) {
+                //   success
+                //       ? pullCtrl.refreshCompleted()
+                //       : pullCtrl.refreshFailed();
+                // }
               },
             );
           },
-          enablePullDown: true,
-          enablePullUp: false,
+          // enablePullDown: true,
+          // enablePullUp: false,
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            // physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
                 // GetX<HomeController>(
@@ -1945,7 +1945,6 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             //设备采购
             // push(const MachinePayPage(), context,
             //     binding: MachinePayPageBinding());
-
           } else if (path == "/home/usermanage") {
             // 用户管理
             push(const StatisticsUserManage(), context,

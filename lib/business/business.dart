@@ -22,6 +22,7 @@ class BusinessController extends GetxController {
         params: {
           "pageNo": 1,
           "pageSize": 4,
+          "d_Type": 1,
         },
         success: (success, json) {
           if (success) {
@@ -177,93 +178,96 @@ class Business extends GetView<BusinessController> {
       width: 345.w,
       decoration: BoxDecoration(
           color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
-      child: Column(
-        children: [
-          sbhRow([
-            nSimpleText("热门信用卡", 16, isBold: true),
-            CustomButton(
-              onPressed: () {
-                push(const FinanceSpaceCardList(), null,
-                    binding: FinanceSpaceCardListBinding());
-              },
-              child: centRow([
-                nSimpleText("查看更多", 12, color: AppColor.text3, textHeight: 1.2),
-                Image.asset(
-                  assetsName("mine/icon_right_arrow"),
-                  width: 12.w,
-                  fit: BoxFit.fitWidth,
-                )
-              ]),
-            )
-          ], width: 345 - 15.5 * 2, height: 45.5),
-          ...List.generate(controller.cardList.length, (index) {
-            Map data = controller.cardList[index];
-            return SizedBox(
-              width: (345 - 15 * 2).w,
-              child: Column(
-                children: [
-                  ghb(index == 0 ? 8 : 17),
-                  sbRow([
-                    centRow([
-                      CustomNetworkImage(
-                        src: AppDefault().imageUrl + (data["images"] ?? ""),
-                        width: 40.w,
-                        fit: BoxFit.fitWidth,
-                      ),
-                      gwb(12),
-                      centClm([
-                        nSimpleText(data["title"] ?? "", 15, isBold: true),
-                        ghb(5),
-                        getSimpleText(
-                            data["projectName"] ?? "", 12, AppColor.text2),
-                      ], crossAxisAlignment: CrossAxisAlignment.start)
-                    ]),
-                    CustomButton(
-                      onPressed: () {
-                        push(const FinanceSpaceCardApply(), null,
-                            binding: FinanceSpaceCardApplyBinding(),
-                            arguments: {"data": data});
-                      },
-                      child: Container(
-                        width: 60.w,
-                        height: 30.w,
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(15.w),
-                            border: Border.all(
-                                width: 0.5.w, color: AppColor.theme)),
-                        child: Center(
-                          child: getSimpleText("申请", 12, AppColor.theme),
+      child: GetBuilder<BusinessController>(builder: (_) {
+        return Column(
+          children: [
+            sbhRow([
+              nSimpleText("热门信用卡", 16, isBold: true),
+              CustomButton(
+                onPressed: () {
+                  push(const FinanceSpaceCardList(), null,
+                      binding: FinanceSpaceCardListBinding());
+                },
+                child: centRow([
+                  nSimpleText("查看更多", 12,
+                      color: AppColor.text3, textHeight: 1.2),
+                  Image.asset(
+                    assetsName("mine/icon_right_arrow"),
+                    width: 12.w,
+                    fit: BoxFit.fitWidth,
+                  )
+                ]),
+              )
+            ], width: 345 - 15.5 * 2, height: 45.5),
+            ...List.generate(controller.cardList.length, (index) {
+              Map data = controller.cardList[index];
+              return SizedBox(
+                width: (345 - 15 * 2).w,
+                child: Column(
+                  children: [
+                    ghb(index == 0 ? 8 : 17),
+                    sbRow([
+                      centRow([
+                        CustomNetworkImage(
+                          src: AppDefault().imageUrl + (data["images"] ?? ""),
+                          width: 40.w,
+                          fit: BoxFit.fitWidth,
                         ),
-                      ),
-                    )
-                  ], width: 345 - 15 * 2),
-                  ghb(10),
-                  sbRow([
-                    Container(
-                      height: 18.w,
-                      padding: EdgeInsets.symmetric(horizontal: 6.w),
-                      decoration: BoxDecoration(
-                          color: AppColor.theme.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(2.w)),
-                      child: Center(
-                        child: getSimpleText(
-                            "奖励￥${priceFormat(data["price"] ?? 0, savePoint: 0)}",
-                            10,
-                            AppColor.theme),
-                      ),
-                    )
-                  ], width: 345 - (15 + 40 + 12) * 2),
-                  ghb(16),
-                  index != controller.cardList.length - 1
-                      ? gline(315, 1)
-                      : ghb(0)
-                ],
-              ),
-            );
-          }),
-        ],
-      ),
+                        gwb(12),
+                        centClm([
+                          nSimpleText(data["title"] ?? "", 15, isBold: true),
+                          ghb(5),
+                          getSimpleText(
+                              data["projectName"] ?? "", 12, AppColor.text2),
+                        ], crossAxisAlignment: CrossAxisAlignment.start)
+                      ]),
+                      CustomButton(
+                        onPressed: () {
+                          push(const FinanceSpaceCardApply(), null,
+                              binding: FinanceSpaceCardApplyBinding(),
+                              arguments: {"data": data});
+                        },
+                        child: Container(
+                          width: 60.w,
+                          height: 30.w,
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(15.w),
+                              border: Border.all(
+                                  width: 0.5.w, color: AppColor.theme)),
+                          child: Center(
+                            child: getSimpleText("申请", 12, AppColor.theme),
+                          ),
+                        ),
+                      )
+                    ], width: 345 - 15 * 2),
+                    ghb(10),
+                    sbRow([
+                      Container(
+                        height: 18.w,
+                        padding: EdgeInsets.symmetric(horizontal: 6.w),
+                        decoration: BoxDecoration(
+                            color: AppColor.theme.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(2.w)),
+                        child: Center(
+                          child: getSimpleText(
+                              "奖励￥${priceFormat(data["price"] ?? 0, savePoint: 0)}",
+                              10,
+                              AppColor.theme),
+                        ),
+                      )
+                    ], width: 345 - (15 + 40 + 12) * 2),
+                    ghb(16),
+                    index != controller.cardList.length - 1
+                        ? gline(315, 1)
+                        : ghb(0)
+                  ],
+                ),
+              );
+            }),
+          ],
+        );
+      }),
     );
   }
 }

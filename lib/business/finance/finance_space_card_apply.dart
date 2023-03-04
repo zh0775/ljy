@@ -4,6 +4,7 @@ import 'package:cxhighversion2/business/finance/finance_space_order_list.dart';
 import 'package:cxhighversion2/component/app_success_result.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
+import 'package:cxhighversion2/main.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
@@ -31,8 +32,24 @@ class FinanceSpaceCardApplyController extends GetxController {
   bool get btnEnable => _btnEnable.value;
   set btnEnable(v) => _btnEnable.value = v;
 
-  String applyInfoContent =
-      "1.均不允许收集客户身份信息，购买复购积分只能用于联聚商城区以及联聚拓客合作  2.考核面签户成本，面签户成本均为250元  ";
+  loadInfoContent() {
+    simpleRequest(
+      url: Urls.ruleDescriptionByID(type == 0 ? 5 : 6),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          List infos = json["data"] ?? [];
+          if (infos.isNotEmpty) {
+            applyInfoContent = infos[0]["content"] ?? "";
+          }
+        }
+      },
+      after: () {},
+      useCache: true,
+    );
+  }
+
+  String applyInfoContent = "";
 
   confirmAction() {
     if (nameInputCtrl.text.isEmpty) {
@@ -65,7 +82,8 @@ class FinanceSpaceCardApplyController extends GetxController {
               buttonTitles: const ["查看记录", "返回列表"],
               backPressed: () {
                 Get.until((route) => route is GetPageRoute
-                    ? route.binding is FinanceSpaceBinding
+                    ? route.binding is FinanceSpaceBinding ||
+                            route.binding is MainPageBinding
                         ? true
                         : false
                     : false);
@@ -85,7 +103,8 @@ class FinanceSpaceCardApplyController extends GetxController {
                                 ? "FinanceSpaceOrderList"
                                 : "FinanceSpaceCardList")),
                     (route) => route is GetPageRoute
-                        ? route.binding is FinanceSpaceBinding
+                        ? route.binding is FinanceSpaceBinding ||
+                                route.binding is MainPageBinding
                             ? true
                             : false
                         : false);
@@ -116,6 +135,7 @@ class FinanceSpaceCardApplyController extends GetxController {
       type = datas["type"] ?? 0;
       cardData = datas["data"] ?? {};
     }
+    loadInfoContent();
     super.onInit();
   }
 }
@@ -132,7 +152,9 @@ class FinanceSpaceCardApply extends GetView<FinanceSpaceCardApplyController> {
           CustomButton(
             onPressed: () {
               pushInfoContent(
-                  title: "特别说明", content: controller.applyInfoContent);
+                title: "特别说明",
+                content: controller.applyInfoContent,
+              );
             },
             child: SizedBox(
               width: 75.w,

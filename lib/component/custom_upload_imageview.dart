@@ -29,7 +29,7 @@ class _CustomUploadImageViewState extends State<CustomUploadImageView> {
     Http().uploadImages(
       imgFiles,
       success: (json) {
-        if ((json["code"] ?? -1) == 0) {
+        if ((json["code"] ?? "-1") == "0") {
           Map data = json["data"] ?? {};
           String src = data["src"] ?? "";
           if (src.isNotEmpty) {
@@ -76,7 +76,7 @@ class _CustomUploadImageViewState extends State<CustomUploadImageView> {
         upLoadImg(imgFile);
       },
       imgCallback: (imgFile) {
-        upLoadImg([imgFile, imgFile]);
+        upLoadImg([imgFile]);
       },
     );
     super.initState();
@@ -150,7 +150,7 @@ class _CustomUploadImageViewState extends State<CustomUploadImageView> {
                               ),
                             )),
                     Visibility(
-                        visible: uploadImageUrls.length < 6,
+                        visible: uploadImageUrls.length < widget.maxImgCount,
                         child: CustomButton(
                           onPressed: () {
                             imagePicker.showImage(

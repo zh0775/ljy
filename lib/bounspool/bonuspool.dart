@@ -414,11 +414,11 @@ class BounsPool extends GetView<BounsPoolController> {
                                 fit: BoxFit.fitWidth,
                               ),
                             ),
-                            getHeadView(0),
                             getHeadView(1),
+                            getHeadView(0),
                             getHeadView(2),
-                            getTopData(0),
                             getTopData(1),
+                            getTopData(0),
                             getTopData(2),
                           ],
                         ),
@@ -517,14 +517,14 @@ class BounsPool extends GetView<BounsPoolController> {
     ]);
 
     return Positioned(
-        bottom: index == 0
+        bottom: index == 1
             ? 20.5.w
-            : index == 1
+            : index == 0
                 ? 40.5.w
                 : 20.5.w,
-        left: index == 0 ? 33.w : null,
-        right: index == 2 ? 33.w : null,
-        width: index == 1 ? 375.w : null,
+        left: index == 1 ? 43.w : null,
+        right: index == 2 ? 43.w : null,
+        width: index == 0 ? 375.w : null,
         child: Center(
           child: widget,
         ));
@@ -534,20 +534,21 @@ class BounsPool extends GetView<BounsPoolController> {
     List datas =
         controller.mainData[controller.rankIdx == 0 ? "top10" : "luckyTop10"] ??
             [];
+    // int dataIdx = index == 0 ?
 
     String avatar =
         index < datas.length - 1 ? (datas[index]["u_Avatar"] ?? "") : "";
     return Positioned(
-        width: index == 1 ? 76.w : 67.w,
-        height: index == 1 ? 102.w : 89.w,
-        top: index == 0
+        width: index == 0 ? 76.w : 67.w,
+        height: index == 0 ? 102.w : 89.w,
+        top: index == 1
             ? 35.w
-            : index == 1
+            : index == 0
                 ? 0
                 : 35.w,
-        left: index == 0
+        left: index == 1
             ? 34.5.w
-            : index == 1
+            : index == 0
                 ? ((375 - 76) / 2).w
                 : null,
         right: index == 2 ? 34.w : null,
@@ -564,14 +565,14 @@ class BounsPool extends GetView<BounsPoolController> {
                 bottom: 3.w,
                 left: 3.w,
                 right: 3.w,
-                height: index == 1 ? 70.w : 61.w,
+                height: index == 0 ? 70.w : 61.w,
                 child: ClipRRect(
                     borderRadius:
                         BorderRadius.circular(index == 1 ? 35.w : 30.5.w),
                     child: CustomNetworkImage(
                       src: AppDefault().imageUrl + avatar,
-                      width: index == 1 ? 70.w : 61.w,
-                      height: index == 1 ? 70.w : 61.w,
+                      width: index == 0 ? 70.w : 61.w,
+                      height: index == 0 ? 70.w : 61.w,
                       fit: BoxFit.cover,
                     )))
           ],

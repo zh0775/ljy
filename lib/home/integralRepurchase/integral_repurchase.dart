@@ -32,17 +32,29 @@ class IntegralRepurchaseController extends GetxController {
   bool get isLoading => _isLoading.value;
   set isLoading(v) => _isLoading.value = v;
 
-  String infoContent = '''1.购买复购积分只能用于联聚商城区以及联聚拓客合作
-      
-      2.平台消费或兑换；如有疑问请联系：400 809 1988。
-      
-      3.为了更好的增加商户粘性度，安装新设备时，如果商户48小时内未绑定联聚拓客平台，则此设备为未达标设备。设备激活后正常交易有效达标1万元，此设备不参与奖励积分（培育奖、直招盘主装机奖励）。''';
-  String infoContentDuixian = '''
-1.购买兑现积分只能用于联聚商城区以及联聚拓客合作
+  loadInfoContent(int type) {
+    simpleRequest(
+      url: Urls.ruleDescriptionByID(type),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          List infos = json["data"] ?? [];
+          if (infos.isNotEmpty) {
+            if (type == 2) {
+              infoContent = infos[0]["content"] ?? "";
+            } else {
+              infoContentDuixian = infos[0]["content"] ?? "";
+            }
+          }
+        }
+      },
+      after: () {},
+      useCache: true,
+    );
+  }
 
-2.平台消费或兑换；如有疑问请联系：400 809 1988。
-
-3.为了更好的增加商户粘性度，安装新设备时，如果商户48小时内未绑定联聚拓客平台，则此设备为未达标设备。设备激活后正常交易有效达标1万元，此设备不参与奖励积分（培育奖、直招盘主装机奖励）。''';
+  String infoContent = "";
+  String infoContentDuixian = "";
 
   int pageNo = 1;
   int pageSize = 20;
@@ -149,6 +161,7 @@ class IntegralRepurchaseController extends GetxController {
     if (datas != null) {
       isRepurchase = datas["isRepurchase"] ?? true;
     }
+    loadInfoContent(isRepurchase ? 2 : 3);
 
     loadList();
     super.onInit();

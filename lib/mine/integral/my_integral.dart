@@ -1,6 +1,7 @@
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/home/integralRepurchase/integral_repurchase.dart';
 import 'package:cxhighversion2/mine/integral/my_integral_history.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/statistics/integral_statistics.dart';
 import 'package:cxhighversion2/util/EventBus.dart';
 import 'package:cxhighversion2/util/app_default.dart';
@@ -20,30 +21,7 @@ class MyIntegralController extends GetxController {
   final dynamic datas;
   MyIntegralController({this.datas});
 
-  String infoContent = '''
-一、积分获取与计算
-1、立刷电签、嘉联云电签、盛店宝电签、钱宝电签、融享付电签、融享付大机用户刷卡交易10000元返800积分（扫码交易没有积分）；扫码交易不计算积分；100积分等价于1元人民币。
-
-2、积分可以累计。
-
-3、积分的数值精确到个位（小数点后全部舍弃，不进行四舍五入）。
-
-4、注册pos机的资料要和注册联聚拓客平台用户的资料要一致，否则不能获取对应的交易积分
-
-二、积分有效期
-1、用户连续100天没有刷卡交易，积分自动过期。
-
-2、过期的积分不能再进行使用。
-
-三、积分使用 
-1、积分不可转让，积分仅限于在联聚拓客平台以及联聚拓客平台合作方使用。
-
-2、积分兑换商品：用户积分仅限于在联聚拓客平台商城内兑换商品。
-
-3、积分兑换现金：用户积分兑换现金，平台以5折回收（比如1000积分等价于10元人民币，那么1000积分可以兑换5元人民币），用户1000积分起兑换。
-
-四、免责条款
-1、联聚拓客有权在未向您通知的情况下自行变更、终止全部或部分积分规则,无须为积分规则的变更或终止承担任何责任。您对联聚拓客平台的继续使用,视为您对积分规则变更和终止的接受。''';
+  String infoContent = "";
 
   double jfNum = 0.0;
   Map homeData = {};
@@ -63,8 +41,26 @@ class MyIntegralController extends GetxController {
     dataFormat();
   }
 
+  loadInfoContent() {
+    simpleRequest(
+      url: Urls.ruleDescriptionByID(4),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          List infos = json["data"] ?? [];
+          if (infos.isNotEmpty) {
+            infoContent = infos[0]["content"] ?? "";
+          }
+        }
+      },
+      after: () {},
+      useCache: true,
+    );
+  }
+
   @override
   void onInit() {
+    loadInfoContent();
     dataFormat();
     bus.on(HOME_DATA_UPDATE_NOTIFY, homeDataNotify);
     super.onInit();

@@ -3,6 +3,7 @@ import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -149,110 +150,120 @@ class FinanceSpaceMine extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: getDefaultAppBar(context, "金融区"),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        child: Column(
-          children: [
-            ghb(15),
-            gwb(375),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8.w),
-              child: Container(
-                width: 345.w,
-                height: 129.w,
-                decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                  colors: [
-                    Color(0xFF6B96FD),
-                    Color(0xFF366EFD),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                )),
-                child: Stack(children: [
-                  Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Image.asset(
-                        assetsName("business/finance/icon_sy"),
-                        width: 81.5.w,
-                        fit: BoxFit.fitWidth,
-                      )),
-                  Positioned.fill(
-                      top: 23.w,
-                      left: 23.w,
-                      child: Align(
-                          alignment: Alignment.topLeft,
-                          child: GetBuilder<FinanceSpaceMineController>(
-                            init: FinanceSpaceMineController(),
-                            builder: (controller) {
-                              return sbClm([
-                                centClm([
-                                  getSimpleText(
-                                      "推广收益(${(controller.mineData["amt1"] ?? 0) >= 10000 ? "万" : ""}元)",
-                                      14,
-                                      Colors.white),
-                                  ghb(5),
-                                  getSimpleText(
-                                      priceFormat(
-                                          controller.mineData["amt1"] ?? 0,
-                                          tenThousand: true,
-                                          tenThousandUnit: false),
-                                      30,
-                                      Colors.white,
-                                      isBold: true),
-                                ],
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start),
-                                centRow([
-                                  getSimpleText(
-                                      "已结算(${(controller.mineData["amt2"] ?? 0) >= 10000 ? "万" : ""}元)",
-                                      12,
-                                      Colors.white.withOpacity(0.7)),
-                                  gwb(4),
-                                  getSimpleText(
-                                      priceFormat(
-                                          controller.mineData["amt2"] ?? 0,
-                                          tenThousand: true,
-                                          tenThousandUnit: false),
-                                      14,
-                                      Colors.white.withOpacity(0.7)),
-                                  gwb(28),
-                                  getSimpleText(
-                                      "待结算(${(controller.mineData["amt3"] ?? 0) >= 10000 ? "万" : ""}元)",
-                                      12,
-                                      Colors.white.withOpacity(0.7)),
-                                  gwb(4),
-                                  getSimpleText(
-                                      priceFormat(
-                                          controller.mineData["amt3"] ?? 0,
-                                          tenThousand: true,
-                                          tenThousandUnit: false),
-                                      14,
-                                      Colors.white.withOpacity(0.7)),
-                                ]),
-                              ],
-                                  height: 91,
-                                  crossAxisAlignment: CrossAxisAlignment.start);
-                            },
-                          )))
-                ]),
-              ),
-            ),
-            ghb(15),
-            cardOrderView(),
-            ghb(15),
-            loansOrderView(),
-            ghb(15),
-            teamEarnView(),
-            ghb(20)
-          ],
-        ),
-      ),
+      body: GetBuilder<FinanceSpaceMineController>(
+          init: FinanceSpaceMineController(),
+          builder: (controller) {
+            return EasyRefresh.builder(
+              onRefresh: () => controller.loadData(),
+              onLoad: null,
+              header: const CupertinoHeader(),
+              childBuilder: (context, physics) {
+                return SingleChildScrollView(
+                  physics: physics,
+                  child: Column(
+                    children: [
+                      ghb(15),
+                      gwb(375),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8.w),
+                        child: Container(
+                          width: 345.w,
+                          height: 129.w,
+                          decoration: const BoxDecoration(
+                              gradient: LinearGradient(
+                            colors: [
+                              Color(0xFF6B96FD),
+                              Color(0xFF366EFD),
+                            ],
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                          )),
+                          child: Stack(children: [
+                            Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: Image.asset(
+                                  assetsName("business/finance/icon_sy"),
+                                  width: 81.5.w,
+                                  fit: BoxFit.fitWidth,
+                                )),
+                            Positioned.fill(
+                                top: 23.w,
+                                left: 23.w,
+                                child: Align(
+                                    alignment: Alignment.topLeft,
+                                    child: sbClm([
+                                      centClm([
+                                        getSimpleText(
+                                            "推广收益(${(controller.mineData["amt1"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                            14,
+                                            Colors.white),
+                                        ghb(5),
+                                        getSimpleText(
+                                            priceFormat(
+                                                controller.mineData["amt1"] ??
+                                                    0,
+                                                tenThousand: true,
+                                                tenThousandUnit: false),
+                                            30,
+                                            Colors.white,
+                                            isBold: true),
+                                      ],
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start),
+                                      centRow([
+                                        getSimpleText(
+                                            "已结算(${(controller.mineData["amt2"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                            12,
+                                            Colors.white.withOpacity(0.7)),
+                                        gwb(4),
+                                        getSimpleText(
+                                            priceFormat(
+                                                controller.mineData["amt2"] ??
+                                                    0,
+                                                tenThousand: true,
+                                                tenThousandUnit: false),
+                                            14,
+                                            Colors.white.withOpacity(0.7)),
+                                        gwb(28),
+                                        getSimpleText(
+                                            "待结算(${(controller.mineData["amt3"] ?? 0) >= 10000 ? "万" : ""}元)",
+                                            12,
+                                            Colors.white.withOpacity(0.7)),
+                                        gwb(4),
+                                        getSimpleText(
+                                            priceFormat(
+                                                controller.mineData["amt3"] ??
+                                                    0,
+                                                tenThousand: true,
+                                                tenThousandUnit: false),
+                                            14,
+                                            Colors.white.withOpacity(0.7)),
+                                      ]),
+                                    ],
+                                        height: 91,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start)))
+                          ]),
+                        ),
+                      ),
+                      ghb(15),
+                      cardOrderView(controller),
+                      ghb(15),
+                      loansOrderView(controller),
+                      ghb(15),
+                      teamEarnView(controller),
+                      ghb(20)
+                    ],
+                  ),
+                );
+              },
+            );
+          }),
     );
   }
 
-  Widget cardOrderView() {
+  Widget cardOrderView(FinanceSpaceMineController controller) {
     return Container(
       width: 345.w,
       decoration: BoxDecoration(
@@ -269,42 +280,37 @@ class FinanceSpaceMine extends StatelessWidget {
             },
           ),
           ghb(12),
-          GetBuilder<FinanceSpaceMineController>(
-            init: FinanceSpaceMineController(),
-            builder: (controller) {
-              return sbRow(
-                  List.generate(controller.cardOrderStatus.length, (index) {
-                    Map e = controller.cardOrderStatus[index];
-                    return CustomButton(
-                      onPressed: () {
-                        push(const FinanceSpaceOrderList(), null,
-                            binding: FinanceSpaceOrderListBinding(),
-                            arguments: {"type": 0, "index": index});
-                      },
-                      child: SizedBox(
-                        height: 60.w,
-                        width: 345.w / controller.cardOrderStatus.length,
-                        child: Center(
-                          child: centClm([
-                            getSimpleText("${e["num"] ?? 0}", 18, AppColor.text,
-                                isBold: true),
-                            ghb(8),
-                            getSimpleText(e["name"] ?? "", 12, AppColor.text2)
-                          ]),
-                        ),
-                      ),
-                    );
-                  }),
-                  width: 345);
-            },
-          ),
+          sbRow(
+              List.generate(controller.cardOrderStatus.length, (index) {
+                Map e = controller.cardOrderStatus[index];
+                return CustomButton(
+                  onPressed: () {
+                    push(const FinanceSpaceOrderList(), null,
+                        binding: FinanceSpaceOrderListBinding(),
+                        arguments: {"type": 0, "index": index});
+                  },
+                  child: SizedBox(
+                    height: 60.w,
+                    width: 345.w / controller.cardOrderStatus.length,
+                    child: Center(
+                      child: centClm([
+                        getSimpleText("${e["num"] ?? 0}", 18, AppColor.text,
+                            isBold: true),
+                        ghb(8),
+                        getSimpleText(e["name"] ?? "", 12, AppColor.text2)
+                      ]),
+                    ),
+                  ),
+                );
+              }),
+              width: 345),
           ghb(10),
         ],
       ),
     );
   }
 
-  Widget teamEarnView() {
+  Widget teamEarnView(FinanceSpaceMineController controller) {
     return Container(
       width: 345.w,
       decoration: BoxDecoration(
@@ -413,47 +419,42 @@ class FinanceSpaceMine extends StatelessWidget {
             )),
           ),
           ...List.generate(2, (index) {
-            return GetBuilder<FinanceSpaceMineController>(
-                builder: (controller) {
-              return sbhRow([
-                centClm([
-                  getWidthText(index == 0 ? "我的推广(人)" : "累计团队核卡(张)", 12,
-                      AppColor.text2, 345 / 2 - 0.5, 1,
-                      alignment: Alignment.center),
-                  ghb(12),
-                  getSimpleText(
-                      index == 0
-                          ? "${controller.mineData["myNum"] ?? 0}"
-                          : "${controller.mineData["teamCheckNum"] ?? 0}",
-                      24,
-                      AppColor.text2,
-                      isBold: true),
-                ]),
-                gline(1, 40),
-                centClm([
-                  getWidthText(
-                      index == 0
-                          ? "团队推广(人)"
-                          : "累计团队业绩(${(controller.mineData["teamCheckAmt"] ?? 0) >= 10000 ? "万" : ""}元)",
-                      12,
-                      AppColor.text2,
-                      345 / 2 - 0.5,
-                      1,
-                      alignment: Alignment.center),
-                  ghb(12),
-                  getSimpleText(
-                      index == 0
-                          ? "${controller.mineData["teamNum"] ?? 0}"
-                          : priceFormat(
-                              controller.mineData["teamCheckAmt"] ?? 0,
-                              tenThousand: true,
-                              tenThousandUnit: false),
-                      24,
-                      AppColor.text2,
-                      isBold: true),
-                ]),
-              ], width: 345, height: 88.5);
-            });
+            return sbhRow([
+              centClm([
+                getWidthText(index == 0 ? "我的推广(人)" : "累计团队核卡(张)", 12,
+                    AppColor.text2, 345 / 2 - 0.5, 1,
+                    alignment: Alignment.center),
+                ghb(12),
+                getSimpleText(
+                    index == 0
+                        ? "${controller.mineData["myNum"] ?? 0}"
+                        : "${controller.mineData["teamCheckNum"] ?? 0}",
+                    24,
+                    AppColor.text2,
+                    isBold: true),
+              ]),
+              gline(1, 40),
+              centClm([
+                getWidthText(
+                    index == 0
+                        ? "团队推广(人)"
+                        : "累计团队业绩(${(controller.mineData["teamCheckAmt"] ?? 0) >= 10000 ? "万" : ""}元)",
+                    12,
+                    AppColor.text2,
+                    345 / 2 - 0.5,
+                    1,
+                    alignment: Alignment.center),
+                ghb(12),
+                getSimpleText(
+                    index == 0
+                        ? "${controller.mineData["teamNum"] ?? 0}"
+                        : priceFormat(controller.mineData["teamCheckAmt"] ?? 0,
+                            tenThousand: true, tenThousandUnit: false),
+                    24,
+                    AppColor.text2,
+                    isBold: true),
+              ]),
+            ], width: 345, height: 88.5);
           }),
           ghb(20),
         ],
@@ -461,7 +462,7 @@ class FinanceSpaceMine extends StatelessWidget {
     );
   }
 
-  Widget loansOrderView() {
+  Widget loansOrderView(FinanceSpaceMineController controller) {
     return Container(
       width: 345.w,
       decoration: BoxDecoration(
@@ -478,33 +479,28 @@ class FinanceSpaceMine extends StatelessWidget {
             },
           ),
           ghb(12),
-          GetBuilder<FinanceSpaceMineController>(
-            init: FinanceSpaceMineController(),
-            builder: (controller) {
-              return sbRow(
-                  List.generate(controller.loansOrderStatus.length, (index) {
-                    Map e = controller.cardOrderStatus[index];
-                    return CustomButton(
-                      onPressed: () {
-                        push(const FinanceSpaceOrderList(), null,
-                            binding: FinanceSpaceOrderListBinding(),
-                            arguments: {"type": 1, "index": index});
-                      },
-                      child: SizedBox(
-                        height: 60.w,
-                        width: 300.w / controller.loansOrderStatus.length,
-                        child: centClm([
-                          getSimpleText("${e["num"] ?? 0}", 18, AppColor.text,
-                              isBold: true),
-                          ghb(8),
-                          getSimpleText(e["name"] ?? "", 12, AppColor.text2)
-                        ]),
-                      ),
-                    );
-                  }),
-                  width: 345);
-            },
-          ),
+          sbRow(
+              List.generate(controller.loansOrderStatus.length, (index) {
+                Map e = controller.cardOrderStatus[index];
+                return CustomButton(
+                  onPressed: () {
+                    push(const FinanceSpaceOrderList(), null,
+                        binding: FinanceSpaceOrderListBinding(),
+                        arguments: {"type": 1, "index": index});
+                  },
+                  child: SizedBox(
+                    height: 60.w,
+                    width: 300.w / controller.loansOrderStatus.length,
+                    child: centClm([
+                      getSimpleText("${e["num"] ?? 0}", 18, AppColor.text,
+                          isBold: true),
+                      ghb(8),
+                      getSimpleText(e["name"] ?? "", 12, AppColor.text2)
+                    ]),
+                  ),
+                );
+              }),
+              width: 345),
           ghb(10),
         ],
       ),

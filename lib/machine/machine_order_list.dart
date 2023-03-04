@@ -101,11 +101,6 @@ class MachineOrderListController extends GetxController {
   Map typeData = {
     "machine": [
       {"id": -1, "name": "全部"},
-      {"id": 0, "name": "立刷电签"},
-      {"id": 0, "name": "立刷电签"},
-      {"id": 0, "name": "立刷电签"},
-      {"id": 0, "name": "立刷电签"},
-      {"id": 0, "name": "立刷电签"},
     ],
     "order": [
       {
@@ -274,17 +269,23 @@ class MachineOrderListController extends GetxController {
     if (dataLists[loadIndex].isEmpty) {
       isLoading = true;
     }
+    Map<String, dynamic> params = {
+      "order_Type": loadIndex + 1,
+      "orderState": statusList[typeFilterIndex]["id"],
+      "order_Type2": typeData["order"][orderFilterIndex]["id"],
+      "paymentMethod": typeData["pay"][payFilterIndex]["id"],
+      "pageNo": pageNos[loadIndex],
+      "pageSize": pageSizes[loadIndex],
+    };
+
+    if (typeData["machine"].isNotEmpty &&
+        typeData["machine"][machineFilterIndex]["id"] != -1) {
+      params["tbId"] = "${typeData["machine"][machineFilterIndex]["id"]}";
+    }
 
     simpleRequest(
       url: Urls.userLevelGiftOrderList,
-      params: {
-        "order_Type": loadIndex + 1,
-        "orderState": statusList[typeFilterIndex]["id"],
-        "order_Type2": typeData["order"][orderFilterIndex]["id"],
-        "paymentMethod": typeData["pay"][payFilterIndex]["id"],
-        "pageNo": pageNos[loadIndex],
-        "pageSize": pageSizes[loadIndex],
-      },
+      params: params,
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
@@ -345,8 +346,92 @@ class MachineOrderListController extends GetxController {
 
   @override
   void onInit() {
+    List machineTypes = [
+      {
+        "id": -1,
+        "name": "全部",
+      }
+    ];
+    Map publicHomeData = AppDefault().publicHomeData;
+    if (publicHomeData.isNotEmpty &&
+        publicHomeData["terminalConfig"].isNotEmpty &&
+        publicHomeData["terminalConfig"] is List) {
+      // List.generate((publicHomeData["terminalBrand"] as List).length, (index) {
+      //   Map e = (publicHomeData["terminalBrand"] as List)[index];
+      //   machineTypes.add({
+      //     "id": e["enumValue"] ?? -1,
+      //     "name": e["enumName"] ?? "",
+      //   });
+      // });
+      List.generate((publicHomeData["terminalConfig"] as List).length, (index) {
+        Map e = (publicHomeData["terminalConfig"] as List)[index];
+        machineTypes.add({
+          "id": e["id"] ?? -1,
+          "name": e["terninal_Name"] ?? "",
+        });
+      });
+      typeData["machine"] = machineTypes;
+    }
+
     loadData();
     super.onInit();
+  }
+
+  final _filterHeight = 0.0.obs;
+  double get filterHeight => _filterHeight.value;
+  set filterHeight(v) => _filterHeight.value = v;
+
+  final _realFilterHeight = 0.0.obs;
+  double get realFilterHeight => _realFilterHeight.value;
+  set realFilterHeight(v) => _realFilterHeight.value = v;
+
+  final _filterOverSize = false.obs;
+  bool get filterOverSize => _filterOverSize.value;
+  set filterOverSize(v) => _filterOverSize.value = v;
+  double appBarMaxHeight = 0;
+  getFilterHeight() {
+    filterHeight = 0.0.w;
+    List machineTypes = typeData["machine"] ?? [];
+
+    if (machineTypes.isNotEmpty) {
+      filterHeight += 56.0.w;
+      int machineTypesCount = (machineTypes.length / 3).ceil();
+      filterHeight += machineTypesCount * 30.0.w;
+      filterHeight += (machineTypesCount - 1) * 10.0.w;
+    }
+
+    List machineStatus = typeData["order"] ?? [];
+    if (machineStatus.isNotEmpty) {
+      filterHeight += 56.w;
+      int machineStatusCount = (machineStatus.length / 3).ceil();
+      filterHeight += machineStatusCount * 30.0.w;
+      filterHeight += (machineStatusCount - 1) * 10.0.w;
+    }
+
+    List payTypeList = typeData["pay"] ?? [];
+    if (payTypeList.isNotEmpty) {
+      filterHeight += 56.w;
+      int payTypeListCount = (payTypeList.length / 3).ceil();
+      filterHeight += payTypeListCount * 30.0.w;
+      filterHeight += (payTypeListCount - 1) * 10.0.w;
+    }
+
+    // filterHeight += 56;
+    // int currentTypesCount = (currentTypes.length / 3).ceil();
+    // filterHeight += currentTypesCount * 30.0.w;
+    // filterHeight += (currentTypesCount - 1) * 10.0.w;
+
+    filterHeight += 19.0.w;
+    filterHeight += 55.0.w;
+    filterHeight = filterHeight * 1.0;
+    double maxHeight = ScreenUtil().screenHeight - appBarMaxHeight - 105.w;
+    filterOverSize = filterHeight > maxHeight;
+    if (filterHeight > maxHeight) {
+      realFilterHeight = filterHeight * 1.0;
+      filterHeight = maxHeight * 1.0;
+    } else {
+      realFilterHeight = filterHeight * 1.0;
+    }
   }
 
   @override
@@ -400,191 +485,202 @@ class MachineOrderList extends GetView<MachineOrderListController> {
                         ))),
               ),
             )),
-        body: Stack(
-          key: controller.stackKey,
-          children: [
-            Positioned(
-                top: 0,
-                left: 0,
-                width: 375.w,
-                height: 55.w,
-                child: Container(
-                  color: Colors.white,
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: Container(
-                      margin: EdgeInsets.only(top: 5.5.w),
-                      width: 345.w,
-                      height: 40.w,
-                      decoration: BoxDecoration(
-                          color: AppColor.pageBackgroundColor,
-                          borderRadius: BorderRadius.circular(20.w)),
-                      child: Center(
-                        child: sbRow([
-                          CustomInput(
-                            width: 260.w,
-                            heigth: 40.w,
-                            placeholder: "请输入想要搜索的订单编号或设备编号",
-                            style: TextStyle(
-                                fontSize: 12.sp, color: AppColor.text),
-                            placeholderStyle: TextStyle(
-                                fontSize: 12.sp, color: AppColor.assisText),
-                          ),
-                          Image.asset(
-                            assetsName("machine/icon_search"),
-                            width: 18.w,
-                            fit: BoxFit.fitWidth,
-                          )
-                        ], width: 345 - 20.5 * 2),
+        body: Builder(builder: (context) {
+          controller.appBarMaxHeight =
+              (Scaffold.of(context).appBarMaxHeight ?? 0);
+          controller.getFilterHeight();
+          return Stack(
+            key: controller.stackKey,
+            children: [
+              Positioned(
+                  top: 0,
+                  left: 0,
+                  width: 375.w,
+                  height: 55.w,
+                  child: Container(
+                    color: Colors.white,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                        margin: EdgeInsets.only(top: 5.5.w),
+                        width: 345.w,
+                        height: 40.w,
+                        decoration: BoxDecoration(
+                            color: AppColor.pageBackgroundColor,
+                            borderRadius: BorderRadius.circular(20.w)),
+                        child: Center(
+                          child: sbRow([
+                            CustomInput(
+                              width: 260.w,
+                              heigth: 40.w,
+                              placeholder: "请输入想要搜索的订单编号或设备编号",
+                              style: TextStyle(
+                                  fontSize: 12.sp, color: AppColor.text),
+                              placeholderStyle: TextStyle(
+                                  fontSize: 12.sp, color: AppColor.assisText),
+                            ),
+                            Image.asset(
+                              assetsName("machine/icon_search"),
+                              width: 18.w,
+                              fit: BoxFit.fitWidth,
+                            )
+                          ], width: 345 - 20.5 * 2),
+                        ),
                       ),
                     ),
-                  ),
-                )),
-            Positioned(
-                top: 55.w,
-                left: 0,
-                right: 0,
-                height: 50.w,
-                key: controller.headKey,
-                child: Container(
-                  color: Colors.white,
-                  child: sbhRow([
-                    CustomButton(onPressed: () {
-                      if (controller.advancedDropCtrl.isShow) {
-                        controller.advancedDropCtrl.hide();
-                      }
-                      if (controller.typeDropCtrl.isShow) {
-                        controller.typeDropCtrl.hide();
-                      } else {
-                        controller.typeDropCtrl
-                            .show(controller.stackKey, controller.headKey);
-                      }
-                      controller.typeFilterShow =
-                          controller.typeDropCtrl.isShow;
-                    }, child: GetX<MachineOrderListController>(
-                      builder: (_) {
-                        return centRow([
-                          ghb(50),
-                          gwb(15.5),
-                          getSimpleText("订单状态：", 13, AppColor.text3,
-                              textHeight: 1.3),
-                          getSimpleText(
-                              controller.statusList[controller.typeFilterIndex]
-                                  ["name"],
-                              13,
-                              AppColor.text2,
-                              textHeight: 1.3),
-                          gwb(5),
-                          GetX<MachineOrderListController>(
-                            builder: (_) {
-                              return AnimatedRotation(
-                                turns: controller.typeFilterShow ? 0.5 : 1,
-                                duration: const Duration(milliseconds: 300),
-                                child: Image.asset(
-                                  assetsName("machine/icon_down"),
-                                  width: 6.w,
-                                  fit: BoxFit.fitWidth,
-                                ),
-                              );
-                            },
-                          )
-                        ]);
-                      },
-                    )),
-                    CustomButton(
-                      onPressed: () {
-                        if (controller.typeDropCtrl.isShow) {
-                          controller.typeDropCtrl.hide();
-                        }
+                  )),
+              Positioned(
+                  top: 55.w,
+                  left: 0,
+                  right: 0,
+                  height: 50.w,
+                  key: controller.headKey,
+                  child: Container(
+                    color: Colors.white,
+                    child: sbhRow([
+                      CustomButton(onPressed: () {
                         if (controller.advancedDropCtrl.isShow) {
                           controller.advancedDropCtrl.hide();
+                        }
+                        if (controller.typeDropCtrl.isShow) {
+                          controller.typeDropCtrl.hide();
                         } else {
-                          controller.showAFilter();
+                          controller.typeDropCtrl
+                              .show(controller.stackKey, controller.headKey);
                         }
                         controller.typeFilterShow =
                             controller.typeDropCtrl.isShow;
-                      },
-                      child: centRow([
-                        ghb(50),
-                        Image.asset(
-                          assetsName("common/btn_filter"),
-                          width: 23.w,
-                          fit: BoxFit.fitWidth,
-                        ),
-                        gwb(5),
-                        getSimpleText("高级筛选", 13, AppColor.text2,
-                            textHeight: 1.3),
-                        gwb(15)
-                      ]),
-                    ),
-                  ], width: 375, height: 50),
-                )),
-            Positioned.fill(
-                top: 105.w,
-                child: PageView(
-                  controller: controller.pageController,
-                  onPageChanged: (value) {
-                    controller.topIndex = value;
+                      }, child: GetX<MachineOrderListController>(
+                        builder: (_) {
+                          return centRow([
+                            ghb(50),
+                            gwb(15.5),
+                            getSimpleText("订单状态：", 13, AppColor.text3,
+                                textHeight: 1.3),
+                            getSimpleText(
+                                controller
+                                        .statusList[controller.typeFilterIndex]
+                                    ["name"],
+                                13,
+                                AppColor.text2,
+                                textHeight: 1.3),
+                            gwb(5),
+                            GetX<MachineOrderListController>(
+                              builder: (_) {
+                                return AnimatedRotation(
+                                  turns: controller.typeFilterShow ? 0.5 : 1,
+                                  duration: const Duration(milliseconds: 300),
+                                  child: Image.asset(
+                                    assetsName("machine/icon_down"),
+                                    width: 6.w,
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                );
+                              },
+                            )
+                          ]);
+                        },
+                      )),
+                      CustomButton(
+                        onPressed: () {
+                          if (controller.typeDropCtrl.isShow) {
+                            controller.typeDropCtrl.hide();
+                          }
+                          if (controller.advancedDropCtrl.isShow) {
+                            controller.advancedDropCtrl.hide();
+                          } else {
+                            controller.showAFilter();
+                          }
+                          controller.typeFilterShow =
+                              controller.typeDropCtrl.isShow;
+                        },
+                        child: centRow([
+                          ghb(50),
+                          Image.asset(
+                            assetsName("common/btn_filter"),
+                            width: 23.w,
+                            fit: BoxFit.fitWidth,
+                          ),
+                          gwb(5),
+                          getSimpleText("高级筛选", 13, AppColor.text2,
+                              textHeight: 1.3),
+                          gwb(15)
+                        ]),
+                      ),
+                    ], width: 375, height: 50),
+                  )),
+              Positioned.fill(
+                  top: 105.w,
+                  child: PageView(
+                    controller: controller.pageController,
+                    onPageChanged: (value) {
+                      controller.topIndex = value;
+                    },
+                    children: [
+                      list(0),
+                      list(1),
+                    ],
+                  )),
+              CustomDropDownView(
+                  height: controller.statusList.length * 40.w + 10.w + 1.w,
+                  dropDownCtrl: controller.typeDropCtrl,
+                  tapMaskHide: () {
+                    controller.typeFilterShow = false;
                   },
-                  children: [
-                    list(0),
-                    list(1),
-                  ],
-                )),
-            CustomDropDownView(
-                height: controller.statusList.length * 40.w + 10.w + 1.w,
-                dropDownCtrl: controller.typeDropCtrl,
-                tapMaskHide: () {
-                  controller.typeFilterShow = false;
-                },
-                dropWidget: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                          top: BorderSide(
-                              width: 0.5.w, color: AppColor.lineColor))),
-                  width: 375.w,
-                  height: controller.statusList.length * 40.w + 20.w,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        ghb(5),
-                        ...List.generate(controller.statusList.length, (index) {
-                          return CustomButton(
-                            onPressed: () {
-                              controller.typeFilterIndex = index;
-                              controller.typeDropCtrl.hide();
-                              controller.typeFilterShow = false;
-                              controller.loadData();
-                            },
-                            child: sbhRow([
-                              getSimpleText(
-                                  controller.statusList[index]["name"],
-                                  14,
-                                  AppColor.text2)
-                            ], width: 375 - 15.5 * 2, height: 40),
-                          );
-                        }),
-                        ghb(5),
-                      ],
+                  dropWidget: Container(
+                    decoration: BoxDecoration(
+                        color: Colors.white,
+                        border: Border(
+                            top: BorderSide(
+                                width: 0.5.w, color: AppColor.lineColor))),
+                    width: 375.w,
+                    height: controller.statusList.length * 40.w + 20.w,
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          ghb(5),
+                          ...List.generate(controller.statusList.length,
+                              (index) {
+                            return CustomButton(
+                              onPressed: () {
+                                controller.typeFilterIndex = index;
+                                controller.typeDropCtrl.hide();
+                                controller.typeFilterShow = false;
+                                controller.loadData();
+                              },
+                              child: sbhRow([
+                                getSimpleText(
+                                    controller.statusList[index]["name"],
+                                    14,
+                                    AppColor.text2)
+                              ], width: 375 - 15.5 * 2, height: 40),
+                            );
+                          }),
+                          ghb(5),
+                        ],
+                      ),
                     ),
-                  ),
-                )),
-            CustomDropDownView(
-                height: 376.w,
-                dropDownCtrl: controller.advancedDropCtrl,
-                dropWidget: Container(
-                  decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border(
-                          top: BorderSide(
-                              width: 0.5.w, color: AppColor.lineColor))),
-                  width: 375.w,
-                  height: 375.w,
-                  child: aFilterView(),
-                )),
-          ],
-        ),
+                  )),
+              GetX<MachineOrderListController>(
+                builder: (_) {
+                  return CustomDropDownView(
+                      height: controller.filterHeight,
+                      dropDownCtrl: controller.advancedDropCtrl,
+                      dropWidget: Container(
+                        decoration: BoxDecoration(
+                            color: Colors.white,
+                            border: Border(
+                                top: BorderSide(
+                                    width: 0.5.w, color: AppColor.lineColor))),
+                        width: 375.w,
+                        height: controller.filterHeight,
+                        child: aFilterView(),
+                      ));
+                },
+              ),
+            ],
+          );
+        }),
       ),
     );
   }
@@ -775,26 +871,41 @@ class MachineOrderList extends GetView<MachineOrderListController> {
 
   Widget aFilterView() {
     return SingleChildScrollView(
+      physics: const NeverScrollableScrollPhysics(),
       child: SizedBox(
-        height: 375.w,
+        height: controller.filterHeight,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             SizedBox(
-              height: 320.w,
               width: 375.w,
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  children: [
-                    ghb(12),
-                    aFilterCell(0),
-                    ghb(12),
-                    aFilterCell(1),
-                    ghb(12),
-                    aFilterCell(2),
-                  ],
-                ),
+              height: controller.filterHeight - 55.w,
+              child: GetX<MachineOrderListController>(
+                builder: (_) {
+                  return SingleChildScrollView(
+                    physics: controller.filterOverSize
+                        ? const BouncingScrollPhysics()
+                        : const NeverScrollableScrollPhysics(),
+                    child: GetX<MachineOrderListController>(
+                      builder: (_) {
+                        return SizedBox(
+                          width: 375.w,
+                          height: controller.realFilterHeight - 55.w,
+                          child: Column(
+                            children: [
+                              ghb(12),
+                              aFilterCell(0),
+                              ghb(12),
+                              aFilterCell(1),
+                              ghb(12),
+                              aFilterCell(2),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
               ),
             ),
             sbhRow(

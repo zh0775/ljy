@@ -90,14 +90,18 @@ class BusinessSchoolListPageController extends GetxController {
     Map<String, dynamic> params = {
       "pageNo": pageNos[myLoadIdx],
       "pageSize": pageSizes[myLoadIdx],
-      "classId": listStatus[myLoadIdx]["id"] ?? 0,
     };
+    if (type == 0) {
+      params["classId"] = listStatus[myLoadIdx]["id"] ?? 0;
+    } else {
+      params["classType"] = 3;
+    }
 
     // if (searchText != null && searchText.isNotEmpty) {
     //   params["devNo"] = searchText;
     // }
     simpleRequest(
-      url: Urls.userBusinessSchoolList,
+      url: type == 0 ? Urls.userBusinessSchoolList : Urls.newList,
       params: params,
       success: (success, json) {
         if (success) {
@@ -391,7 +395,8 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
     return CustomButton(
       onPressed: () {
         push(BusinessSchoolDetail(id: data["id"]), null,
-            binding: BusinessSchoolDetailBinding());
+            binding: BusinessSchoolDetailBinding(),
+            arguments: {"type": controller.type, "data": data});
       },
       child: Container(
           width: 375.w,
@@ -468,7 +473,8 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
       child: CustomButton(
         onPressed: () {
           push(BusinessSchoolDetail(id: data["id"]), null,
-              binding: BusinessSchoolDetailBinding());
+              binding: BusinessSchoolDetailBinding(),
+              arguments: {"type": controller.type, "data": data});
         },
         child: Container(
           margin: EdgeInsets.only(top: index == 0 ? 6.w : 0),
@@ -481,7 +487,14 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
               ghb(15),
               sbhRow([
                 sbClm([
-                  getWidthText(data["title"] ?? "", 15, AppColor.text2, 224, 2,
+                  getWidthText(
+                      controller.type == 0
+                          ? (data["title"] ?? "")
+                          : ((data["meta"] ?? "")),
+                      15,
+                      AppColor.text2,
+                      224,
+                      2,
                       isBold: true),
                   centRow([
                     Image.asset(
@@ -490,7 +503,11 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
                     ),
                     gwb(2),
                     getWidthText(
-                        "${data["view"] ?? 0}", 12, AppColor.text3, 35, 1,
+                        "${data[controller.type == 0 ? "view" : "viewNum"] ?? 0}",
+                        12,
+                        AppColor.text3,
+                        35,
+                        1,
                         textHeight: 1.25),
                     Image.asset(
                       assetsName("common/icon_addtime"),
@@ -508,7 +525,10 @@ class BusinessSchoolListPage extends GetView<BusinessSchoolListPageController> {
                     children: [
                       Positioned.fill(
                           child: CustomNetworkImage(
-                        src: AppDefault().imageUrl + (data["coverImg"] ?? ""),
+                        src: AppDefault().imageUrl +
+                            (controller.type == 0
+                                ? (data["coverImg"] ?? "")
+                                : (data["bgImg"] ?? "")),
                         width: 100.w,
                         height: 77.w,
                         fit: BoxFit.cover,

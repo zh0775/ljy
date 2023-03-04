@@ -6,7 +6,7 @@ import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:get/get.dart';
 
 class RedemptionListPageBinding implements Bindings {
@@ -17,61 +17,62 @@ class RedemptionListPageBinding implements Bindings {
 }
 
 class RedemptionListPageController extends GetxController {
-  List collectList = [
-    {
-      "id": 1,
-      "title": "酒店枕芯五星级宾馆枕...",
-      "integral": 1592,
-      "exchange": 9456,
-      "tag": "积分+现金",
-      "status": 0,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 2,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 3,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 4,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
-    },
-    {
-      "id": 5,
-      "title": "臻棉超柔4件套200*23 0cm 丝丝深情",
-      "integral": 6380,
-      "exchange": 9456,
-      "tag": "",
-      "status": 1,
-      "favoriteStatus": false,
-      "img": "${AppDefault().imageUrl}D0031/2023/1/202301311856422204X.png",
+  List collectList = [];
+
+  loadData({String? searchStr}) {
+    Map<String, dynamic> params = {
+      "pageSize": 10,
+      "pageNo": 1,
+      "isBoutique": 0,
+      "shop_Type": 2,
+      "shop_Buy_Count": 0,
+    };
+    if (searchStr != null && searchStr.isNotEmpty) {
+      params["shop_Name"] = searchStr;
     }
-  ];
+    simpleRequest(
+      url: Urls.userProductList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          collectList = data["data"] ?? [];
+          update();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  loadAddCollect(Map data) {
+    simpleRequest(
+      url: Urls.userAddProductCollection(data["productId"], 1),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  loadRemoveCollect(Map data) {
+    simpleRequest(
+      url: Urls.userDeleteCollection(data["productId"]),
+      params: {},
+      success: (success, json) {
+        if (success) {
+          loadData();
+        }
+      },
+      after: () {},
+    );
+  }
 
   @override
   void onInit() {
+    loadData();
     super.onInit();
   }
 }
@@ -84,16 +85,21 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
     return Scaffold(
       backgroundColor: const Color(0xFFFD4649),
       appBar: getDefaultAppBar(context, '兑换榜单'),
-      body: Stack(
-        children: [
-          Positioned(top: 0, child: redemptionTopBg()),
-          Positioned(
-            top: 171.w,
-            left: 0.w,
-            bottom: 0,
-            child: redemptionList(),
-          )
-        ],
+      body: GetBuilder<RedemptionListPageController>(
+        initState: (_) {},
+        builder: (_) {
+          return Stack(
+            children: [
+              Positioned(top: 0, child: redemptionTopBg()),
+              Positioned(
+                top: 171.w,
+                left: 0.w,
+                bottom: 0,
+                child: redemptionList(),
+              )
+            ],
+          );
+        },
       ),
     );
   }
@@ -116,7 +122,7 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
         width: 375.w - 15.w * 2,
         margin: EdgeInsets.fromLTRB(15.w, 0, 15.w, 15.w),
         child: Column(
-          children: List.generate(controller.collectList.length, (index) {
+          children: List.generate((controller.collectList ?? []).length, (index) {
             Map data = controller.collectList[index];
             return redemptionItem(data);
           }),
@@ -135,8 +141,8 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
             child: Image.network(
               width: 120.w,
               height: 120.w,
-              'https://cdn.pixabay.com/photo/2016/09/18/20/15/frachtschiff-1678895_1280.jpg',
-              fit: BoxFit.fitHeight,
+              AppDefault().imageUrl + (item["shopImg"] ?? ""),
+              fit: BoxFit.cover,
             ),
           ),
           gwb(8),
@@ -149,23 +155,27 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
               children: [
                 Column(
                   children: [
-                    getWidthText(item['title'], 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
+                    getWidthText(item['shopName'] ?? '', 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
                   ],
                 ),
-                getSimpleText("${item['integral'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
+                getSimpleText("${item['nowPoint'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
                 sbhRow([
-                  getSimpleText("已兑${item['exchange'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
+                  getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
                   centRow([
                     GetBuilder<RedemptionListPageController>(
                       builder: (_) {
                         return CustomButton(
                           onPressed: () {
-                            item["favoriteStatus"] = !item["favoriteStatus"];
-                            //
+                            if ((item["isCollect"] ?? 0) == 0) {
+                              controller.loadAddCollect(item);
+                            } else {
+                              controller.loadRemoveCollect(item);
+                            }
+
                             controller.update();
                           },
                           child: Image.asset(
-                            assetsName(item["favoriteStatus"] ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
+                            assetsName(item["isCollect"] == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
                             width: 32.w,
                             height: 28.w,
                           ),

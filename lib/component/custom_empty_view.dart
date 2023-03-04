@@ -3,14 +3,7 @@ import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
-enum CustomEmptyType {
-  networkError,
-  noData,
-  noMessage,
-  pageNone,
-  noContent,
-  carNoData
-}
+enum CustomEmptyType { networkError, noData, noMessage, pageNone, noContent, carNoData }
 
 class CustomEmptyViewController extends GetxController {
   final _isFirst = true.obs;
@@ -59,17 +52,8 @@ class CustomEmptyView extends StatelessWidget {
             ),
             ghb(centerSpace),
             getTitle(type!),
-            Visibility(
-                visible: type == CustomEmptyType.networkError ||
-                    type == CustomEmptyType.pageNone,
-                child: ghb(22.w)),
-            Visibility(
-                visible: type == CustomEmptyType.networkError ||
-                    type == CustomEmptyType.pageNone,
-                child: getSimpleText(
-                    type == CustomEmptyType.networkError ? "点击重新加载" : "重试",
-                    14,
-                    AppColor.buttonTextBlue)),
+            Visibility(visible: type == CustomEmptyType.networkError || type == CustomEmptyType.pageNone, child: ghb(22.w)),
+            Visibility(visible: type == CustomEmptyType.networkError || type == CustomEmptyType.pageNone, child: getSimpleText(type == CustomEmptyType.networkError ? "点击重新加载" : "重试", 14, AppColor.buttonTextBlue)),
             ghb(bottomSpace),
           ],
         ),
@@ -99,10 +83,7 @@ class CustomEmptyView extends StatelessWidget {
   Widget getTitle(CustomEmptyType type) {
     switch (type) {
       case CustomEmptyType.networkError:
-        return getSimpleText(
-            isLoading ? "正在获取数据中，请稍后" : (contentText ?? "网络出错了，加载失败"),
-            15,
-            AppColor.text3);
+        return getSimpleText(isLoading ? "正在获取数据中，请稍后" : (contentText ?? "网络出错了，加载失败"), 15, AppColor.text3);
       case CustomEmptyType.noData:
       case CustomEmptyType.carNoData:
         // return GetX<CustomEmptyViewController>(
@@ -111,25 +92,13 @@ class CustomEmptyView extends StatelessWidget {
         //     return getSimpleText("暂时没有数据，请呆会再来", 14, const Color(0xFF9A9FB4));
         //   },
         // );
-        return getSimpleText(
-            isLoading ? "正在获取数据中，请稍后" : (contentText ?? "暂无记录"),
-            15,
-            AppColor.text3);
+        return getSimpleText(isLoading ? "正在获取数据中，请稍后" : (contentText ?? "暂无记录"), 15, AppColor.text3);
       case CustomEmptyType.noMessage:
-        return getSimpleText(
-            isLoading ? "正在获取数据中，请稍后" : (contentText ?? "暂时没有新消息"),
-            15,
-            AppColor.text3);
+        return getSimpleText(isLoading ? "正在获取数据中，请稍后" : (contentText ?? "暂时没有新消息"), 15, AppColor.text3);
       case CustomEmptyType.pageNone:
-        return getSimpleText(
-            isLoading ? "正在获取数据中，请稍后" : (contentText ?? "404,您访问的页面不存在"),
-            15,
-            AppColor.text3);
+        return getSimpleText(isLoading ? "正在获取数据中，请稍后" : (contentText ?? "404,您访问的页面不存在"), 15, AppColor.text3);
       case CustomEmptyType.noContent:
-        return getSimpleText(
-            isLoading ? "正在获取数据中，请稍后" : (contentText ?? "没有内容，晚点再来"),
-            15,
-            AppColor.text3);
+        return getSimpleText(isLoading ? "正在获取数据中，请稍后" : (contentText ?? "没有内容，晚点再来"), 15, AppColor.text3);
       default:
         return const SizedBox();
     }

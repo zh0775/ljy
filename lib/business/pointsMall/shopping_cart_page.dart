@@ -1,3 +1,4 @@
+import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
@@ -13,8 +14,12 @@ import 'package:get/get.dart';
 
 class ShoppingCartPageController extends GetxController {
   TextEditingController cellInput = TextEditingController();
-  FocusNode node = FocusNode();
+  moveCountInputLastLine() {
+    cellInput.selection =
+        TextSelection.fromPosition(TextPosition(offset: cellInput.text.length));
+  }
 
+  FocusNode node = FocusNode();
   int inputIndex = -1;
 
   final _carNum = 0.obs;
@@ -41,8 +46,64 @@ class ShoppingCartPageController extends GetxController {
 
   double allPrice = 0.0;
 
+  settleAction() {
+    List settleCarList = [];
+    for (var e in dataList) {
+      if (e["selected"]) {
+        settleCarList.add(e);
+      }
+    }
+    if (settleCarList.isEmpty) {
+      ShowToast.normal("请添加一件宝贝");
+      return;
+    }
+    push(const MallOrderConfirmPage(), null,
+        binding: MallOrderConfirmPageBinding(),
+        arguments: {
+          "carList": settleCarList,
+          "isCar": true,
+        });
+  }
+
+  changeCar(Map data) {
+    simpleRequest(
+      url: Urls.userModifyCart,
+      params: {
+        "product_ID": data["productListId"],
+        "product_Property_List": data["shopPropertyList"] ?? [],
+        "num": data["num"],
+      },
+      success: (success, json) {
+        if (success) {
+          loadList();
+        }
+      },
+      after: () {},
+    );
+  }
+
+  deleleCar() {
+    List deleteCarList = [];
+    for (var e in dataList) {
+      if (e["selected"]) {
+        deleteCarList.add(e);
+        simpleRequest(
+          url: Urls.userRemoveFromCart(e["carId"]),
+          params: {},
+          success: (success, json) {
+            if (success) {
+              loadList();
+            }
+          },
+          after: () {},
+        );
+      }
+    }
+  }
+
   checkSelect({bool? allSelect}) {
     if (dataList.isEmpty) {
+      allSelected = false;
       return;
     }
     bool isAllSelect = true;
@@ -67,7 +128,6 @@ class ShoppingCartPageController extends GetxController {
       selectIds.add({
         "id": e["id"],
         "selected": e["selected"] ?? false,
-        "num": e["num"] ?? 1
       });
     }
 
@@ -96,16 +156,18 @@ class ShoppingCartPageController extends GetxController {
           update();
           return;
         }
-        int count = dataList[inputIndex]["levelGiftProductCount"] ?? 1;
+        int count = dataList[inputIndex]["shopStock"] ?? 500;
         if (int.parse(cellInput.text) > count) {
           ShowToast.normal("输入数量超出该商品库存");
           dataList[inputIndex]["num"] = count;
           inputIndex = -1;
+          // changeCar(dataList[inputIndex]);
           update();
           return;
         }
 
         dataList[inputIndex]["num"] = int.parse(cellInput.text);
+        // changeCar(dataList[inputIndex]);
         inputIndex = -1;
         update();
       }
@@ -121,6 +183,7 @@ class ShoppingCartPageController extends GetxController {
     }
     inputIndex = index;
     cellInput.text = "${dataList[index]["num"]}";
+
     update();
     node.requestFocus();
   }
@@ -144,12 +207,18 @@ class ShoppingCartPageController extends GetxController {
           Map carData = data["carList"] ?? {};
           count = carData["count"] ?? 0;
           List tmpList = carData["data"] ?? [];
-          tmpList = tmpList
-              .map((e) => {
-                    ...e,
-                    "num": 1,
-                  })
-              .toList();
+          tmpList = tmpList.map((e) {
+            bool selected = false;
+            for (var e2 in selectIds) {
+              if (e["id"] == e2["id"]) {
+                selected = e2["selected"] ?? false;
+
+                break;
+              }
+            }
+            return {...e, "selected": selected};
+          }).toList();
+
           dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
           checkSelect();
           update();
@@ -188,13 +257,54 @@ class ShoppingCartPageController extends GetxController {
     //         break;
     //       }
     //     }
-    //     return {...e, "selected": selected, "num": num};
-    //   }).toList();
-    //   checkSelect();
-    //   dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
-    //   isLoading = false;
-    //   update();
-    // });
+    //       return {...e, "selected": selected, "num": num};
+    //     }).toList();
+    //     checkSelect();
+    //     dataList = isLoad ? [...dataList, ...tmpList] : tmpList;
+    //     isLoading = false;
+    //     update();
+    //   });
+  }
+
+  noListener() {
+    keyborderIsShow = node.hasFocus;
+    if (!node.hasFocus) {
+      if (int.tryParse(cellInput.text) == null) {
+        ShowToast.normal("请输入正确的数量");
+        inputIndex = -1;
+        update();
+        return;
+      }
+      int count = dataList[inputIndex]["shopStock"] ?? 500;
+      if (int.parse(cellInput.text) > count) {
+        ShowToast.normal("输入数量超出该商品库存");
+        dataList[inputIndex]["num"] = count;
+        inputIndex = -1;
+        // changeCar(dataList[inputIndex]);
+        update();
+        return;
+      }
+
+      dataList[inputIndex]["num"] = int.parse(cellInput.text);
+      // changeCar(dataList[inputIndex]);
+      inputIndex = -1;
+      update();
+    } else {
+      moveCountInputLastLine();
+    }
+  }
+
+  @override
+  void onInit() {
+    loadList();
+    node.addListener(noListener);
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    node.removeListener(noListener);
+    super.onClose();
   }
 }
 
@@ -203,133 +313,141 @@ class ShoppingCartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: defaultBackButton(context),
-        centerTitle: true,
-        elevation: 0,
-        backgroundColor: Colors.white,
-        title: GetX<ShoppingCartPageController>(
-          init: ShoppingCartPageController(),
-          builder: (controller) {
-            return getSimpleText(
-                "购物车 ${controller.carNum < 1 ? "" : "(${controller.carNum})"}",
-                18,
-                AppColor.text,
-                isBold: true);
-          },
-        ),
-        actions: [
-          GetX<ShoppingCartPageController>(
+    return GestureDetector(
+      onTap: () => takeBackKeyboard(context),
+      child: Scaffold(
+        appBar: AppBar(
+          leading: defaultBackButton(context),
+          centerTitle: true,
+          elevation: 0,
+          backgroundColor: Colors.white,
+          title: GetX<ShoppingCartPageController>(
             init: ShoppingCartPageController(),
-            initState: (_) {},
             builder: (controller) {
-              return CustomButton(
-                onPressed: () {
-                  controller.isEdit = !controller.isEdit;
-                },
-                child: SizedBox(
-                  height: kTextTabBarHeight,
-                  width: 60.w,
-                  child: Center(
-                    child: getSimpleText(
-                        controller.isEdit ? "完成" : "编辑", 14, AppColor.text2),
-                  ),
-                ),
-              );
+              return getSimpleText(
+                  "购物车 ${controller.carNum < 1 ? "" : "(${controller.carNum})"}",
+                  18,
+                  AppColor.text,
+                  isBold: true);
             },
-          )
-        ],
-      ),
-      body: Stack(
-        children: [
-          Positioned.fill(
-              bottom: 55.w + paddingSizeBottom(context),
-              child: GetBuilder<ShoppingCartPageController>(
-                init: ShoppingCartPageController(),
-                builder: (controller) {
-                  return EasyRefresh(
-                    header: const CupertinoHeader(),
-                    footer: const CupertinoFooter(),
-                    onLoad: controller.dataList.length >= controller.count
-                        ? null
-                        : () => controller.loadList(isLoad: true),
-                    onRefresh: () => controller.loadList(),
-                    child: controller.dataList.isEmpty
-                        ? SingleChildScrollView(
-                            child: Center(
-                              child: GetX<ShoppingCartPageController>(
-                                builder: (_) {
-                                  return CustomEmptyView(
-                                      type: CustomEmptyType.carNoData,
-                                      isLoading: controller.isLoading,
-                                      bottomSpace: 200.w);
-                                },
-                              ),
-                            ),
-                          )
-                        : ListView.builder(
-                            padding: EdgeInsets.only(bottom: 20.w),
-                            itemCount: controller.dataList.length,
-                            itemBuilder: (context, index) {
-                              return carCell(controller.dataList[index], index,
-                                  controller);
-                            },
-                          ),
-                  );
-                },
-              )),
-          Positioned(
-              height: 55.w + paddingSizeBottom(context),
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: Container(
-                padding: EdgeInsets.only(bottom: paddingSizeBottom(context)),
-                decoration: BoxDecoration(color: Colors.white, boxShadow: [
-                  BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)
-                ]),
-                child: GetX<ShoppingCartPageController>(
+          ),
+          actions: [
+            GetX<ShoppingCartPageController>(
+              init: ShoppingCartPageController(),
+              initState: (_) {},
+              builder: (controller) {
+                return CustomButton(
+                  onPressed: () {
+                    controller.isEdit = !controller.isEdit;
+                  },
+                  child: SizedBox(
+                    height: kTextTabBarHeight,
+                    width: 60.w,
+                    child: Center(
+                      child: getSimpleText(
+                          controller.isEdit ? "完成" : "编辑", 14, AppColor.text2),
+                    ),
+                  ),
+                );
+              },
+            )
+          ],
+        ),
+        body: Stack(
+          children: [
+            Positioned.fill(
+                bottom: 55.w + paddingSizeBottom(context),
+                child: GetBuilder<ShoppingCartPageController>(
                   init: ShoppingCartPageController(),
                   builder: (controller) {
-                    return Center(
-                      child: sbhRow([
-                        CustomButton(
-                            onPressed: () {
-                              controller.checkSelect(
-                                  allSelect: !controller.allSelected);
-                            },
-                            child: SizedBox(
-                                height: 55.w,
-                                child: centRow([
-                                  Image.asset(
-                                    assetsName(
-                                        "business/mall/checkbox_orange_${controller.allSelected ? "selected" : "normal"}"),
-                                    width: 16.w,
-                                    fit: BoxFit.fitWidth,
-                                  ),
-                                  gwb(15),
-                                  getSimpleText(
-                                      controller.allSelected ? "反选" : "全选",
-                                      14,
-                                      AppColor.text),
-                                ]))),
-                        getSubmitBtn(
-                          controller.isEdit ? "删除" : "结算",
-                          () {
-                            // controller.popularizeAction();
-                          },
-                          width: 90,
-                          height: 30,
-                          fontSize: 14,
-                          color: AppColor.themeOrange,
-                        ),
-                      ], width: 375 - 15 * 2, height: 55),
+                    return EasyRefresh(
+                      header: const CupertinoHeader(),
+                      footer: const CupertinoFooter(),
+                      onLoad: controller.dataList.length >= controller.count
+                          ? null
+                          : () => controller.loadList(isLoad: true),
+                      onRefresh: () => controller.loadList(),
+                      child: controller.dataList.isEmpty
+                          ? SingleChildScrollView(
+                              child: Center(
+                                child: GetX<ShoppingCartPageController>(
+                                  builder: (_) {
+                                    return CustomEmptyView(
+                                        type: CustomEmptyType.carNoData,
+                                        isLoading: controller.isLoading,
+                                        bottomSpace: 200.w);
+                                  },
+                                ),
+                              ),
+                            )
+                          : ListView.builder(
+                              padding: EdgeInsets.only(bottom: 20.w),
+                              itemCount: controller.dataList.length,
+                              itemBuilder: (context, index) {
+                                return carCell(controller.dataList[index],
+                                    index, controller);
+                              },
+                            ),
                     );
                   },
-                ),
-              ))
-        ],
+                )),
+            Positioned(
+                height: 55.w + paddingSizeBottom(context),
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.only(bottom: paddingSizeBottom(context)),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)
+                  ]),
+                  child: GetX<ShoppingCartPageController>(
+                    init: ShoppingCartPageController(),
+                    builder: (controller) {
+                      return Center(
+                        child: sbhRow([
+                          CustomButton(
+                              onPressed: () {
+                                controller.checkSelect(
+                                    allSelect: !controller.allSelected);
+                              },
+                              child: SizedBox(
+                                  height: 55.w,
+                                  child: centRow([
+                                    Image.asset(
+                                      assetsName(
+                                          "business/mall/checkbox_orange_${controller.allSelected ? "selected" : "normal"}"),
+                                      width: 16.w,
+                                      fit: BoxFit.fitWidth,
+                                    ),
+                                    gwb(15),
+                                    getSimpleText(
+                                        controller.allSelected ? "反选" : "全选",
+                                        14,
+                                        AppColor.text),
+                                  ]))),
+                          getSubmitBtn(
+                            controller.isEdit ? "删除" : "结算",
+                            () {
+                              if (controller.isEdit) {
+                                controller.deleleCar();
+                              } else {
+                                controller.settleAction();
+                              }
+                              // controller.popularizeAction();
+                            },
+                            width: 90,
+                            height: 30,
+                            fontSize: 14,
+                            color: AppColor.themeOrange,
+                          ),
+                        ], width: 375 - 15 * 2, height: 55),
+                      );
+                    },
+                  ),
+                ))
+          ],
+        ),
       ),
     );
   }
@@ -343,7 +461,7 @@ class ShoppingCartPage extends StatelessWidget {
         child: Container(
           width: 345.w,
           height: 120.w,
-          margin: EdgeInsets.only(top: index == 0 ? 0 : 15.w),
+          margin: EdgeInsets.only(top: 15.w),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
           child: Center(
@@ -362,7 +480,7 @@ class ShoppingCartPage extends StatelessWidget {
                   ),
                 ),
                 CustomNetworkImage(
-                  src: AppDefault().imageUrl + (data["levelGiftImg"] ?? ""),
+                  src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
                   width: 90.w,
                   height: 90.w,
                   fit: BoxFit.fill,
@@ -373,7 +491,7 @@ class ShoppingCartPage extends StatelessWidget {
                 child: sbClm([
                   centClm([
                     getWidthText(
-                        "${data["name"] ?? ""}", 15, AppColor.text, 200, 2,
+                        "${data["shopName"] ?? ""}", 15, AppColor.text, 200, 2,
                         isBold: true),
                     ghb(3),
                     getWidthText("型号：${data["subTitle"] ?? ""} ", 12,
@@ -381,7 +499,7 @@ class ShoppingCartPage extends StatelessWidget {
                   ], crossAxisAlignment: CrossAxisAlignment.start),
                   sbRow([
                     getSimpleText(
-                        "${priceFormat(data["price"] ?? 0, savePoint: 0)}积分",
+                        "${priceFormat(data["nowPrice"] ?? 0, savePoint: 0)}积分",
                         15,
                         const Color(0xFFF93635),
                         isBold: true),
@@ -433,7 +551,7 @@ class ShoppingCartPage extends StatelessWidget {
                                   : CustomButton(
                                       onPressed: () {
                                         int num = data["num"] ?? 1;
-                                        int count = data["maxNum"] ?? 1;
+                                        int count = data["shopStock"] ?? 100;
 
                                         if (idx == 0) {
                                           if (num > 1) {
@@ -453,6 +571,10 @@ class ShoppingCartPage extends StatelessWidget {
                                           controller.cellInput.text =
                                               "${data["num"]}";
                                         }
+                                        if (controller.keyborderIsShow) {
+                                          controller.moveCountInputLastLine();
+                                        }
+                                        controller.changeCar(data);
                                       },
                                       child: SizedBox(
                                         width: 25.w - 0.1.w,
@@ -466,7 +588,8 @@ class ShoppingCartPage extends StatelessWidget {
                                                     ? AppColor.assisText
                                                     : AppColor.textBlack)
                                                 : ((data["num"] ?? 1) >=
-                                                        (data["maxNum"] ?? 1)
+                                                        (data["shopStock"] ??
+                                                            500)
                                                     ? AppColor.assisText
                                                     : AppColor.textBlack),
                                           ),

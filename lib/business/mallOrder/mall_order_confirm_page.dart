@@ -1,19 +1,15 @@
 // 确认订单
 
 import 'package:cxhighversion2/business/mallOrder/mall_order_pay.dart';
+import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
-import 'package:cxhighversion2/machine/machine_order_util.dart';
 import 'package:cxhighversion2/mine/mine_address_manager.dart';
 import 'package:cxhighversion2/service/urls.dart';
+import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
 import 'package:flutter/material.dart';
-
-import 'package:cxhighversion2/util/app_default.dart';
-import 'package:cxhighversion2/component/custom_input.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
-
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:get/get.dart';
 
 class MallOrderConfirmPageBinding implements Bindings {
@@ -106,16 +102,21 @@ class MallOrderConfirmPageController extends GetxController {
   }
 
   List subSelectList = [];
-
+  bool isCar = false;
   @override
   void onInit() {
     loadAddress();
     if (datas != null) {
+      isCar = datas["isCar"] ?? false;
       productData = datas["data"] ?? {};
-      payTypeIdx = datas["payType"] ?? 0;
+      if (isCar) {
+        payTypeIdx = 0;
+      } else {
+        payTypeIdx = datas["payType"] ?? 0;
+      }
       productNum = datas["num"] ?? 1;
       productMainData = datas["mainData"] ?? {};
-      subSelectList = datas["subSelectList"] ?? {};
+      subSelectList = datas["subSelectList"] ?? [];
     }
     numInputNode.addListener(numInputNodeListener);
 
@@ -449,7 +450,8 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
       // padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
       child: sbRow([
         CustomNetworkImage(
-          src: AppDefault().imageUrl + (controller.productData["shopImg"]),
+          src:
+              AppDefault().imageUrl + (controller.productData["shopImg"] ?? ""),
           width: 105.w,
           height: 105.w,
           fit: BoxFit.fitHeight,

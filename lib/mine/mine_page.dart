@@ -110,6 +110,10 @@ class MinePageController extends GetxController {
   double moneyNum = 0.0;
   double jfNum = 0.0;
 
+  bool isAuth = false;
+
+  int level = 1;
+
   dataFormat() {
     imageUrl = AppDefault().imageUrl;
     isLogin = AppDefault().loginStatus;
@@ -128,6 +132,11 @@ class MinePageController extends GetxController {
     Map info = (publicHomeData["webSiteInfo"] ?? {})["app"] ?? {};
     // cClient = (AppDefault().homeData["u_Role"] ?? 0) == 0;
     aboutMeInfoContent = info["apP_Introduction"] ?? "";
+    isAuth = (homeData["authentication"] ?? {})["isCertified"] ?? false;
+    level = homeData["uL_Level"] ?? 1;
+    if (level > 9) {
+      level = 9;
+    }
     update([topUserCellBuildId]);
     update();
   }
@@ -535,7 +544,7 @@ class _MinePageState extends State<MinePage>
                       isBold: true),
                   gwb(2),
                   Image.asset(
-                    assetsName("mine/vip/level1"),
+                    assetsName("mine/vip/level${controller.level}"),
                     width: 31.5.w,
                     fit: BoxFit.fitWidth,
                   )
@@ -810,7 +819,7 @@ class _MinePageState extends State<MinePage>
                                               "${controller.imageUrl}${controller.homeData["userAvatar"]}",
                                           width: 60.w,
                                           height: 60.w,
-                                          fit: BoxFit.fill,
+                                          fit: BoxFit.cover,
                                         ),
                                       )
                                     : Image.asset(
@@ -841,18 +850,36 @@ class _MinePageState extends State<MinePage>
                                     height: 1.1),
                                 children: [
                                   WidgetSpan(
-                                      child: Image.asset(
-                                    assetsName("mine/vip/level1"),
-                                    width: 31.5.w,
-                                    height: 20.w,
-                                    fit: BoxFit.fitWidth,
-                                  ))
+                                      child: Padding(
+                                    padding: EdgeInsets.only(left: 5.w),
+                                    child: Image.asset(
+                                      assetsName(
+                                          "mine/vip/level${controller.level}"),
+                                      width: 31.5.w,
+                                      height: 20.w,
+                                      fit: BoxFit.fitWidth,
+                                    ),
+                                  )),
+                                  WidgetSpan(
+                                      child: !controller.isAuth
+                                          ? gwb(0)
+                                          : Padding(
+                                              padding:
+                                                  EdgeInsets.only(left: 4.w),
+                                              child: Image.asset(
+                                                assetsName("mine/icon_isauth"),
+                                                width: 54.5.w,
+                                                height: 20.w,
+                                                fit: BoxFit.fitWidth,
+                                              ),
+                                            )),
                                 ]),
                             maxLines: 10,
                             textAlign: TextAlign.start,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
+                        ghb(5),
                         getSimpleText(
                             controller.isLogin
                                 ? "手机号：${controller.homeData["u_Mobile"] ?? ""}"

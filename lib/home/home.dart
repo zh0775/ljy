@@ -538,7 +538,7 @@ class HomeController extends FullLifeCycleController {
 
       subTitle =
           ((publicHomeData["webSiteInfo"] ?? {})["app"])["apP_SubTitle"] ?? "";
-      subTitle = "欢迎您，联聚云团队!";
+      subTitle = "欢迎您！";
     }
     if (!cClient &&
         AppDefault().safeAlert &&

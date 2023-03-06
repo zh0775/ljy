@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cxhighversion2/component/app_crop_image_page.dart';
 import 'package:cxhighversion2/component/app_image_picker.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
@@ -167,9 +168,10 @@ class PersonalInformationController extends GetxController {
   void onInit() {
     imagePicker = AppImagePicker(
       imgCallback: (imgFile) {
-        uploadImageFile = imgFile;
-        upLoadImg(uploadImageFile!);
-        update([uploadImageFileBuildId]);
+        Get.to(AppCropImagePage(image: imgFile), transition: Transition.zoom);
+        // uploadImageFile = imgFile;
+        // upLoadImg(uploadImageFile!);
+        // update([uploadImageFileBuildId]);
       },
     );
     getInfo();
@@ -494,7 +496,7 @@ class PersonalInformation extends GetView<PersonalInformationController> {
                                       File(controller.uploadImageFile!.path),
                                       width: 40.w,
                                       height: 40.w,
-                                      fit: BoxFit.fitWidth,
+                                      fit: BoxFit.cover,
                                     )
                                   : GetX<PersonalInformationController>(
                                       builder: (_) {
@@ -504,7 +506,7 @@ class PersonalInformation extends GetView<PersonalInformationController> {
                                                     "${controller.imageUrl}${controller.homeData["userAvatar"]}",
                                                 width: 40.w,
                                                 height: 40.w,
-                                                fit: BoxFit.fill,
+                                                fit: BoxFit.cover,
                                               )
                                             : const SizedBox();
                                       },

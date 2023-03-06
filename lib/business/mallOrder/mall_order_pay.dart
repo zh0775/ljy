@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cxhighversion2/business/mallOrder/mall_order_page.dart';
 import 'package:cxhighversion2/business/mallOrder/mall_order_status.page.dart';
 import 'package:cxhighversion2/business/pointsMall/points_mall_page.dart';
 import 'package:cxhighversion2/business/pointsMall/shopping_product_list.dart';
@@ -34,8 +35,8 @@ class MallOrderPayController extends GetxController {
   int get payIndex => _payIndex.value;
   set payIndex(v) => _payIndex.value = v;
 
-  bool isRepurchase = true;
-  Map integralData = {};
+  // bool isRepurchase = true;
+  // Map integralData = {};
   DateTime now = DateTime.now().add(const Duration(minutes: 30));
 
   String hours = "00";
@@ -60,56 +61,114 @@ class MallOrderPayController extends GetxController {
     if (isCar) {
       for (var i = 0; i < integralDatas.length; i++) {
         Map e = integralDatas[i];
-        Map e2 = payTypeAndNumDatas[i];
         orderProduct.add({
+          "carId": e["carId"],
           "productId": e["productId"],
           "productListId": e["productListId"],
-          "num": e2["num"],
+          "num": e["num"],
           "shopType": 2,
-          // "carId":0
+          "productPropertyList": e["shopPropertyList"],
         });
       }
     } else {
-      List productPropertyList = [];
-      List shopPropertyList = integralData["shopPropertyList"] ?? [];
-      for (var i = 0; i < shopPropertyList.length; i++) {
-        Map e = shopPropertyList[i];
-        int sIdx = subSelectList[i];
-        if (sIdx <= (e["value"] ?? []).length - 1) {
-          productPropertyList.add({
-            "key": e["key"],
-            "value": e["value"][sIdx],
-          });
-        }
+      if (integralDatas.isEmpty) {
+        return;
       }
-
+      Map data = integralDatas[0];
       orderProduct.add({
-        "productId": integralData["productId"],
-        "productListId": integralData["productListId"],
-        "num": productNum,
+        "productId": data["productId"],
+        "productListId": data["productListId"],
+        "num": data["num"],
         "shopType": 2,
-        "productPropertyList": productPropertyList,
+        "productPropertyList": data["shopPropertyList"],
       });
     }
+
     params["orderProduct"] = orderProduct;
     // return;
     simpleRequest(
       url: Urls.userGenerateBigOrders,
       params: params,
       success: (success, json) async {
-        if (success) {
-          Map data = json["data"] ?? {};
-          if (payTypeIdx == 0) {
-            if (success) {
+        Map data = json["data"] ?? {};
+        if (payTypeIdx == 0) {
+          if (success) {
+            Get.find<HomeController>().refreshHomeData();
+          }
+          push(
+              AppSuccessResult(
+                success: success,
+                title: "支付结果",
+                contentTitle: success ? "支付成功" : "支付失败",
+                buttonTitles: const ["查看订单", "继续购买"],
+                content: success ? "" : json["messages"] ?? "",
+                backPressed: () {
+                  popToUntil();
+                },
+                onPressed: (index) {
+                  if (index == 0) {
+                    Get.offUntil(
+                        GetPageRoute(
+                            page: () => const MallOrderPage(),
+                            binding: MallOrderPageBinding(),
+                            settings: const RouteSettings(
+                              name: "MallOrderPage",
+                            )),
+                        (route) => route is GetPageRoute
+                            ? route.binding is MainPageBinding ||
+                                    route.binding is PointsMallPageBinding
+                                ? true
+                                : false
+                            : false);
+                  } else {
+                    Get.offUntil(
+                        GetPageRoute(
+                            page: () => const ShoppingProductList(),
+                            binding: ShoppingProductListBinding(),
+                            settings: const RouteSettings(
+                              name: "ShoppingProductList",
+                            )),
+                        (route) => route is GetPageRoute
+                            ? route.binding is MainPageBinding ||
+                                    route.binding is PointsMallPageBinding
+                                ? true
+                                : false
+                            : false);
+                  }
+                },
+              ),
+              Global.navigatorKey.currentContext!);
+        } else {
+          Map aliData = await CustomAlipay().payAction(
+            data["aliData"],
+            payBack: () {
+              Get.find<HomeController>().refreshHomeData();
+              Get.offUntil(
+                  GetPageRoute(
+                      page: () => const MallOrderPage(),
+                      binding: MallOrderPageBinding(),
+                      settings: const RouteSettings(
+                        name: "MallOrderPage",
+                      )),
+                  (route) => route is GetPageRoute
+                      ? route.binding is MainPageBinding ||
+                              route.binding is PointsMallPageBinding
+                          ? true
+                          : false
+                      : false);
+            },
+          );
+          if (!kIsWeb) {
+            if (aliData["resultStatus"] == "9000") {
               Get.find<HomeController>().refreshHomeData();
             }
             push(
                 AppSuccessResult(
-                  success: success,
+                  success: aliData["resultStatus"] == "9000",
                   title: "支付结果",
-                  contentTitle: success ? "支付成功" : "支付失败",
+                  contentTitle:
+                      aliData["resultStatus"] == "9000" ? "支付成功" : "支付失败",
                   buttonTitles: const ["查看订单", "继续购买"],
-                  content: success ? "" : json["messages"] ?? "",
                   backPressed: () {
                     popToUntil();
                   },
@@ -117,10 +176,10 @@ class MallOrderPayController extends GetxController {
                     if (index == 0) {
                       Get.offUntil(
                           GetPageRoute(
-                              page: () => const MallOrderStatusPage(),
-                              binding: MallOrderStatusPageBinding(),
+                              page: () => const MallOrderPage(),
+                              binding: MallOrderPageBinding(),
                               settings: const RouteSettings(
-                                name: "MallOrderStatusPage",
+                                name: "MallOrderPage",
                               )),
                           (route) => route is GetPageRoute
                               ? route.binding is MainPageBinding ||
@@ -146,74 +205,6 @@ class MallOrderPayController extends GetxController {
                   },
                 ),
                 Global.navigatorKey.currentContext!);
-          } else {
-            Map aliData = await CustomAlipay().payAction(
-              data["aliData"],
-              payBack: () {
-                Get.find<HomeController>().refreshHomeData();
-                Get.offUntil(
-                    GetPageRoute(
-                        page: () => const MallOrderStatusPage(),
-                        binding: MallOrderStatusPageBinding(),
-                        settings: const RouteSettings(
-                          name: "MallOrderStatusPage",
-                        )),
-                    (route) => route is GetPageRoute
-                        ? route.binding is MainPageBinding ||
-                                route.binding is PointsMallPageBinding
-                            ? true
-                            : false
-                        : false);
-              },
-            );
-            if (!kIsWeb) {
-              if (aliData["resultStatus"] == "9000") {
-                Get.find<HomeController>().refreshHomeData();
-              }
-              push(
-                  AppSuccessResult(
-                    success: aliData["resultStatus"] == "9000",
-                    title: "支付结果",
-                    contentTitle:
-                        aliData["resultStatus"] == "9000" ? "支付成功" : "支付失败",
-                    buttonTitles: const ["查看订单", "继续购买"],
-                    backPressed: () {
-                      popToUntil();
-                    },
-                    onPressed: (index) {
-                      if (index == 0) {
-                        Get.offUntil(
-                            GetPageRoute(
-                                page: () => const MallOrderStatusPage(),
-                                binding: MallOrderStatusPageBinding(),
-                                settings: const RouteSettings(
-                                  name: "MallOrderStatusPage",
-                                )),
-                            (route) => route is GetPageRoute
-                                ? route.binding is MainPageBinding ||
-                                        route.binding is PointsMallPageBinding
-                                    ? true
-                                    : false
-                                : false);
-                      } else {
-                        Get.offUntil(
-                            GetPageRoute(
-                                page: () => const ShoppingProductList(),
-                                binding: ShoppingProductListBinding(),
-                                settings: const RouteSettings(
-                                  name: "ShoppingProductList",
-                                )),
-                            (route) => route is GetPageRoute
-                                ? route.binding is MainPageBinding ||
-                                        route.binding is PointsMallPageBinding
-                                    ? true
-                                    : false
-                                : false);
-                      }
-                    },
-                  ),
-                  Global.navigatorKey.currentContext!);
-            }
           }
         }
       },
@@ -221,31 +212,53 @@ class MallOrderPayController extends GetxController {
     );
   }
 
-  Map productMainData = {};
+  // Map productMainData = {};
   int payTypeIdx = 0;
-  int productNum = 1;
+  // int productNum = 1;
   bool isCar = false;
   Map address = {};
 
   List integralDatas = [];
-  List subSelectList = [];
-  List payTypeAndNumDatas = [];
+  // List subSelectList = [];
+  // List payTypeAndNumDatas = [];
   String remarks = "";
+
+  String payPrice = "";
 
   @override
   void onInit() {
     if (datas != null) {
-      isRepurchase = datas["isRepurchase"] ?? true;
-      integralData = datas["data"] ?? {};
-      integralDatas = datas["datas"] ?? [];
-      payTypeAndNumDatas = datas["payNumDatas"] ?? [];
+      // isRepurchase = datas["isRepurchase"] ?? true;
+      // integralData = datas["data"] ?? {};
+      integralDatas = datas["data"] ?? [];
+      // payTypeAndNumDatas = datas["payNumDatas"] ?? [];
       payTypeIdx = datas["payType"] ?? 0;
-      productNum = datas["productNum"] ?? 1;
-      productMainData = datas["mainData"] ?? {};
+      // productNum = datas["productNum"] ?? 1;
+      // productMainData = datas["mainData"] ?? {};
       isCar = datas["isCar"] ?? false;
       address = datas["address"] ?? {};
       remarks = datas["remarks"] ?? {};
-      subSelectList = datas["subSelectList"] ?? [];
+
+      double allPrice = 0;
+      double allPoint = 0;
+      double allCash = 0;
+      // int allNum = 0;
+
+      for (var e in integralDatas) {
+        int num = e["num"] ?? 1;
+        // allNum += num;
+        allPoint += (e["nowPoint"] ?? 0) * num;
+        allCash += (e["cashPrice"] ?? 0) * num;
+        allPrice += (e["nowPrice"] ?? 0) * num;
+      }
+      if (payTypeIdx == 0) {
+        payPrice = "${priceFormat(allPrice, savePoint: 0)}积分";
+      } else {
+        payPrice =
+            "${priceFormat(allPoint, savePoint: 0)}积分+${priceFormat(allCash, savePoint: 2)}元";
+      }
+
+      // subSelectList = datas["subSelectList"] ?? [];
     }
 
     myTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -298,12 +311,7 @@ class MallOrderPay extends GetView<MallOrderPayController> {
                     child: centClm([
                       getSimpleText("实付金额", 12, AppColor.text3),
                       ghb(5),
-                      getSimpleText(
-                          controller.payTypeIdx == 0
-                              ? "${priceFormat(controller.integralData["nowPrice"] ?? 0, savePoint: 0)}积分"
-                              : "${priceFormat(controller.integralData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.integralData["cashPrice"] ?? 0, savePoint: 0)}元",
-                          30,
-                          AppColor.text,
+                      getSimpleText(controller.payPrice, 30, AppColor.text,
                           isBold: true),
                       ghb(5),
                       GetBuilder<MallOrderPayController>(
@@ -338,7 +346,7 @@ class MallOrderPay extends GetView<MallOrderPayController> {
                               assetsName(controller.payTypeIdx == 1
                                   ? "home/integralRepurchase/icon_${index == 0 ? "alipay" : "wx"}"
                                   : "mine/jf/icon_jf"),
-                              width: controller.isRepurchase ? 24.w : 21.w,
+                              width: controller.payTypeIdx == 0 ? 24.w : 21.w,
                               fit: BoxFit.fitWidth,
                             ),
                             gwb(6),

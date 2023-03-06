@@ -28,7 +28,7 @@ class MachineStatisticsController extends GetxController {
   set topIndex(v) {
     if (_topIndex.value != v) {
       _topIndex.value = v;
-
+      _currentTopIndex.value = 0;
       loadData();
     }
   }
@@ -63,72 +63,7 @@ class MachineStatisticsController extends GetxController {
   List<PieChartSectionData> pieSections = [];
 
   List tableTitles = ["名称", "合计", "库存", "出库", "已激活", "有效激活"];
-  List tableDatas = [
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-    {
-      "name": "立刷电签",
-      "all": 12938,
-      "kc": 123,
-      "ck": 234,
-      "jh": 675,
-      "yxjh": 608
-    },
-  ];
+  List tableDatas = [];
 
   List zyTop = [
     {
@@ -136,11 +71,11 @@ class MachineStatisticsController extends GetxController {
       "name": "全部",
     },
     {
-      "id": 0,
+      "id": 1,
       "name": "我的",
     },
     {
-      "id": 0,
+      "id": 2,
       "name": "我的合伙人",
     },
   ];
@@ -150,11 +85,11 @@ class MachineStatisticsController extends GetxController {
       "name": "全部",
     },
     {
-      "id": 0,
+      "id": 3,
       "name": "我的运营中心",
     },
     {
-      "id": 0,
+      "id": 4,
       "name": "我的盘主",
     },
   ];
@@ -169,43 +104,7 @@ class MachineStatisticsController extends GetxController {
     "FFF93635",
   ];
 
-  List allDataList = [
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-    {
-      "id": 0,
-      "name": "库存",
-      "num": 123,
-    },
-  ];
+  List allDataList = [];
 
   showFilter() {
     if (dropDownCtrl.isShow) {
@@ -327,6 +226,7 @@ class MachineStatisticsController extends GetxController {
         currentTop = tdTop;
         break;
     }
+
     update();
 
     if (dataList[topIndex].isEmpty) {
@@ -346,13 +246,17 @@ class MachineStatisticsController extends GetxController {
     if (end != null && end.isNotEmpty) {
       params["end_Time"] = end;
     }
+
+    if (topIndex > 0) {
+      params["subType"] = currentTop[currentTopIndex]["id"];
+    }
+
     simpleRequest(
       url: Urls.userTerminalStatisticsList,
       params: params,
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
-
           double maxNum = 0.0;
           List machineTypes = [];
           double kc = (data["inToryNum"] ?? 0.0) * 1.0;
@@ -735,7 +639,7 @@ class MachineStatistics extends GetView<MachineStatisticsController> {
         int realIndex = 0;
         double chartAllNum = 0.0;
 
-        int bigIndex = 0;
+        int bigIndex = -1;
 
         int i = 0;
         double maxNum = data["maxNum"] ?? 0.0;
@@ -757,7 +661,10 @@ class MachineStatistics extends GetView<MachineStatisticsController> {
           bool isTouched = controller.pieSectionIndex == -1
               ? realIndex == bigIndex
               : controller.pieSectionIndex == realIndex;
-          if ((e["show"] ?? true) && e["num"] != null && e["num"] > 0) {
+          if ((e["show"] ?? true) && e["num"] != null) {
+            double value =
+                (e["show"] ?? true) ? (e["num"] ?? 0.0) / chartAllNum * 100 : 0;
+
             String cStr =
                 controller.colors[realIndex % controller.colors.length];
             controller.pieSections.add(PieChartSectionData(
@@ -768,15 +675,26 @@ class MachineStatistics extends GetView<MachineStatisticsController> {
                 //     10,
                 //     AppColor.text,
                 //     maxLines: 2),
-                value: (e["show"] ?? true)
-                    ? (e["num"] ?? 0.0) / chartAllNum * 100
-                    : 0,
+                value: chartAllNum > 0 ? value : 1,
                 color: Color(int.parse(cStr, radix: 16))));
             realIndex++;
           }
         }
+        // if (controller.pieSections.isEmpty) {
+        //   controller.pieSections.add(PieChartSectionData(
+        //       radius: 40.w,
+        //       showTitle: false,
+        //       // badgeWidget: getSimpleText(
+        //       //     isTouched ? "${e["name"] ?? ""}\n${e["num"] ?? 0}" : "",
+        //       //     10,
+        //       //     AppColor.text,
+        //       //     maxLines: 2),
+        //       value: 1,
+        //       color: Color(int.parse(controller.colors[0], radix: 16))));
+        // }
         return Container(
           width: 345.w,
+          // padding: EdgeInsets.only(left: 10.w),
           decoration: BoxDecoration(
               color: Colors.white, borderRadius: BorderRadius.circular(8.w)),
           child: Column(
@@ -800,8 +718,8 @@ class MachineStatistics extends GetView<MachineStatisticsController> {
                   : Center(
                       child: sbRow([
                         SizedBox(
-                          width: 180.w,
-                          height: 180.w,
+                          width: 150.w,
+                          height: 150.w,
                           child: PieChart(PieChartData(
                             sections: controller.pieSections,
                             sectionsSpace: 0,
@@ -809,39 +727,38 @@ class MachineStatistics extends GetView<MachineStatisticsController> {
                         ),
                         SizedBox(
                           width: 140.w,
-                          height: 200.w,
-                          child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: List.generate(
-                                  datas.length,
-                                  (index) => Padding(
-                                        padding: EdgeInsets.only(
-                                            top: index != 0 ? 12.w : 0),
-                                        child: centRow([
-                                          Container(
-                                            width: 10.w,
-                                            height: 10.w,
-                                            color: Color(int.parse(
-                                                controller.colors[index %
-                                                    controller.colors.length],
-                                                radix: 16)),
-                                          ),
-                                          gwb(12),
-                                          getWidthText(
-                                              "${datas[index]["name"]}(${datas[index]["num"]}台)",
-                                              12,
-                                              AppColor.text,
-                                              140 - 12 - 10,
-                                              2,
-                                              textHeight: 1.3)
-                                        ]),
-                                      )),
-                            ),
+                          // height: 160.w,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(
+                                datas.length,
+                                (index) => Padding(
+                                      padding: EdgeInsets.only(
+                                          top: index != 0 ? 18.w : 0),
+                                      child: centRow([
+                                        Container(
+                                          width: 10.w,
+                                          height: 10.w,
+                                          color: Color(int.parse(
+                                              controller.colors[index %
+                                                  controller.colors.length],
+                                              radix: 16)),
+                                        ),
+                                        gwb(12),
+                                        getWidthText(
+                                            "${datas[index]["name"]}(${priceFormat(datas[index]["num"], savePoint: 0)}台)",
+                                            12,
+                                            AppColor.text,
+                                            140 - 12 - 10,
+                                            2,
+                                            textHeight: 1.3)
+                                      ]),
+                                    )),
                           ),
                         ),
-                      ], width: 345),
+                      ], width: 315),
                     ),
               ghb(15),
             ],

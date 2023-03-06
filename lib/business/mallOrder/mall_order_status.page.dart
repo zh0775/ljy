@@ -393,7 +393,10 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
           children: [
             ...List.generate((controller.orderData["commodity"] ?? []).length,
                 (index) {
-              return shopItem((controller.orderData["commodity"] ?? [])[index]);
+              return Padding(
+                  padding: EdgeInsets.only(top: index != 0 ? 10.w : 0),
+                  child: shopItem(
+                      (controller.orderData["commodity"] ?? [])[index]));
             }),
             ghb(25.w),
             Row(
@@ -529,13 +532,17 @@ class MallOrderStatusPage extends GetView<MallOrderStatusPageController> {
             children: [
               Text(
                 data["shopName"] ?? "",
-                style: TextStyle(fontSize: 15.w, color: Color(0xFF333333)),
+                style: TextStyle(
+                  fontSize: 15.w,
+                  color: AppColor.textBlack,
+                ),
+                maxLines: 2,
               ),
               getSimpleText(
                   "已选：${data["shopModel"] ?? ""}", 12, const Color(0xFF999999)),
               sbRow([
                 getSimpleText(
-                    "${priceFormat(data["shopModel"] ?? 0, savePoint: 0)}积分",
+                    "${priceFormat(data["nowPrice"] ?? 0, savePoint: 0)}积分",
                     15,
                     const Color(0xFF333333)),
                 getSimpleText(

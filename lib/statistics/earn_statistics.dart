@@ -352,11 +352,17 @@ class EarnStatistics extends GetView<EarnStatisticsController> {
                   List<PieChartSectionData> pieSections = [];
                   for (var e in lyList) {
                     bool isTouched = controller.pieSectionIndex == realIndex;
-                    if ((e["show"] ?? true) &&
-                        e["num"] != null &&
-                        e["num"] > 0) {
+                    if ((e["show"] ?? true) && e["num"] != null) {
                       String cStr = controller
                           .colors[realIndex % controller.colors.length];
+                      double value = (e["show"] ?? true)
+                          ? (e["num"] ?? 0.0) /
+                              (data["totalAmount"] == null ||
+                                      data["totalAmount"] == 0
+                                  ? 1
+                                  : data["totalAmount"]) *
+                              100
+                          : 0;
                       pieSections.add(PieChartSectionData(
                           radius: isTouched ? 55.w : 40.w,
                           showTitle: false,
@@ -365,14 +371,7 @@ class EarnStatistics extends GetView<EarnStatisticsController> {
                           //     10,
                           //     AppColor.text,
                           //     maxLines: 2),
-                          value: (e["show"] ?? true)
-                              ? (e["num"] ?? 0.0) /
-                                  (data["totalAmount"] == null ||
-                                          data["totalAmount"] == 0
-                                      ? 1
-                                      : data["totalAmount"]) *
-                                  100
-                              : 0,
+                          value: (data["totalAmount"] ?? 0) > 0 ? value : 1,
                           color: Color(int.parse(cStr, radix: 16))));
                       realIndex++;
                     }

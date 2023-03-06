@@ -1,6 +1,7 @@
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
+import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -53,6 +54,10 @@ class StatisticsMachineReplenishmentController extends GetxController {
     });
   }
 
+  List statusList = [
+    {"id": -1, "name": "全部"},
+    {"id": 0, "name": "开始"},
+  ];
   PageController pageCtrl = PageController();
   TextEditingController searchInputCtrl = TextEditingController();
 
@@ -106,52 +111,92 @@ class StatisticsMachineReplenishmentController extends GetxController {
 
   loadData({bool isLoad = false, int? loadIdx, String? searchText}) {
     int myLoadIdx = loadIdx ?? topIndex;
+
+    isLoad ? pageNos[myLoadIdx]++ : pageNos[myLoadIdx] = 1;
+
     if (dataLists[myLoadIdx].isEmpty) {
       isLoading = true;
     }
-    Future.delayed(const Duration(milliseconds: 200), () {
-      counts[myLoadIdx] = 100;
-      List datas = [];
-      for (var i = 0; i < pageSizes[myLoadIdx]; i++) {
-        datas.add({
-          "id": dataLists[myLoadIdx].length + i,
-          "type": i % 2,
-          "sponsor": "黄远雄",
-          "upgradeTime": "2023-02-13",
-          "yingbu": 150,
-          "yibu": 13,
-          "buhuoStartTime": "2022-12-09 00:00:00",
-          "buhuoEndTime": "2022-12-10 00:00:00",
-          "zhouqiStartTime": "2022-12-09 00:00:00",
-          "zhouqiEndTime": "2022-12-22 00:00:00",
-          "addTime": "2023-02-13 20:21:20",
-          "no": "2102523020156150",
-          "reason": "设备无响应，无法开机",
-          "status": i % 4,
-          "toMe": i % 3,
-          "userImg": "D0031/2023/2/20230201214710P4FVH.jpg",
-          "userName": "李文敏",
-          "ono": "2523020156150123",
-          "nno": "2523020156150125",
-          "machine": {
-            "id": 123,
-            "img": "D0031/2023/1/202301311856422204X.png",
-            "name": "嘉联电签K300",
-            "tNo": "T550006698",
-            "status": 0,
-            "addTime": "2020-01-23 13:26:09",
-          }
-        });
-      }
 
-      dataLists[myLoadIdx] =
-          isLoad ? [...dataLists[myLoadIdx], ...datas] : datas;
-      update(["$loadListBuildId$myLoadIdx"]);
-      isLoad
-          ? pullCtrls[myLoadIdx].loadComplete()
-          : pullCtrls[myLoadIdx].refreshCompleted();
-      isLoading = false;
-    });
+    Map<String, dynamic> params = {
+      "pageNo": pageNos[myLoadIdx],
+      "pageSize": pageSizes[myLoadIdx],
+      "tStatus": statusList[myLoadIdx]["id"],
+    };
+
+    if (searchText != null) {
+      params["uInfo"] = searchText;
+    }
+
+    simpleRequest(
+      url: Urls.userTerminalFreightList,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Map data = json["data"] ?? {};
+          counts[myLoadIdx] = data["count"] ?? 0;
+          List tmpList = data["data"] ?? [];
+          dataLists[myLoadIdx] =
+              isLoad ? [...dataLists[myLoadIdx], ...tmpList] : tmpList;
+          // update();
+          update(["$loadListBuildId$myLoadIdx"]);
+          isLoad
+              ? pullCtrls[myLoadIdx].loadComplete()
+              : pullCtrls[myLoadIdx].refreshCompleted();
+        } else {
+          isLoad
+              ? pullCtrls[myLoadIdx].loadFailed()
+              : pullCtrls[myLoadIdx].refreshFailed();
+        }
+      },
+      after: () {
+        isLoading = false;
+      },
+    );
+
+    // Future.delayed(const Duration(milliseconds: 200), () {
+    //   counts[myLoadIdx] = 100;
+    //   List datas = [];
+    //   for (var i = 0; i < pageSizes[myLoadIdx]; i++) {
+    //     datas.add({
+    //       "id": dataLists[myLoadIdx].length + i,
+    //       "type": i % 2,
+    //       "sponsor": "黄远雄",
+    //       "upgradeTime": "2023-02-13",
+    //       "yingbu": 150,
+    //       "yibu": 13,
+    //       "buhuoStartTime": "2022-12-09 00:00:00",
+    //       "buhuoEndTime": "2022-12-10 00:00:00",
+    //       "zhouqiStartTime": "2022-12-09 00:00:00",
+    //       "zhouqiEndTime": "2022-12-22 00:00:00",
+    //       "addTime": "2023-02-13 20:21:20",
+    //       "no": "2102523020156150",
+    //       "reason": "设备无响应，无法开机",
+    //       "status": i % 4,
+    //       "toMe": i % 3,
+    //       "userImg": "D0031/2023/2/20230201214710P4FVH.jpg",
+    //       "userName": "李文敏",
+    //       "ono": "2523020156150123",
+    //       "nno": "2523020156150125",
+    //       "machine": {
+    //         "id": 123,
+    //         "img": "D0031/2023/1/202301311856422204X.png",
+    //         "name": "嘉联电签K300",
+    //         "tNo": "T550006698",
+    //         "status": 0,
+    //         "addTime": "2020-01-23 13:26:09",
+    //       }
+    //     });
+    //   }
+
+    //   dataLists[myLoadIdx] =
+    //       isLoad ? [...dataLists[myLoadIdx], ...datas] : datas;
+    //   update(["$loadListBuildId$myLoadIdx"]);
+    //   isLoad
+    //       ? pullCtrls[myLoadIdx].loadComplete()
+    //       : pullCtrls[myLoadIdx].refreshCompleted();
+    //   isLoading = false;
+    // });
   }
 
   backoutAction() {
@@ -224,6 +269,10 @@ class StatisticsMachineReplenishment
                                     fontSize: 12.sp, color: AppColor.assisText),
                                 style: TextStyle(
                                     fontSize: 12.sp, color: AppColor.text),
+                                onSubmitted: (p0) {
+                                  takeBackKeyboard(context);
+                                  controller.searchAction();
+                                },
                               ),
                               CustomButton(
                                 onPressed: () {
@@ -263,25 +312,8 @@ class StatisticsMachineReplenishment
                             right: 0,
                             height: 20.w,
                             child: Row(
-                              children: List.generate(5, (index) {
-                                String title = "";
-                                switch (index) {
-                                  case 0:
-                                    title = "全部";
-                                    break;
-                                  case 1:
-                                    title = "未开始";
-                                    break;
-                                  case 2:
-                                    title = "已开始";
-                                    break;
-                                  case 3:
-                                    title = "未完成";
-                                    break;
-                                  case 4:
-                                    title = "已完成";
-                                    break;
-                                }
+                              children: List.generate(
+                                  controller.statusList.length, (index) {
                                 return CustomButton(
                                   onPressed: () {
                                     controller.topIndex = index;
@@ -290,10 +322,12 @@ class StatisticsMachineReplenishment
                                           StatisticsMachineReplenishmentController>(
                                       builder: (_) {
                                     return SizedBox(
-                                      width: 375.w / 5 - 0.1.w,
+                                      width:
+                                          375.w / controller.statusList.length -
+                                              0.1.w,
                                       child: Center(
                                         child: getSimpleText(
-                                          title,
+                                          controller.statusList[index]["name"],
                                           15,
                                           controller.topIndex == index
                                               ? AppColor.theme
@@ -313,9 +347,13 @@ class StatisticsMachineReplenishment
                                 curve: Curves.easeInOut,
                                 top: 47.w,
                                 width: 15.w,
-                                left:
-                                    controller.topIndex * (375.w / 5 - 0.1.w) +
-                                        ((375.w / 5 - 0.1.w) - 15.w) / 2,
+                                left: controller.topIndex *
+                                        (375.w / controller.statusList.length -
+                                            0.1.w) +
+                                    ((375.w / controller.statusList.length -
+                                                0.1.w) -
+                                            15.w) /
+                                        2,
                                 height: 2.w,
                                 child: Container(
                                   color: AppColor.theme,
@@ -329,7 +367,7 @@ class StatisticsMachineReplenishment
                   top: 111.w,
                   child: PageView.builder(
                     controller: controller.pageCtrl,
-                    itemCount: controller.dataLists.length,
+                    itemCount: controller.statusList.length,
                     onPageChanged: (value) {
                       controller.topIndex = value;
                     },
@@ -373,7 +411,7 @@ class StatisticsMachineReplenishment
   }
 
   Widget cell(int index, Map data) {
-    int cellStatus = data["status"] ?? -1;
+    int cellStatus = data["state"] ?? -1;
 
     Color textColor = AppColor.theme;
     String statusStr = "";
@@ -407,7 +445,7 @@ class StatisticsMachineReplenishment
           children: [
             sbhRow([
               getSimpleText(
-                "订单编号：${data["no"] ?? ""}",
+                "订单编号：${data["order_No"] ?? ""}",
                 10,
                 AppColor.text3,
               ),
@@ -418,10 +456,10 @@ class StatisticsMachineReplenishment
               height: 78.5.w,
               width: 315.w,
               child: centClm([
-                infoCell("发起人", data["sponsor"] ?? ""),
-                infoCell("升级时间", data["upgradeTime"] ?? ""),
-                infoCell(
-                    "已补/应补", "${data["yibu"] ?? 0}/${data["yingbu"] ?? 0}"),
+                infoCell("发起人", data["u_Name"] ?? ""),
+                infoCell("升级时间", data["uplvTime"] ?? ""),
+                infoCell("已补/应补",
+                    "${data["plan_Num"] ?? 0}/${data["actual_Num"] ?? 0}"),
               ], crossAxisAlignment: CrossAxisAlignment.start),
             ),
             Container(
@@ -441,7 +479,7 @@ class StatisticsMachineReplenishment
                                   AppColor.text3, 55.5, 1,
                                   textHeight: 1.3),
                               getWidthText(
-                                  "${data[index == 0 ? "buhuoStartTime" : "zhouqiStartTime"] ?? 0}~${data[index == 0 ? "buhuoEndTime" : "zhouqiEndTime"] ?? 0}",
+                                  "${data[index == 0 ? "replenishStaTime" : "periodStaTime"] ?? 0}~${data[index == 0 ? "replenishEndTime" : "periodEndTime"] ?? 0}",
                                   10,
                                   AppColor.text2,
                                   315 - 15 * 2 - 55.5 - 1,

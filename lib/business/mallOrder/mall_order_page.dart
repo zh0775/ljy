@@ -172,8 +172,8 @@ class MallOrderPageController extends GetxController {
 
   @override
   void onInit() {
-    pageCtrl = PageController(initialPage: datas["index"] ?? 0);
-    topIndex = datas["index"] ?? 0;
+    pageCtrl = PageController(initialPage: (datas ?? {})["index"] ?? 0);
+    topIndex = (datas ?? {})["index"] ?? 0;
     isFirst = false;
     super.onInit();
   }

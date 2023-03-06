@@ -183,23 +183,23 @@ class StatisticsUserManageController extends GetxController {
     );
   }
 
-  loadLeaderBottomData(Map data, Function(bool succ, Map data)? result) {
+  loadLeaderBottomData(Map data, Function(bool succ, List datas)? result) {
     int userId = data["user_ID"] ?? -1;
     if (userId == -1) {
       ShowToast.normal("数据出现错误，请稍后再试");
       return;
     }
     simpleRequest(
-      url: Urls.userTeamByLeaderShow(userId),
+      url: Urls.userTeamByInventoryShow(userId),
       params: {},
       success: (success, json) {
-        Map oData = {};
+        List oDatas = [];
         if (success) {
-          oData = json["data"] ?? {};
+          oDatas = json["data"] ?? [];
         }
 
         if (result != null) {
-          result(success, oData);
+          result(success, oDatas);
         }
       },
       after: () {},
@@ -1515,14 +1515,21 @@ class StatisticsUserManage extends GetView<StatisticsUserManageController> {
                       child: Scrollbar(
                         child: SingleChildScrollView(
                           physics: const BouncingScrollPhysics(),
-                          child: Column(
-                            children: [
-                              gwb(375),
-                              ...List.generate(tableDatas.length,
-                                  (index) => tableRow(index, tableDatas, type)),
-                              ghb(35),
-                            ],
-                          ),
+                          child: tableDatas.isEmpty
+                              ? const CustomEmptyView(
+                                  topSpace: 30,
+                                  centerSpace: 20,
+                                )
+                              : Column(
+                                  children: [
+                                    gwb(375),
+                                    ...List.generate(
+                                        tableDatas.length,
+                                        (index) =>
+                                            tableRow(index, tableDatas, type)),
+                                    ghb(35),
+                                  ],
+                                ),
                         ),
                       )),
                   Positioned(

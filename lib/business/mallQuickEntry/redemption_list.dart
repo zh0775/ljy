@@ -1,5 +1,7 @@
 // 兑换榜单
 
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
+import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
@@ -122,7 +124,7 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
         width: 375.w - 15.w * 2,
         margin: EdgeInsets.fromLTRB(15.w, 0, 15.w, 15.w),
         child: Column(
-          children: List.generate((controller.collectList ?? []).length, (index) {
+          children: List.generate((controller.collectList).length, (index) {
             Map data = controller.collectList[index];
             return redemptionItem(data);
           }),
@@ -132,62 +134,83 @@ class RedemptionListPage extends GetView<RedemptionListPageController> {
   }
 
   Widget redemptionItem(item) {
-    return Container(
-      color: Colors.white,
-      margin: EdgeInsets.only(bottom: 15.w),
-      child: Row(
-        children: [
-          SizedBox(
-            child: Image.network(
-              width: 120.w,
+    return CustomButton(
+      onPressed: () {
+        push(const ShoppingProductDetail(), null,
+            binding: ShoppingProductDetailBinding(), arguments: {"data": item});
+      },
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
+        margin: EdgeInsets.only(bottom: 15.w),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(3.w),
+              child: CustomNetworkImage(
+                src: AppDefault().imageUrl + (item["shopImg"] ?? ""),
+                width: 120.w,
+                height: 120.w,
+                fit: BoxFit.cover,
+              ),
+            ),
+            gwb(8),
+            SizedBox(
+              width: 345.w - 120.w - 8.w,
               height: 120.w,
-              AppDefault().imageUrl + (item["shopImg"] ?? ""),
-              fit: BoxFit.cover,
-            ),
-          ),
-          gwb(8),
-          SizedBox(
-            width: 345.w - 120.w - 8.w,
-            height: 120.w,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  children: [
-                    getWidthText(item['shopName'] ?? '', 15, AppColor.textBlack, 209.w, 2, textAlign: TextAlign.left, alignment: Alignment.topLeft),
-                  ],
-                ),
-                getSimpleText("${item['nowPoint'] ?? "0"}积分", 18, AppColor.theme3, isBold: true, textAlign: TextAlign.left),
-                sbhRow([
-                  getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12, AppColor.textGrey5, textAlign: TextAlign.left),
-                  centRow([
-                    GetBuilder<RedemptionListPageController>(
-                      builder: (_) {
-                        return CustomButton(
-                          onPressed: () {
-                            if ((item["isCollect"] ?? 0) == 0) {
-                              controller.loadAddCollect(item);
-                            } else {
-                              controller.loadRemoveCollect(item);
-                            }
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 5.w),
+                    child: getWidthText(item['shopName'] ?? '', 15,
+                        AppColor.textBlack, 209.w, 2,
+                        isBold: true),
+                  ),
+                  getSimpleText(
+                      "${item['nowPoint'] ?? "0"}积分", 18, AppColor.theme3,
+                      isBold: true, textAlign: TextAlign.left),
+                  sbhRow([
+                    getSimpleText("已兑${item['shopBuyCount'] ?? "已兑0"}个", 12,
+                        AppColor.textGrey5,
+                        textAlign: TextAlign.left),
+                    centRow([
+                      GetBuilder<RedemptionListPageController>(
+                        builder: (_) {
+                          return CustomButton(
+                            onPressed: () {
+                              if ((item["isCollect"] ?? 0) == 0) {
+                                controller.loadAddCollect(item);
+                              } else {
+                                controller.loadRemoveCollect(item);
+                              }
 
-                            controller.update();
-                          },
-                          child: Image.asset(
-                            assetsName(item["isCollect"] == 0 ? 'business/mall/btn_iscollect' : 'business/mall/btn_collect'),
-                            width: 32.w,
-                            height: 28.w,
-                          ),
-                        );
-                      },
-                    )
-                  ])
-                ]),
-              ],
-            ),
-          )
-        ],
+                              controller.update();
+                            },
+                            child: SizedBox(
+                              width: 32.w,
+                              height: 28.w,
+                              child: Center(
+                                child: Image.asset(
+                                  assetsName(item["isCollect"] == 0
+                                      ? 'business/mall/btn_iscollect'
+                                      : 'business/mall/btn_collect'),
+                                  width: 16.w,
+                                  fit: BoxFit.fitWidth,
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    ])
+                  ]),
+                ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

@@ -37,12 +37,9 @@ class MallOrderConfirmPageController extends GetxController {
   int get payTypeIdx => _payTypeIdx.value;
   set payTypeIdx(v) => _payTypeIdx.value = v;
 
-  final _productNum = 1.obs;
-  int get productNum => _productNum.value;
-  set productNum(v) => _productNum.value = v;
+  int inputIndex = -1;
 
-  Map productData = {};
-  Map productMainData = {};
+  List productDatas = [];
 
   final _address = Rx<Map>({});
   Map get address => _address.value;
@@ -83,21 +80,65 @@ class MallOrderConfirmPageController extends GetxController {
     address = aData;
   }
 
+  // numInputNodeListener() {
+  //   if (numInputNode.hasFocus) {
+  //     moveCountInputLastLine();
+  //   } else {
+  //     if (int.tryParse(numInputCtrl.text) == null) {
+  //       ShowToast.normal("请输入正确的数量");
+  //       numInputCtrl.text = "$productNum";
+  //     } else if (int.parse(numInputCtrl.text) >
+  //         (productData["shopStock"] ?? 1)) {
+  //       numInputCtrl.text = "${(productData["shopStock"] ?? 1)}";
+  //       productNum = (productData["shopStock"] ?? 1);
+  //       ShowToast.normal("输入的数量大于库存");
+  //     } else {
+  //       productNum = int.parse(numInputCtrl.text);
+  //     }
+  //   }
+  // }
+
+  bool keyborderIsShow = false;
+  showKeyborder(int index) {
+    if (keyborderIsShow) {
+      inputIndex = -1;
+      update();
+      numInputNode.nextFocus();
+      return;
+    }
+    inputIndex = index;
+
+    numInputCtrl.text = "${productDatas[index]["num"]}";
+
+    update();
+    numInputNode.requestFocus();
+  }
+
   numInputNodeListener() {
-    if (numInputNode.hasFocus) {
-      moveCountInputLastLine();
-    } else {
+    keyborderIsShow = numInputNode.hasFocus;
+    if (!numInputNode.hasFocus) {
       if (int.tryParse(numInputCtrl.text) == null) {
         ShowToast.normal("请输入正确的数量");
-        numInputCtrl.text = "$productNum";
-      } else if (int.parse(numInputCtrl.text) >
-          (productData["shopStock"] ?? 1)) {
-        numInputCtrl.text = "${(productData["shopStock"] ?? 1)}";
-        productNum = (productData["shopStock"] ?? 1);
-        ShowToast.normal("输入的数量大于库存");
-      } else {
-        productNum = int.parse(numInputCtrl.text);
+        inputIndex = -1;
+        update();
+        return;
       }
+      int count = productDatas[inputIndex]["shopStock"] ?? 500;
+      if (int.parse(numInputCtrl.text) > count) {
+        ShowToast.normal("输入数量超出该商品库存");
+        productDatas[inputIndex]["num"] = count;
+        inputIndex = -1;
+        // changeCar(dataList[inputIndex]);
+        update();
+        return;
+      }
+
+      productDatas[inputIndex]["num"] = int.parse(numInputCtrl.text);
+      // changeCar(dataList[inputIndex]);
+      inputIndex = -1;
+      update();
+    } else {
+      moveCountInputLastLine();
     }
   }
 
@@ -108,19 +149,22 @@ class MallOrderConfirmPageController extends GetxController {
     loadAddress();
     if (datas != null) {
       isCar = datas["isCar"] ?? false;
-      productData = datas["data"] ?? {};
-      if (isCar) {
-        payTypeIdx = 0;
-      } else {
+      productDatas = datas["data"] ?? {};
+      if (!isCar) {
         payTypeIdx = datas["payType"] ?? 0;
       }
-      productNum = datas["num"] ?? 1;
-      productMainData = datas["mainData"] ?? {};
-      subSelectList = datas["subSelectList"] ?? [];
+      // if (isCar) {
+      //   payTypeIdx = 0;
+      // } else {
+      //   payTypeIdx = datas["payType"] ?? 0;
+      // }
+      // productNum = datas["num"] ?? 1;
+      // productMainData = datas["mainData"] ?? {};
+      // subSelectList = datas["subSelectList"] ?? [];
     }
     numInputNode.addListener(numInputNodeListener);
 
-    numInputCtrl.text = "$productNum";
+    // numInputCtrl.text = "$productNum";
     super.onInit();
   }
 
@@ -151,19 +195,28 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
                     children: [
                       addressDefaultBox(),
                       shopInfoBox(),
-                      orderPayMethods(),
-                      orderTotalBox(),
+                      GetBuilder<MallOrderConfirmPageController>(
+                        builder: (controller) {
+                          return orderPayMethods();
+                        },
+                      ),
+                      GetBuilder<MallOrderConfirmPageController>(
+                        builder: (controller) {
+                          return orderTotalBox();
+                        },
+                      ),
                       getSubmitBtn("确认兑换", () {
                         push(const MallOrderPay(), context,
                             binding: MallOrderPayBinding(),
                             arguments: {
-                              "data": controller.productData,
-                              "mainData": controller.productMainData,
+                              "data": controller.productDatas,
+                              // "mainData": controller.productMainData,
                               "payType": controller.payTypeIdx,
-                              "productNum": controller.productNum,
+                              // "productNum": controller.productNum,
                               "address": controller.address,
                               "remarks": controller.remarkInputCtrl.text,
-                              "subSelectList": controller.subSelectList,
+                              "isCar": controller.isCar
+                              // "subSelectList": controller.subSelectList,
                             });
                       }, color: AppColor.themeOrange, height: 45, fontSize: 15),
                       ghb(30),
@@ -313,89 +366,123 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
         margin: EdgeInsets.only(top: 15.w, bottom: 15.5.w),
         child: Column(
           children: [
-            ghb(15),
-            shopItem(),
-            ghb(25.w),
-            SizedBox(
-                height: 52.w,
-                child: Center(
-                  child: sbRow([
-                    nSimpleText('数量', 14, textHeight: 1.5),
-                    Container(
-                        width: 90.w,
-                        height: 25.w,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12.5.w),
-                            color: AppColor.pageBackgroundColor,
-                            border: Border.all(
-                                width: 0.5.w, color: AppColor.lineColor)),
-                        child: Row(
-                          children: List.generate(
-                              3,
-                              (idx) => idx == 1
-                                  ? Container(
-                                      width: 40.w - 1.w,
-                                      height: 21.w,
-                                      color: Colors.white,
-                                      child: CustomInput(
-                                        width: 40.w - 1.w,
-                                        heigth: 21.w,
-                                        textEditCtrl: controller.numInputCtrl,
-                                        focusNode: controller.numInputNode,
-                                        textAlign: TextAlign.center,
-                                        keyboardType: TextInputType.number,
-                                        style: TextStyle(
-                                            fontSize: 15.w,
-                                            color: AppColor.text),
-                                        placeholderStyle: TextStyle(
-                                            fontSize: 15.w,
-                                            color: AppColor.assisText),
-                                      ),
-                                    )
-                                  : CustomButton(
-                                      onPressed: () {
-                                        int num = controller.productNum;
-                                        int count = (controller
-                                                .productData["shopStock"] ??
-                                            1);
+            GetBuilder<MallOrderConfirmPageController>(builder: (_) {
+              return centClm(
+                  List.generate(controller.productDatas.length, (index) {
+                Map myProduct = controller.productDatas[index];
+                return centClm([
+                  ghb(controller.productDatas.length > 1 && index != 0
+                      ? 0
+                      : 15),
+                  shopItem(myProduct),
+                  ghb(controller.productDatas.length > 1 ? 0 : 25),
+                  SizedBox(
+                      height: 52.w,
+                      child: Center(
+                        child: sbRow([
+                          nSimpleText('数量', 14, textHeight: 1.5),
+                          Container(
+                              width: 90.w,
+                              height: 25.w,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12.5.w),
+                                  color: AppColor.pageBackgroundColor,
+                                  border: Border.all(
+                                      width: 0.5.w, color: AppColor.lineColor)),
+                              child: Row(
+                                children: List.generate(
+                                    3,
+                                    (idx) => idx == 1
+                                        ? CustomButton(
+                                            onPressed: () {
+                                              controller.showKeyborder(index);
+                                            },
+                                            child: Container(
+                                                width: 40.w - 1.w,
+                                                height: 21.w,
+                                                color: Colors.white,
+                                                child: controller.inputIndex ==
+                                                        index
+                                                    ? CustomInput(
+                                                        width: 40.w - 1.w,
+                                                        heigth: 21.w,
+                                                        textEditCtrl: controller
+                                                            .numInputCtrl,
+                                                        focusNode: controller
+                                                            .numInputNode,
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        keyboardType:
+                                                            TextInputType
+                                                                .number,
+                                                        style: TextStyle(
+                                                            fontSize: 15.w,
+                                                            color:
+                                                                AppColor.text),
+                                                        placeholderStyle:
+                                                            TextStyle(
+                                                                fontSize: 15.w,
+                                                                color: AppColor
+                                                                    .assisText),
+                                                      )
+                                                    : Center(
+                                                        child: getSimpleText(
+                                                            "${myProduct["num"] ?? 1}",
+                                                            15,
+                                                            AppColor.text),
+                                                      )),
+                                          )
+                                        : CustomButton(
+                                            onPressed: () {
+                                              int num = myProduct["num"] ?? 1;
+                                              int count =
+                                                  (myProduct["shopStock"] ??
+                                                      100);
 
-                                        if (idx == 0) {
-                                          if (num > 1) {
-                                            controller.productNum -= 1;
-                                          }
-                                        } else {
-                                          if (num < count) {
-                                            controller.productNum += 1;
-                                          }
-                                        }
-                                        controller.numInputCtrl.text =
-                                            "${controller.productNum}";
-                                        controller.moveCountInputLastLine();
-                                      },
-                                      child: SizedBox(
-                                        width: 25.w - 0.1.w,
-                                        height: 25.w,
-                                        child: Center(
-                                          child: Icon(
-                                            idx == 0 ? Icons.remove : Icons.add,
-                                            size: 18.w,
-                                            color: idx == 0
-                                                ? (controller.productNum <= 1
-                                                    ? AppColor.assisText
-                                                    : AppColor.textBlack)
-                                                : (controller.productNum >=
-                                                        (controller.productData[
-                                                                "shopStock"] ??
-                                                            1)
-                                                    ? AppColor.assisText
-                                                    : AppColor.textBlack),
-                                          ),
-                                        ),
-                                      ),
-                                    )),
-                        ))
-                  ], width: 315),
-                )),
+                                              if (idx == 0) {
+                                                if (num > 1) {
+                                                  myProduct["num"] -= 1;
+                                                }
+                                              } else {
+                                                if (num < count) {
+                                                  myProduct["num"] += 1;
+                                                }
+                                              }
+                                              controller.numInputCtrl.text =
+                                                  "${myProduct["num"]}";
+                                              controller
+                                                  .moveCountInputLastLine();
+                                              controller.update();
+                                            },
+                                            child: SizedBox(
+                                              width: 25.w - 0.1.w,
+                                              height: 25.w,
+                                              child: Center(
+                                                child: Icon(
+                                                  idx == 0
+                                                      ? Icons.remove
+                                                      : Icons.add,
+                                                  size: 18.w,
+                                                  color: idx == 0
+                                                      ? (myProduct["num"] <= 1
+                                                          ? AppColor.assisText
+                                                          : AppColor.textBlack)
+                                                      : (myProduct["num"] >=
+                                                              ((myProduct[
+                                                                      "shopStock"] ??
+                                                                  100))
+                                                          ? AppColor.assisText
+                                                          : AppColor.textBlack),
+                                                ),
+                                              ),
+                                            ),
+                                          )),
+                              ))
+                        ], width: 315),
+                      )),
+                ]);
+              }));
+            }),
             gline(345 - 15 * 2, 1),
             SizedBox(
               height: 52.w,
@@ -443,15 +530,23 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
   }
 
   // 商品信息
-  Widget shopItem() {
+  Widget shopItem(Map myProduct) {
+    String selectStr = "";
+    List shopPropertys = myProduct["shopPropertyList"] ?? [];
+
+    for (var i = 0; i < shopPropertys.length; i++) {
+      String p = shopPropertys[i]["value"] ?? "";
+      selectStr += "${i == 0 ? "" : " "}$p";
+    }
+    selectStr = selectStr.isEmpty ? "默认" : selectStr;
+
     return SizedBox(
       width: 315.w,
       height: 105.w,
       // padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
       child: sbRow([
         CustomNetworkImage(
-          src:
-              AppDefault().imageUrl + (controller.productData["shopImg"] ?? ""),
+          src: AppDefault().imageUrl + (myProduct["shopImg"] ?? ""),
           width: 105.w,
           height: 105.w,
           fit: BoxFit.fitHeight,
@@ -463,14 +558,23 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              getWidthText(controller.productMainData["shopName"] ?? "", 15,
-                  AppColor.text, 345 - 105 - 15 * 2 - 15, 2),
-              getSimpleText("已选：${controller.productData["shopTitle"]}", 12,
-                  const Color(0xFF999999)),
-              getSimpleText(
-                  "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分",
+              getWidthText(
+                  myProduct[controller.isCar ? "shopName" : "shopTitle"] ?? "",
                   15,
-                  const Color(0xFF333333)),
+                  AppColor.text,
+                  345 - 105 - 15 * 2 - 15,
+                  2),
+              getSimpleText("已选：$selectStr", 12, const Color(0xFF999999)),
+              GetX<MallOrderConfirmPageController>(
+                builder: (_) {
+                  return getSimpleText(
+                      controller.payTypeIdx == 0
+                          ? "${priceFormat(myProduct["nowPrice"] ?? 0, savePoint: 0)}积分"
+                          : "${priceFormat(myProduct["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(myProduct["cashPrice"] ?? 0, savePoint: 2)}现金",
+                      15,
+                      const Color(0xFF333333));
+                },
+              ),
             ],
           ),
         ),
@@ -480,6 +584,17 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
 
   // 支付方式
   Widget orderPayMethods() {
+    double allPrice = 0;
+    double allPoint = 0;
+    double allCash = 0;
+
+    for (var e in controller.productDatas) {
+      int num = e["num"] ?? 1;
+      allPoint += (e["nowPoint"] ?? 0) * num;
+      allCash += (e["cashPrice"] ?? 0) * num;
+      allPrice += (e["nowPrice"] ?? 0) * num;
+    }
+
     return Container(
         width: 345.w,
         padding: EdgeInsets.all(15.w),
@@ -498,9 +613,7 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
               child: Wrap(
                 spacing: 15.w,
                 runSpacing: 10.w,
-                children: List.generate(
-                    (controller.productData["cashPrice"] ?? 0) > 0 ? 2 : 1,
-                    (index) {
+                children: List.generate(allCash > 0 ? 2 : 1, (index) {
                   return CustomButton(
                     onPressed: () {
                       controller.payTypeIdx = index;
@@ -508,8 +621,8 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
                     child: GetX<MallOrderConfirmPageController>(builder: (_) {
                       return selectBtn(
                           index == 0
-                              ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
-                              : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 0, savePoint: 0)}元",
+                              ? "${priceFormat(allPrice, savePoint: 0)}积分"
+                              : "${priceFormat(allPoint, savePoint: 0)}积分+${priceFormat(allCash, savePoint: 2)}元",
                           // index == 0
                           //     ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
                           //     : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 2, savePoint: 0)}元",
@@ -526,6 +639,18 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
   // 商品合计Box
 
   Widget orderTotalBox() {
+    double allPrice = 0;
+    double allPoint = 0;
+    double allCash = 0;
+    int allNum = 0;
+
+    for (var e in controller.productDatas) {
+      int num = e["num"] ?? 1;
+      allNum += num;
+      allPoint += (e["nowPoint"] ?? 0) * num;
+      allCash += (e["cashPrice"] ?? 0) * num;
+      allPrice += (e["nowPrice"] ?? 0) * num;
+    }
     return Container(
       width: 345.w,
       padding: EdgeInsets.all(15.w),
@@ -537,22 +662,24 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
       child: GetX<MallOrderConfirmPageController>(builder: (_) {
         return Column(
           children: [
-            SizedBox(
-              height: 30.w,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  nSimpleText('商品单价', 14, color: const Color(0xFF999999)),
-                  gwb(14.5),
-                  nSimpleText(
-                      controller.payTypeIdx == 0
-                          ? "${priceFormat(controller.productData["nowPrice"] ?? 0, savePoint: 0)}积分"
-                          : "${priceFormat(controller.productData["nowPoint"] ?? 0, savePoint: 0)}积分+${priceFormat(controller.productData["cashPrice"] ?? 0, savePoint: 0)}元",
-                      14,
-                      color: const Color(0xFF333333)),
-                ],
-              ),
-            ),
+            controller.productDatas.length > 1
+                ? ghb(0)
+                : SizedBox(
+                    height: 30.w,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        nSimpleText('商品单价', 14, color: const Color(0xFF999999)),
+                        gwb(14.5),
+                        nSimpleText(
+                            controller.payTypeIdx == 0
+                                ? "${priceFormat(allPrice, savePoint: 0)}积分"
+                                : "${priceFormat(allPoint, savePoint: 0)}积分+${priceFormat(allPrice, savePoint: 2)}元",
+                            14,
+                            color: const Color(0xFF333333)),
+                      ],
+                    ),
+                  ),
             //  6380积分 1 6380积分
             SizedBox(
               height: 30.w,
@@ -561,8 +688,7 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
                 children: [
                   nSimpleText('商品数量', 14, color: const Color(0xFF999999)),
                   gwb(14.5),
-                  nSimpleText("${controller.productNum}", 14,
-                      color: const Color(0xFF333333)),
+                  nSimpleText("$allNum", 14, color: const Color(0xFF333333)),
                 ],
               ),
             ),
@@ -575,8 +701,8 @@ class MallOrderConfirmPage extends GetView<MallOrderConfirmPageController> {
                   gwb(14.5),
                   nSimpleText(
                       controller.payTypeIdx == 0
-                          ? "${priceFormat((controller.productData["nowPrice"] ?? 0) * controller.productNum, savePoint: 0)}积分"
-                          : "${priceFormat((controller.productData["nowPoint"] ?? 0) * controller.productNum, savePoint: 0)}积分+${priceFormat((controller.productData["cashPrice"] ?? 0) * controller.productNum, savePoint: 0)}元",
+                          ? "${priceFormat(allPrice, savePoint: 0)}积分"
+                          : "${priceFormat(allPoint, savePoint: 0)}积分+${priceFormat(allCash, savePoint: 2)}元",
                       15,
                       color: const Color(0xFFFF6231)),
                 ],

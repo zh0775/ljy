@@ -1816,6 +1816,7 @@ Future<bool?> showAlert(
   Widget? contentWidget,
   Function()? otherOnPressed,
   bool barrierDismissible = true,
+  bool orangeTheme = false,
 }) async {
   bool? show = await showDialog<bool>(
     context: context,
@@ -1871,7 +1872,11 @@ Future<bool?> showAlert(
                         child: Container(
                           width: 300.w / 2 - 0.1.w,
                           height: 50.w,
-                          color: index == 0 ? Colors.white : AppColor.theme,
+                          color: index == 0
+                              ? Colors.white
+                              : orangeTheme
+                                  ? AppColor.themeOrange
+                                  : AppColor.theme,
                           child: Center(
                               child: Text(
                             index == 0 ? cancelText : confirmText,

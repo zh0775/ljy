@@ -299,9 +299,7 @@ class UserMallPage extends StatelessWidget {
                       binding: MineAddressManagerBinding());
                   break;
                 case 2:
-                  showAlert(context, "请加客服微信 skx123", confirmOnPressed: () {
-                    print("确定");
-                  });
+                  showAlert(context, "请加客服微信 skx123", orangeTheme: true);
                   break;
 
                 default:

@@ -1,4 +1,5 @@
 import 'package:cxhighversion2/business/mallOrder/mall_order_confirm_page.dart';
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
@@ -60,7 +61,7 @@ class ShoppingCartPageController extends GetxController {
     push(const MallOrderConfirmPage(), null,
         binding: MallOrderConfirmPageBinding(),
         arguments: {
-          "carList": settleCarList,
+          "data": settleCarList,
           "isCar": true,
         });
   }
@@ -69,7 +70,7 @@ class ShoppingCartPageController extends GetxController {
     simpleRequest(
       url: Urls.userModifyCart,
       params: {
-        "product_ID": data["productListId"],
+        "product_ID": data["carId"],
         "product_Property_List": data["shopPropertyList"] ?? [],
         "num": data["num"],
       },
@@ -83,21 +84,27 @@ class ShoppingCartPageController extends GetxController {
   }
 
   deleleCar() {
-    List deleteCarList = [];
+    List settleCarList = [];
     for (var e in dataList) {
       if (e["selected"]) {
-        deleteCarList.add(e);
-        simpleRequest(
-          url: Urls.userRemoveFromCart(e["carId"]),
-          params: {},
-          success: (success, json) {
-            if (success) {
-              loadList();
-            }
-          },
-          after: () {},
-        );
+        settleCarList.add(e);
       }
+    }
+    if (settleCarList.isEmpty) {
+      ShowToast.normal("没有宝贝可以删除哦");
+      return;
+    }
+    for (var e in settleCarList) {
+      simpleRequest(
+        url: Urls.userRemoveFromCart(e["carId"]),
+        params: {},
+        success: (success, json) {
+          if (success) {
+            loadList();
+          }
+        },
+        after: () {},
+      );
     }
   }
 
@@ -453,6 +460,16 @@ class ShoppingCartPage extends StatelessWidget {
   }
 
   Widget carCell(Map data, int index, ShoppingCartPageController controller) {
+    String subType = "";
+    List shopPropertyList = data["shopPropertyList"] ?? [];
+    if (shopPropertyList.isNotEmpty) {
+      int i = 0;
+      for (var e in shopPropertyList) {
+        subType += "${i == 0 ? "" : " "}${e["value"] ?? ""}";
+
+        i++;
+      }
+    }
     return Align(
       child: CustomButton(
         onPressed: () {
@@ -479,11 +496,18 @@ class ShoppingCartPage extends StatelessWidget {
                     ),
                   ),
                 ),
-                CustomNetworkImage(
-                  src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
-                  width: 90.w,
-                  height: 90.w,
-                  fit: BoxFit.fill,
+                CustomButton(
+                  onPressed: () {
+                    push(const ShoppingProductDetail(), null,
+                        binding: ShoppingProductDetailBinding(),
+                        arguments: {"data": data});
+                  },
+                  child: CustomNetworkImage(
+                    src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
+                    width: 90.w,
+                    height: 90.w,
+                    fit: BoxFit.fill,
+                  ),
                 ),
               ]),
               Padding(
@@ -494,7 +518,7 @@ class ShoppingCartPage extends StatelessWidget {
                         "${data["shopName"] ?? ""}", 15, AppColor.text, 200, 2,
                         isBold: true),
                     ghb(3),
-                    getWidthText("型号：${data["subTitle"] ?? ""} ", 12,
+                    getWidthText("型号：${subType.isEmpty ? "默认" : subType} ", 12,
                         AppColor.text3, 180, 1),
                   ], crossAxisAlignment: CrossAxisAlignment.start),
                   sbRow([

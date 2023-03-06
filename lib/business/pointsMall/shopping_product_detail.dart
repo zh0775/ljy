@@ -5,6 +5,7 @@ import 'package:cxhighversion2/business/pointsMall/shopping_cart_page.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
+import 'package:cxhighversion2/main.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
@@ -62,7 +63,7 @@ class ShoppingProductDetailController extends GetxController {
   int get productNum => _productNum.value;
   set productNum(v) => _productNum.value = v;
 
-  addCarAction() {
+  List getShopPropertyList() {
     List productPropertyList = [];
     List shopPropertyList =
         childProducts[childProductIdx]["shopPropertyList"] ?? [];
@@ -76,10 +77,27 @@ class ShoppingProductDetailController extends GetxController {
         });
       }
     }
+    return productPropertyList;
+  }
+
+  addCarAction() {
+    // List productPropertyList = [];
+    // List shopPropertyList =
+    //     childProducts[childProductIdx]["shopPropertyList"] ?? [];
+    // for (var i = 0; i < shopPropertyList.length; i++) {
+    //   Map e = shopPropertyList[i];
+    //   int sIdx = subSelects[childProductIdx][i];
+    //   if (sIdx <= (e["value"] ?? []).length - 1) {
+    //     productPropertyList.add({
+    //       "key": e["key"],
+    //       "value": e["value"][sIdx],
+    //     });
+    //   }
+    // }
     simpleRequest(
       url: Urls.userAddToCart,
       params: {
-        "product_Property_List": productPropertyList,
+        "product_Property_List": getShopPropertyList(),
         "product_ID": childProducts[childProductIdx]["productListId"],
         "num": productNum,
       },
@@ -96,7 +114,12 @@ class ShoppingProductDetailController extends GetxController {
   toCarAction() {
     Get.find<PointsMallPageController>().tabIdx = 2;
     Get.find<ShoppingCartPageController>().loadList();
-    Get.back();
+    Get.until((route) => route is GetPageRoute
+        ? route.binding is PointsMallPageBinding ||
+                route.binding is MainPageBinding
+            ? true
+            : false
+        : false);
   }
 
   loadAddCollect(Map data) {
@@ -152,11 +175,28 @@ class ShoppingProductDetailController extends GetxController {
               subSelects.add(select);
             }
           }
-          update();
+
+          changeData();
         }
       },
       after: () {},
     );
+  }
+
+  changeData() {
+    Map currentData = {};
+    if (childProductIdx <= childProducts.length - 1) {
+      currentData = childProducts[childProductIdx];
+      productData["shopImg"] = currentData["shopImg"] ?? "";
+      productData["shopImgList"] = currentData["shopImgList"] ?? [];
+      productData["shopName"] = productDetailData["shopName"] ?? "";
+      productData["isCollect"] = currentData["isCollect"] ?? 0;
+      productData["oldPrice"] = currentData["oldPrice"] ?? 0;
+      productData["nowPrice"] = currentData["nowPrice"] ?? 0;
+      productData["cashPrice"] = currentData["cashPrice"] ?? 0;
+      productData["nowPoint"] = currentData["nowPoint"] ?? 0;
+    }
+    update();
   }
 
   numInputNodeListener() {
@@ -183,7 +223,7 @@ class ShoppingProductDetailController extends GetxController {
     numInputNode.addListener(numInputNodeListener);
 
     numInputCtrl.text = "$productNum";
-    productData = (datas ?? {})["data"] ?? {};
+    productData = (((datas ?? {})["data"] ?? {}) as Map);
     loadDetail();
     super.onInit();
   }
@@ -210,7 +250,7 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                 child: EasyRefresh(
                   header: const CupertinoHeader(),
                   // header: const ClassicHeader(showMessage: false),
-                  onRefresh: () {},
+                  onRefresh: () => controller.loadDetail(),
                   child: SingleChildScrollView(
                     child: Column(children: [
                       Container(
@@ -219,7 +259,7 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                           color: Colors.white,
                           child: CustomNetworkImage(
                             src: AppDefault().imageUrl +
-                                (controller.productData["shopImg"]),
+                                (controller.productData["shopImg"] ?? ""),
                             width: 375.w,
                             height: 240.w,
                             fit: BoxFit.contain,
@@ -491,16 +531,25 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                         onPressed: () {
                           if (index == 0) {
                             Get.find<PointsMallPageController>().tabIdx = 0;
-                            Get.back();
+                            Get.until((route) => route is GetPageRoute
+                                ? route.binding is PointsMallPageBinding ||
+                                        route.binding is MainPageBinding
+                                    ? true
+                                    : false
+                                : false);
                           } else if (index == 1) {
                             if ((controller.productDetailData["isCollect"] ??
                                     0) ==
                                 0) {
-                              controller
-                                  .loadAddCollect(controller.productDetailData);
+                              controller.loadAddCollect(
+                                  controller.productDetailData.isEmpty
+                                      ? controller.productData
+                                      : controller.productDetailData);
                             } else {
                               controller.loadRemoveCollect(
-                                  controller.productDetailData);
+                                  controller.productDetailData.isEmpty
+                                      ? controller.productData
+                                      : controller.productDetailData);
                             }
                           } else {
                             controller.toCarAction();
@@ -546,6 +595,10 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                       return CustomButton(
                           onPressed: () {
                             if (index == 0) {
+                              if (controller.childProducts.isEmpty) {
+                                ShowToast.normal("数据获取中，请稍等");
+                                return;
+                              }
                               controller.addCarAction();
                             } else {
                               // showSelectModel();
@@ -553,16 +606,22 @@ class ShoppingProductDetail extends GetView<ShoppingProductDetailController> {
                                 ShowToast.normal("数据获取中，请稍等");
                                 return;
                               }
+                              Map childProduct = controller
+                                  .childProducts[controller.childProductIdx];
+
+                              childProduct["shopPropertyList"] =
+                                  controller.getShopPropertyList();
+                              childProduct["num"] = controller.productNum;
+                              List data = [childProduct];
                               push(const MallOrderConfirmPage(), context,
                                   binding: MallOrderConfirmPageBinding(),
                                   arguments: {
-                                    "data": controller.childProducts[
-                                        controller.childProductIdx],
+                                    "data": data,
                                     "payType": controller.payTypeIdx,
-                                    "num": controller.productNum,
-                                    "mainData": controller.productDetailData,
-                                    "subSelectList": controller
-                                        .subSelects[controller.childProductIdx],
+                                    // "num": controller.productNum,
+                                    // "mainData": controller.productDetailData,
+                                    // "subSelectList": controller
+                                    //     .subSelects[controller.childProductIdx],
                                   });
                             }
                           },

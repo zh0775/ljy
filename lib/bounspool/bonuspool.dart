@@ -537,7 +537,7 @@ class BounsPool extends GetView<BounsPoolController> {
     // int dataIdx = index == 0 ?
 
     String avatar =
-        index < datas.length - 1 ? (datas[index]["u_Avatar"] ?? "") : "";
+        index <= datas.length - 1 ? (datas[index]["u_Avatar"] ?? "") : "";
     return Positioned(
         width: index == 0 ? 76.w : 67.w,
         height: index == 0 ? 102.w : 89.w,

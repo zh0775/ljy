@@ -168,10 +168,10 @@ class PersonalInformationController extends GetxController {
   void onInit() {
     imagePicker = AppImagePicker(
       imgCallback: (imgFile) {
-        Get.to(AppCropImagePage(image: imgFile), transition: Transition.zoom);
-        // uploadImageFile = imgFile;
-        // upLoadImg(uploadImageFile!);
-        // update([uploadImageFileBuildId]);
+        // Get.to(AppCropImagePage(image: imgFile), transition: Transition.zoom);
+        uploadImageFile = imgFile;
+        upLoadImg(uploadImageFile!);
+        update([uploadImageFileBuildId]);
       },
     );
     getInfo();

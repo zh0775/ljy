@@ -13,6 +13,8 @@ import 'package:intl/intl.dart';
 import 'package:cxhighversion2/business/mallEvaluate/shopping_form_evaluate.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 
+import 'package:cxhighversion2/business/pointsMall/shopping_product_detail.dart';
+
 class MallEvaluatePageBinding implements Bindings {
   @override
   void dependencies() {
@@ -150,6 +152,10 @@ class MallEvaluatePageController extends GetxController {
     pageCtrl.animateToPage(index, duration: const Duration(milliseconds: 300), curve: Curves.linear).then((value) {
       topAnimation = false;
     });
+  }
+
+  List stringImgToArray(String strImg) {
+    return strImg.split(',');
   }
 
   onLoad(int status) {
@@ -449,7 +455,7 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        getSimpleText(data['u_Name'] ?? '', 15, const Color(0xFF333333)),
+                        getSimpleText(data['u_Name'] ?? '匿名', 15, const Color(0xFF333333)),
                         getSimpleText(data['addTime'], 12, const Color(0xFF333333)),
                       ],
                     ),
@@ -463,29 +469,35 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
           ),
           ghb(13),
           SizedBox(
-            child: Text(
-              data['comment'] ?? '',
-              style: TextStyle(
-                fontSize: 15.w,
-                color: const Color(0xFF333333),
-              ),
-            ),
+            width: 345.w,
+            child: Text(data['comment'] ?? '',
+                style: TextStyle(
+                  fontSize: 15.w,
+                  color: const Color(0xFF333333),
+                ),
+                textAlign: TextAlign.start),
           ),
           ghb(8),
-          GestureDetector(
-            onTap: () {
-              print('test');
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.network(
-                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-                  width: 100.w,
-                  height: 100.w,
-                  fit: BoxFit.cover,
-                ),
-              ],
+          SizedBox(
+            width: 345.w,
+            child: Wrap(
+              spacing: 15.w,
+              runSpacing: 10.w,
+              children: List.generate(controller.stringImgToArray(data['images'] ?? '').length, (index) {
+                String imgsItem = controller.stringImgToArray(data['images'])[index];
+                return GestureDetector(
+                  onTap: () {
+                    toCheckImg(image: "${AppDefault().imageUrl}${imgsItem}");
+                  },
+                  child: Image.network(
+                    // 'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
+                    AppDefault().imageUrl + imgsItem,
+                    width: 100.w,
+                    height: 100.w,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }),
             ),
           ),
           ghb(20),
@@ -497,29 +509,34 @@ class MallEvaluatePage extends GetView<MallEvaluatePageController> {
               color: const Color(0xFFF5F5F7),
             ),
             padding: EdgeInsets.fromLTRB(10.w, 7.5.w, 10.w, 7.5.w),
-            child: Row(
-              children: [
-                CustomNetworkImage(
-                  src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
-                  width: 45.w,
-                  height: 45.w,
-                  fit: BoxFit.fitWidth,
-                ),
-                gwb(12),
-                SizedBox(
-                  width: 345.w - 45.w - 20.w - 12.w - 15.w,
-                  child: getSimpleText(
-                    data['shopName'] ?? '',
-                    12,
-                    const Color(0xFF333333),
+            child: GestureDetector(
+              onTap: () {
+                push(const ShoppingProductDetail(), null, binding: ShoppingProductDetailBinding(), arguments: {"data": controller.datas});
+              },
+              child: Row(
+                children: [
+                  CustomNetworkImage(
+                    src: AppDefault().imageUrl + (data["shopImg"] ?? ""),
+                    width: 45.w,
+                    height: 45.w,
+                    fit: BoxFit.fitWidth,
                   ),
-                ),
-                Image.asset(
-                  assetsName("mine/icon_right_arrow"),
-                  width: 12.w,
-                  fit: BoxFit.fitWidth,
-                )
-              ],
+                  gwb(12),
+                  SizedBox(
+                    width: 345.w - 45.w - 20.w - 12.w - 15.w,
+                    child: getSimpleText(
+                      data['shopName'] ?? '',
+                      12,
+                      const Color(0xFF333333),
+                    ),
+                  ),
+                  Image.asset(
+                    assetsName("mine/icon_right_arrow"),
+                    width: 12.w,
+                    fit: BoxFit.fitWidth,
+                  )
+                ],
+              ),
             ),
           )
         ],

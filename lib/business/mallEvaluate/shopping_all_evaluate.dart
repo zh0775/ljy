@@ -52,11 +52,17 @@ class ShoppingAllEvaluateController extends GetxController {
         if (success) {
           Map data = json["data"] ?? {};
           shopAllEvaluateList = data["data"] ?? [];
+          count = data['count'];
+
           update();
         }
       },
       after: () {},
     );
+  }
+
+  List stringImgToArray(String strImg) {
+    return strImg.split(',');
   }
 
   //
@@ -75,8 +81,43 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: getDefaultAppBar(context, '商品评价'),
-        body: SingleChildScrollView(
-          child: shopAllEvaluate(),
+        body: Stack(
+          children: [
+            Positioned(
+                left: 0,
+                width: 375.w,
+                height: controller.shopAllEvaluateList.isEmpty ? 0 : 30.w,
+                child: Container(
+                  width: 375.w,
+                  padding: EdgeInsets.only(left: 15.w),
+                  height: 30.w,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Text(
+                        '全部评论',
+                        style: TextStyle(
+                          fontSize: 15.w,
+                          color: const Color(0xFF333333),
+                          height: 2.3,
+                        ),
+                      ),
+                      Text(
+                        '（共${controller.count ?? 0}个）',
+                        style: TextStyle(
+                          fontSize: 15.w,
+                          color: const Color(0xFF333333),
+                          height: 2.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                )),
+            Positioned.fill(
+              top: controller.shopAllEvaluateList.isEmpty ? 0 : 30.w,
+              child: shopAllEvaluate(),
+            ),
+          ],
         ));
   }
 
@@ -104,12 +145,8 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
               : ListView.builder(
                   itemCount: controller.shopAllEvaluateList.length,
                   itemBuilder: (context, index) {
-                    return Column(
-                      children: List.generate((controller.shopAllEvaluateList ?? []).length, (index) {
-                        Map data = controller.shopAllEvaluateList[index] ?? [];
-                        return myEvaluateItem(data);
-                      }),
-                    );
+                    print("${controller.shopAllEvaluateList[index]}");
+                    return myEvaluateItem(controller.shopAllEvaluateList[index]);
                   },
                 ),
         );
@@ -130,7 +167,7 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(15.w),
                 child: Image.network(
-                  "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg",
+                  AppDefault().imageUrl + data['u_Avatar'] ?? "https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg",
                   width: 30.w,
                   height: 30.w,
                 ),
@@ -143,12 +180,12 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        getSimpleText('喵喵爱吃鱼', 15, const Color(0xFF333333)),
-                        getSimpleText("2022-11-18", 12, const Color(0xFF333333)),
+                        getSimpleText(data['u_Name'] ?? '匿名', 15, const Color(0xFF333333)),
+                        getSimpleText(data['addTime'] ?? '', 12, const Color(0xFF333333)),
                       ],
                     ),
                     Container(
-                      child: startRating(currentStart: 3),
+                      child: startRating(currentStart: (data['score'] ?? 1.0).floor()),
                     )
                   ],
                 ),
@@ -157,8 +194,9 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
           ),
           ghb(13),
           SizedBox(
+            width: 345.w,
             child: Text(
-              "宝贝收到1了，我超喜欢，做工质地都好得没话说，服 务态度也超好， 很有心的店家，以后常光顾！",
+              data['comment'] ?? '',
               style: TextStyle(
                 fontSize: 15.w,
                 color: const Color(0xFF333333),
@@ -166,20 +204,25 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
             ),
           ),
           ghb(8),
-          GestureDetector(
-            onTap: () {
-              print('test');
-            },
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Image.network(
-                  'https://cdn.pixabay.com/photo/2014/11/30/14/11/cat-551554_1280.jpg',
-                  width: 100.w,
-                  height: 100.w,
-                  fit: BoxFit.cover,
-                ),
-              ],
+          SizedBox(
+            width: 345.w,
+            child: Wrap(
+              spacing: 15.w,
+              runSpacing: 10.w,
+              children: List.generate(controller.stringImgToArray(data['images'] ?? '').length, (index) {
+                String imgsItem = controller.stringImgToArray(data['images'])[index];
+                return GestureDetector(
+                  onTap: () {
+                    toCheckImg(image: "${AppDefault().imageUrl}${imgsItem}");
+                  },
+                  child: Image.network(
+                    AppDefault().imageUrl + imgsItem,
+                    width: 100.w,
+                    height: 100.w,
+                    fit: BoxFit.cover,
+                  ),
+                );
+              }),
             ),
           ),
           ghb(20),
@@ -192,7 +235,7 @@ class ShoppingAllEvaluatePage extends GetView<ShoppingAllEvaluateController> {
     return Row(
         children: List.generate(5, (index) {
       return Icon(
-        index < currentStart ? Icons.star : Icons.star_border,
+        index <= currentStart ? Icons.star : Icons.star_border,
         size: 11.w,
         color: const Color(0xFFFEB501),
       );

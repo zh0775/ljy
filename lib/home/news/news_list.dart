@@ -44,6 +44,7 @@ class NewsListController extends GetxController {
     simpleRequest(
       url: Urls.newList,
       params: {
+        "classType": 0,
         "pageNo": pageNo,
         "pageSize": pageSize,
       },

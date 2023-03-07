@@ -27,6 +27,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletons/skeletons.dart';
 
 // import 'third/pageviewj-0.0.3/view_page.dart';
 
@@ -257,42 +258,42 @@ class _MainAppState extends State<MainApp> {
   }
 
   Widget skeletonTheme({required Widget child}) {
-    return child;
-    // return SkeletonTheme(
-    //   // themeMode: ThemeMode.light,
-    //   shimmerGradient: const LinearGradient(
-    //     colors: [
-    //       Color(0xFFD8E3E7),
-    //       Color(0xFFC8D5DA),
-    //       Color(0xFFD8E3E7),
-    //     ],
-    //     stops: [
-    //       0.1,
-    //       0.5,
-    //       0.9,
-    //     ],
-    //   ),
-    //   darkShimmerGradient: const LinearGradient(
-    //     colors: [
-    //       Color(0xFF222222),
-    //       Color(0xFF242424),
-    //       Color(0xFF2B2B2B),
-    //       Color(0xFF242424),
-    //       Color(0xFF222222),
-    //     ],
-    //     stops: [
-    //       0.0,
-    //       0.2,
-    //       0.5,
-    //       0.8,
-    //       1,
-    //     ],
-    //     begin: Alignment(-2.4, -0.2),
-    //     end: Alignment(2.4, 0.2),
-    //     tileMode: TileMode.clamp,
-    //   ),
-    //   child: child,
-    // );
+    // return child;
+    return SkeletonTheme(
+      // themeMode: ThemeMode.light,
+      shimmerGradient: const LinearGradient(
+        colors: [
+          Color(0xFFD8E3E7),
+          Color(0xFFC8D5DA),
+          Color(0xFFD8E3E7),
+        ],
+        stops: [
+          0.1,
+          0.5,
+          0.9,
+        ],
+      ),
+      darkShimmerGradient: const LinearGradient(
+        colors: [
+          Color(0xFF222222),
+          Color(0xFF242424),
+          Color(0xFF2B2B2B),
+          Color(0xFF242424),
+          Color(0xFF222222),
+        ],
+        stops: [
+          0.0,
+          0.2,
+          0.5,
+          0.8,
+          1,
+        ],
+        begin: Alignment(-2.4, -0.2),
+        end: Alignment(2.4, 0.2),
+        tileMode: TileMode.clamp,
+      ),
+      child: child,
+    );
   }
 }
 

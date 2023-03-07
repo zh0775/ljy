@@ -1,16 +1,17 @@
 import 'package:cxhighversion2/component/custom_button.dart';
-import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
+import 'package:cxhighversion2/component/custom_list_empty_view.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/machine/machine_pay_confirm.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletons/skeletons.dart';
 
 class MachinePayPageBinding implements Bindings {
   @override
@@ -36,6 +37,10 @@ class MachinePayPageController extends GetxController {
   bool get isLoadding => _isLoadding.value;
   set isLoadding(v) => _isLoadding.value = v;
 
+  final _isFirstLoadding = true.obs;
+  bool get isFirstLoadding => _isFirstLoadding.value;
+  set isFirstLoadding(v) => _isFirstLoadding.value = v;
+
   TextEditingController cellInput = TextEditingController();
   FocusNode node = FocusNode();
 
@@ -43,7 +48,7 @@ class MachinePayPageController extends GetxController {
 
   List dataList = [];
 
-  RefreshController pullCtrl = RefreshController();
+  // RefreshController pullCtrl = RefreshController();
 
   List payTypeList = [
     {
@@ -87,13 +92,14 @@ class MachinePayPageController extends GetxController {
           List requestDatas = data["data"] ?? [];
           dataList = isLoad ? [...dataList, ...requestDatas] : requestDatas;
           checkSelect();
-          isLoad ? pullCtrl.loadComplete() : pullCtrl.refreshCompleted();
+          // isLoad ? pullCtrl.loadComplete() : pullCtrl.refreshCompleted();
 
           update();
         }
       },
       after: () {
         isLoadding = false;
+        isFirstLoadding = false;
       },
     );
     // Future.delayed(const Duration(milliseconds: 300), () {
@@ -154,7 +160,12 @@ class MachinePayPageController extends GetxController {
       return;
     }
 
-    push(const MachinePayConfirm(), null, binding: MachinePayConfirmBinding(), arguments: {"machines": selectList, "payType": payTypeList[payTypeIndex]});
+    push(const MachinePayConfirm(), null,
+        binding: MachinePayConfirmBinding(),
+        arguments: {
+          "machines": selectList,
+          "payType": payTypeList[payTypeIndex]
+        });
   }
 
   clickCellAction(Map data) {
@@ -227,7 +238,8 @@ class MachinePayPage extends StatefulWidget {
   State<MachinePayPage> createState() => _MachinePayPageState();
 }
 
-class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObserver {
+class _MachinePayPageState extends State<MachinePayPage>
+    with WidgetsBindingObserver {
   MachinePayPageController controller = Get.find<MachinePayPageController>();
 
   @override
@@ -246,7 +258,9 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                 height: 55.w + paddingSizeBottom(context),
                 child: Container(
                   padding: EdgeInsets.only(bottom: paddingSizeBottom(context)),
-                  decoration: BoxDecoration(color: Colors.white, boxShadow: [BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)]),
+                  decoration: BoxDecoration(color: Colors.white, boxShadow: [
+                    BoxShadow(color: const Color(0x0D000000), blurRadius: 5.w)
+                  ]),
                   child: Center(
                     child: sbRow([
                       CustomButton(onPressed: () {
@@ -256,12 +270,14 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                           return centRow([
                             ghb(55),
                             Image.asset(
-                              assetsName("machine/checkbox_${controller.allSelected ? "selected" : "normal"}"),
+                              assetsName(
+                                  "machine/checkbox_${controller.allSelected ? "selected" : "normal"}"),
                               width: 16.w,
                               fit: BoxFit.fitWidth,
                             ),
                             gwb(12),
-                            getSimpleText(controller.allSelected ? "反选" : "全选", 14, AppColor.text),
+                            getSimpleText(controller.allSelected ? "反选" : "全选",
+                                14, AppColor.text),
                           ]);
                         },
                       )),
@@ -278,7 +294,8 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                             borderRadius: BorderRadius.circular(15.w),
                           ),
                           child: Center(
-                            child: getSimpleText("确认采购", 14, Colors.white, textHeight: 1.3),
+                            child: getSimpleText("确认采购", 14, Colors.white,
+                                textHeight: 1.3),
                           ),
                         ),
                       )
@@ -291,7 +308,9 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                 top: 15.w,
                 height: 60.w,
                 child: Container(
-                  decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(4.w)),
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4.w)),
                   child: Center(
                       child: sbRow([
                     getSimpleText("采购类型", 14, AppColor.text, textHeight: 1.3),
@@ -303,7 +322,12 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                         ghb(60.w),
                         GetX<MachinePayPageController>(
                           builder: (_) {
-                            return getSimpleText(controller.payTypeList[controller.payTypeIndex]["name"], 14, AppColor.text, textHeight: 1.3);
+                            return getSimpleText(
+                                controller.payTypeList[controller.payTypeIndex]
+                                    ["name"],
+                                14,
+                                AppColor.text,
+                                textHeight: 1.3);
                           },
                         ),
                         gwb(5),
@@ -321,25 +345,68 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                 bottom: 55.w + paddingSizeBottom(context),
                 child: GetBuilder<MachinePayPageController>(
                   builder: (_) {
-                    return SmartRefresher(
-                      controller: controller.pullCtrl,
-                      onLoading: controller.onLoad,
-                      onRefresh: controller.onRefresh,
-                      enablePullUp: controller.count > controller.dataList.length,
-                      child: controller.dataList.isEmpty
-                          ? GetX<MachinePayPageController>(
-                              builder: (_) {
-                                return CustomEmptyView(
-                                  isLoading: controller.isLoadding,
-                                );
-                              },
-                            )
-                          : ListView.builder(
-                              itemCount: controller.dataList.length,
-                              itemBuilder: (context, index) {
-                                return cell(controller.dataList[index], index);
-                              },
+                    return EasyRefresh.builder(
+                      header: const CupertinoHeader(),
+                      footer: const CupertinoFooter(),
+                      onLoad: controller.dataList.length >= controller.count
+                          ? null
+                          : () => controller.loadData(isLoad: true),
+                      // controller: controller.pullCtrl,
+                      // onLoading: controller.onLoad,
+                      onRefresh: () => controller.loadData(),
+                      // enablePullUp:
+                      //     controller.count > controller.dataList.length,
+                      childBuilder: (context, physics) {
+                        return GetX<MachinePayPageController>(builder: (_) {
+                          return Skeleton(
+                            skeleton: SkeletonListView(
+                              item: SkeletonItem(
+                                  child: Column(
+                                children: [
+                                  ghb(15),
+                                  Row(
+                                    children: [
+                                      SkeletonAvatar(
+                                        style: SkeletonAvatarStyle(
+                                            height: 90.w, width: 90.w),
+                                      ),
+                                      gwb(11.5),
+                                      Expanded(
+                                        child: SkeletonParagraph(
+                                          style: SkeletonParagraphStyle(
+                                              lines: 3,
+                                              spacing: 10.w,
+                                              lineStyle: SkeletonLineStyle(
+                                                randomLength: true,
+                                                height: 15.w,
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                // minLength: 150.w,
+                                                // maxLength: 160.w,
+                                              )),
+                                        ),
+                                      )
+                                    ],
+                                  )
+                                ],
+                              )),
                             ),
+                            isLoading: controller.isFirstLoadding,
+                            child: controller.dataList.isEmpty
+                                ? CustomListEmptyView(
+                                    physics: physics,
+                                    isLoading: controller.isLoadding,
+                                  )
+                                : ListView.builder(
+                                    itemCount: controller.dataList.length,
+                                    itemBuilder: (context, index) {
+                                      return cell(
+                                          controller.dataList[index], index);
+                                    },
+                                  ),
+                          );
+                        });
+                      },
                     );
                   },
                 ))
@@ -359,7 +426,8 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
           width: 345.w,
           height: 120.w,
           margin: EdgeInsets.only(top: index == 0 ? 0 : 15.w),
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
+          decoration: BoxDecoration(
+              color: Colors.white, borderRadius: BorderRadius.circular(3.w)),
           child: Center(
             child: sbhRow([
               centRow([
@@ -368,7 +436,8 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                   width: 35.w,
                   child: Center(
                     child: Image.asset(
-                      assetsName("machine/checkbox_${(data["selected"] ?? false) ? "selected" : "normal"}"),
+                      assetsName(
+                          "machine/checkbox_${(data["selected"] ?? false) ? "selected" : "normal"}"),
                       width: 16.w,
                       fit: BoxFit.fitWidth,
                     ),
@@ -385,16 +454,25 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                 padding: EdgeInsets.only(right: 11.5.w),
                 child: sbClm([
                   centClm([
-                    getWidthText("${data["levelName"] ?? ""}", 15, AppColor.text, 200, 2, isBold: true),
+                    getWidthText(
+                        "${data["levelName"] ?? ""}", 15, AppColor.text, 200, 2,
+                        isBold: true),
                     ghb(3),
-                    getWidthText("型号：${data["levelDescribe"] ?? ""} ", 12, AppColor.text3, 180, 1),
+                    getWidthText("型号：${data["levelDescribe"] ?? ""} ", 12,
+                        AppColor.text3, 180, 1),
                   ], crossAxisAlignment: CrossAxisAlignment.start),
                   sbRow([
-                    getSimpleText("￥${priceFormat(data["nowPrice"] ?? 0)}", 15, const Color(0xFFF93635), isBold: true),
+                    getSimpleText("￥${priceFormat(data["nowPrice"] ?? 0)}", 15,
+                        const Color(0xFFF93635),
+                        isBold: true),
                     Container(
                         width: 90.w,
                         height: 25.w,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12.5.w), color: AppColor.pageBackgroundColor, border: Border.all(width: 0.5.w, color: AppColor.lineColor)),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12.5.w),
+                            color: AppColor.pageBackgroundColor,
+                            border: Border.all(
+                                width: 0.5.w, color: AppColor.lineColor)),
                         child: Row(
                           children: List.generate(
                               3,
@@ -411,37 +489,50 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                                             ? CustomInput(
                                                 width: 40.w - 1.w,
                                                 heigth: 21.w,
-                                                textEditCtrl: controller.cellInput,
+                                                textEditCtrl:
+                                                    controller.cellInput,
                                                 focusNode: controller.node,
                                                 textAlign: TextAlign.center,
-                                                keyboardType: TextInputType.number,
-                                                style: TextStyle(fontSize: 15.w, color: AppColor.text),
-                                                placeholderStyle: TextStyle(fontSize: 15.w, color: AppColor.assisText),
+                                                keyboardType:
+                                                    TextInputType.number,
+                                                style: TextStyle(
+                                                    fontSize: 15.w,
+                                                    color: AppColor.text),
+                                                placeholderStyle: TextStyle(
+                                                    fontSize: 15.w,
+                                                    color: AppColor.assisText),
                                               )
                                             : Center(
-                                                child: getSimpleText("${data["num"] ?? 1}", 15, AppColor.text),
+                                                child: getSimpleText(
+                                                    "${data["num"] ?? 1}",
+                                                    15,
+                                                    AppColor.text),
                                               ),
                                       ),
                                     )
                                   : CustomButton(
                                       onPressed: () {
                                         int num = data["num"] ?? 1;
-                                        int count = data["levelGiftProductCount"] ?? 1;
+                                        int count =
+                                            data["levelGiftProductCount"] ?? 1;
 
                                         if (idx == 0) {
                                           if (num > 1) {
-                                            data["num"] = (data["num"] ?? 1) - 1;
+                                            data["num"] =
+                                                (data["num"] ?? 1) - 1;
                                             controller.update();
                                           }
                                         } else {
                                           if (num < count) {
-                                            data["num"] = (data["num"] ?? 1) + 1;
+                                            data["num"] =
+                                                (data["num"] ?? 1) + 1;
                                             controller.update();
                                           }
                                         }
 
                                         if (controller.inputIndex == index) {
-                                          controller.cellInput.text = "${data["num"]}";
+                                          controller.cellInput.text =
+                                              "${data["num"]}";
                                         }
                                       },
                                       child: SizedBox(
@@ -451,7 +542,15 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                                           child: Icon(
                                             idx == 0 ? Icons.remove : Icons.add,
                                             size: 18.w,
-                                            color: idx == 0 ? ((data["num"] ?? 1) <= 1 ? AppColor.assisText : AppColor.textBlack) : ((data["num"] ?? 1) >= (data["levelGiftProductCount"] ?? 1) ? AppColor.assisText : AppColor.textBlack),
+                                            color: idx == 0
+                                                ? ((data["num"] ?? 1) <= 1
+                                                    ? AppColor.assisText
+                                                    : AppColor.textBlack)
+                                                : ((data["num"] ?? 1) >=
+                                                        (data["levelGiftProductCount"] ??
+                                                            1)
+                                                    ? AppColor.assisText
+                                                    : AppColor.textBlack),
                                           ),
                                         ),
                                       ),
@@ -472,7 +571,9 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
         Container(
           height: 165.w,
           width: 375.w,
-          decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.vertical(top: Radius.circular(6.w))),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(6.w))),
           child: Column(
             children: [
               sbhRow(
@@ -489,7 +590,12 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                               width: 65.w,
                               height: 52.w,
                               child: Center(
-                                child: getSimpleText(index == 0 ? "取消" : "确定", 14, index == 0 ? AppColor.text3 : AppColor.text),
+                                child: getSimpleText(
+                                    index == 0 ? "取消" : "确定",
+                                    14,
+                                    index == 0
+                                        ? AppColor.text3
+                                        : AppColor.text),
                               ),
                             ),
                           )),
@@ -500,7 +606,8 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                 width: 375.w,
                 height: 165.w - 52.w - 1.w,
                 child: CupertinoPicker.builder(
-                  scrollController: FixedExtentScrollController(initialItem: controller.pickIndex),
+                  scrollController: FixedExtentScrollController(
+                      initialItem: controller.pickIndex),
                   itemExtent: 40.w,
                   childCount: controller.payTypeList.length,
                   onSelectedItemChanged: (value) {
@@ -510,7 +617,13 @@ class _MachinePayPageState extends State<MachinePayPage> with WidgetsBindingObse
                     return Center(
                       child: GetX<MachinePayPageController>(
                         builder: (_) {
-                          return getSimpleText(controller.payTypeList[index]["name"], 15, AppColor.text, fw: controller.pickIndex == index ? FontWeight.w500 : FontWeight.normal);
+                          return getSimpleText(
+                              controller.payTypeList[index]["name"],
+                              15,
+                              AppColor.text,
+                              fw: controller.pickIndex == index
+                                  ? FontWeight.w500
+                                  : FontWeight.normal);
                         },
                       ),
                     );

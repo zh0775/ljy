@@ -497,6 +497,8 @@ class HomeController extends FullLifeCycleController {
             imagePath: "$imageUrl${e["apP_Pic"]}",
             id: "${e["id"]}",
             data: e,
+            imgWidth: 345,
+            imgHeight: 128,
             boxFit: BoxFit.fill);
       }).toList();
       btnDatas = [];
@@ -1051,7 +1053,7 @@ class _HomeState extends State<Home> with AutomaticKeepAliveClientMixin {
             AppBanner(
               // controller: ctrl.bannerCtrl,
               // isFullScreen: false,
-              width: 345,
+              width: 375,
               height: 128,
               banners: ctrl.topBanners,
               borderRadius: 8,

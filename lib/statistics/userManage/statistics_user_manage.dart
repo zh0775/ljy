@@ -235,11 +235,12 @@ class StatisticsUserManageController extends GetxController {
       "pageNo": pageNo,
     };
 
-    if (searchStr != null && searchStr.isNotEmpty) {
+    if (searchInputCtrl.text.isNotEmpty) {
+      // if (searchStr != null && searchStr.isNotEmpty) {
       if (userType == 3) {
-        params["tmName"] = searchStr;
+        params["tmName"] = searchInputCtrl.text;
       } else {
-        params["userInfo"] = searchStr;
+        params["userInfo"] = searchInputCtrl.text;
       }
     }
     if (userType == 0) {

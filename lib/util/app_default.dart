@@ -99,6 +99,7 @@ class AppDefault {
   String token = "";
   List requstCacheList = [];
   List themeColorList = [];
+
   setThemeColorList() {
     if (publicHomeData.isEmpty) {
       // themeColorList = [];

@@ -158,7 +158,10 @@ class StatisticsMachineManageController extends GetxController {
       filterHeight2 = machineStatus.length * 40.w * 1.0;
     }
 
-    double maxHeight = ScreenUtil().screenHeight - appBarMaxHeight - 105.w;
+    double maxHeight = ScreenUtil().screenHeight -
+        appBarMaxHeight -
+        105.w -
+        paddingSizeBottom(Global.navigatorKey.currentContext!);
     filterOverSize = filterHeight > maxHeight;
     if (filterHeight > maxHeight) {
       filterHeight = maxHeight * 1.0;
@@ -649,9 +652,7 @@ class StatisticsMachineManage
       children: [
         SizedBox(
           width: 375.w,
-          height: controller.filterHeight -
-              55.w -
-              paddingSizeBottom(Global.navigatorKey.currentContext!),
+          height: controller.filterHeight - 55.w,
           child: SingleChildScrollView(
               physics: controller.filterOverSize
                   ? const BouncingScrollPhysics()

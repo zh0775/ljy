@@ -14,6 +14,8 @@ class BannerData {
 
   /// The [id] to indentify the banner.
   final String id;
+  final double? imgWidth;
+  final double? imgHeight;
 
   /// The [boxFit] How the image should be inscribed into the [Container].
   /// Default value is [BoxFit.cover]
@@ -31,6 +33,8 @@ class BannerData {
       {required this.imagePath,
       required this.id,
       this.boxFit = BoxFit.cover,
+      this.imgHeight,
+      this.imgWidth,
       this.data = const {}});
 }
 
@@ -212,12 +216,14 @@ class _AppBannerState extends State<AppBanner> {
       child: data.imagePath.contains("http")
           ? CustomNetworkImage(
               src: data.imagePath,
-              width: widget.width.w,
-              height: widget.height.w,
+              width: data.imgWidth?.w ?? widget.width.w,
+              height: data.imgHeight?.w ?? widget.height.w,
               fit: data.boxFit,
             )
           : Image.asset(assetsName(data.imagePath),
-              width: widget.width.w, height: widget.height.w, fit: data.boxFit),
+              width: data.imgWidth?.w ?? widget.width.w,
+              height: data.imgHeight?.w ?? widget.height.w,
+              fit: data.boxFit),
       // ClipPath(
       //   clipper: BannerClippper(arc: 40.w),
       //   child: CustomNetworkImage(

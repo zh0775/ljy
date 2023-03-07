@@ -49,8 +49,10 @@ class UserAgreementView extends GetView<UserAgreementViewController> {
   Widget build(BuildContext context) {
     controller.dataInit(url);
     return Scaffold(
-      appBar:
-          getDefaultAppBar(context, title, blueBackground: true, white: true),
+      appBar: getDefaultAppBar(
+        context,
+        title,
+      ),
       body: getContent(),
     );
   }

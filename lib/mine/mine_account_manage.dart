@@ -1,5 +1,6 @@
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/home/home.dart';
+import 'package:cxhighversion2/mine/mine_change_password.dart';
 import 'package:cxhighversion2/mine/mine_change_phone.dart';
 import 'package:cxhighversion2/mine/mine_verify_identity.dart';
 import 'package:cxhighversion2/service/urls.dart';
@@ -243,12 +244,8 @@ class MineChangePwdList extends StatelessWidget {
           cell(
             "修改登录密码",
             onPressed: () {
-              push(
-                  const MineVerifyIdentity(
-                    type: MineVerifyIdentityType.changeLoginPassword,
-                  ),
-                  context,
-                  binding: MineVerifyIdentityBinding());
+              push(const MineChangePassword(), context,
+                  binding: MineChangePasswordBinding());
             },
           ),
           sbhRow([

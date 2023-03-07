@@ -37,7 +37,6 @@ enum MachineOrderBtnType {
   invalidAftersale, //作废售后  上级
   confirmReceive, //确认回收  上级
   aftersaleImmediatedelivery, //上级 常规订单售后发货  上级
-
 }
 
 class MachineOrderUtil {

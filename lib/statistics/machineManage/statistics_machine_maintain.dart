@@ -127,8 +127,8 @@ class StatisticsMachineMaintainController extends GetxController {
       "pageSize": pageSizes[myLoadIdx],
       "d_Type": listStatus[myLoadIdx]["id"],
     };
-    if (searchText != null && searchText.isNotEmpty) {
-      params["username"] = searchText;
+    if (searchInputCtrl.text.isNotEmpty) {
+      params["username"] = searchInputCtrl.text;
     }
     simpleRequest(
       url: Urls.userFeaturesApplyList,

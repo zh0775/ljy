@@ -144,6 +144,13 @@ class MachinePayConfirmController extends GetxController {
           previewOrderData = json["data"] ?? {};
           allPrice = previewOrderData["pay_Amount"] ?? 0.0;
           buyTypeList = previewOrderData["pay_MethodList"] ?? [];
+          for (var i = 0; i < buyTypeList.length; i++) {
+            Map bType = buyTypeList[i];
+            if ((bType["u_Type"] ?? 0) == 3 && ((bType["value"] ?? 0)) == 1) {
+              buyTypeIdx = i;
+              break;
+            }
+          }
         }
       },
       after: () {},

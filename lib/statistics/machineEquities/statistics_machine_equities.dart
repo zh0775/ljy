@@ -87,13 +87,17 @@ class StatisticsMachineEquitiesController extends GetxController {
     if (dataList.isEmpty) {
       isLoading = true;
     }
+    Map<String, dynamic> params = {
+      "pageSize": pageSize,
+      "pageNo": pageNo,
+    };
+    if (searchInputCtrl.text.isNotEmpty) {
+      params["termNO"] = searchInputCtrl.text;
+    }
 
     simpleRequest(
       url: Urls.userTerminalAssociateList,
-      params: {
-        "pageSize": pageSize,
-        "pageNo": pageNo,
-      },
+      params: params,
       success: (success, json) {
         if (success) {
           Map data = json["data"] ?? {};
@@ -233,6 +237,10 @@ class StatisticsMachineEquities
                                 fontSize: 12.sp, color: AppColor.assisText),
                             style: TextStyle(
                                 fontSize: 12.sp, color: AppColor.text),
+                            onSubmitted: (p0) {
+                              takeBackKeyboard(context);
+                              controller.searchAction();
+                            },
                           ),
                           CustomButton(
                             onPressed: () {

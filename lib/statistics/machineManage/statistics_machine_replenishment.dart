@@ -124,8 +124,8 @@ class StatisticsMachineReplenishmentController extends GetxController {
       "tStatus": statusList[myLoadIdx]["id"],
     };
 
-    if (searchText != null) {
-      params["uInfo"] = searchText;
+    if (searchInputCtrl.text.isNotEmpty) {
+      params["uInfo"] = searchInputCtrl.text;
     }
 
     simpleRequest(

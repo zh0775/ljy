@@ -256,17 +256,25 @@ class MachineOrderReceive extends GetView<MachineOrderReceiveController> {
           sbhRow([
             getSimpleText("用户收货地址", 14, AppColor.text2),
           ], height: 40, width: 345 - 15 * 2),
-          sbRow([
-            getSimpleText(
-                "${controller.orderData["recipient"] ?? ""}  ${controller.orderData["recipientMobile"] ?? ""}",
-                15,
-                AppColor.text,
-                isBold: true,
-                textHeight: 1.3),
-          ], width: 345 - 15 * 2),
-          ghb(5),
-          getWidthText(controller.orderData["userAddress"] ?? "", 12,
-              AppColor.text3, 345 - 15 * 2, 5),
+          (controller.orderData["deliveryMetho"] ?? 1) == 0
+              ? ghb(0)
+              : (controller.orderData["deliveryMetho"] ?? 1) == 2
+                  ? sbRow([
+                      getSimpleText("线下自提", 14, AppColor.text2),
+                    ], width: 345 - 15 * 2)
+                  : centClm([
+                      sbRow([
+                        getSimpleText(
+                            "${controller.orderData["recipient"] ?? ""}  ${controller.orderData["recipientMobile"] ?? ""}",
+                            15,
+                            AppColor.text,
+                            isBold: true,
+                            textHeight: 1.3),
+                      ], width: 345 - 15 * 2),
+                      ghb(5),
+                      getWidthText(controller.orderData["userAddress"] ?? "",
+                          12, AppColor.text3, 345 - 15 * 2, 5),
+                    ]),
           ghb(15)
         ],
       ),
@@ -289,7 +297,12 @@ class MachineOrderReceive extends GetView<MachineOrderReceiveController> {
           ghb(21.5),
           controller.util
               .orderDetailInfoCell("订单类型", t2: controller.orderTypeName),
-          controller.util.orderDetailInfoCell("采购类型", t2: "正常采购"),
+          controller.util.orderDetailInfoCell("采购类型",
+              t2: (controller.orderData["purType"] ?? 0) == 0
+                  ? ""
+                  : (controller.orderData["purType"] ?? 0) == 1
+                      ? "正常采购"
+                      : "续约奖励采购"),
           controller.util
               .orderDetailInfoCell("数量", t2: "${controller.orderNum}"),
           controller.util.orderDetailInfoCell(

@@ -262,6 +262,10 @@ class MachineOrderListController extends GetxController {
     {"id": 7, "name": "已取消"},
     {"id": 5, "name": "售后"},
   ];
+  searchAction() {
+    takeBackKeyboard(Global.navigatorKey.currentContext!);
+    loadData();
+  }
 
   loadData({bool isLoad = false, int? index}) {
     int loadIndex = index ?? topIndex;
@@ -281,6 +285,10 @@ class MachineOrderListController extends GetxController {
     if (typeData["machine"].isNotEmpty &&
         typeData["machine"][machineFilterIndex]["id"] != -1) {
       params["tbId"] = "${typeData["machine"][machineFilterIndex]["id"]}";
+    }
+
+    if (searchInputCtrl.text.isNotEmpty) {
+      params["orderNo"] = searchInputCtrl.text;
     }
 
     simpleRequest(
@@ -513,16 +521,32 @@ class MachineOrderList extends GetView<MachineOrderListController> {
                             CustomInput(
                               width: 260.w,
                               heigth: 40.w,
+                              textEditCtrl: controller.searchInputCtrl,
                               placeholder: "请输入想要搜索的订单编号或设备编号",
                               style: TextStyle(
                                   fontSize: 12.sp, color: AppColor.text),
                               placeholderStyle: TextStyle(
                                   fontSize: 12.sp, color: AppColor.assisText),
+                              onSubmitted: (p0) {
+                                controller.searchAction();
+                              },
                             ),
-                            Image.asset(
-                              assetsName("machine/icon_search"),
-                              width: 18.w,
-                              fit: BoxFit.fitWidth,
+                            CustomButton(
+                              onPressed: () {
+                                controller.searchAction();
+                              },
+                              child: SizedBox(
+                                height: 40.w,
+                                width: 40.w,
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Image.asset(
+                                    assetsName("machine/icon_search"),
+                                    width: 18.w,
+                                    fit: BoxFit.fitWidth,
+                                  ),
+                                ),
+                              ),
                             )
                           ], width: 345 - 20.5 * 2),
                         ),

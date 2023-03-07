@@ -114,15 +114,14 @@ class _CustomMessageState extends State<CustomMessage> {
           itemBuilder: (context, index) {
             Map data = widget.datas[index % widget.datas.length];
             return getContentText(
-                // data["n_Meta"] ?? "",
-                "阿斯卡到家啦可视角度考拉手机打卡拉季双打卡垃圾索拉卡登记阿卡拉手机打卡啦手机打",
+                data["n_Meta"] ?? "",
                 14,
                 AppDefault().getThemeColor() ?? AppColor.blue,
                 widget.width,
                 widget.height,
                 1,
                 overflow: TextOverflow.ellipsis,
-                textHeight: 1.1);
+                textHeight: 1.4);
           },
         ));
   }

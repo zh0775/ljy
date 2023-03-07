@@ -1,244 +1,217 @@
-import 'package:flutter/material.dart';
-import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/bottom_paypassword.dart';
 import 'package:cxhighversion2/component/custom_input.dart';
-import 'package:cxhighversion2/service/http.dart';
+import 'package:cxhighversion2/home/home.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
-import 'package:flutter_screenutil/src/size_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:platform_device_id/platform_device_id.dart';
-
-import 'mine_setting_list.dart';
 
 class MineChangePasswordBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<MineChangePasswordController>(MineChangePasswordController());
+    Get.put<MineChangePasswordController>(
+        MineChangePasswordController(datas: Get.arguments));
   }
 }
 
 class MineChangePasswordController extends GetxController {
-  bool isFirst = true;
-  int authCode = 0;
-  final pwdInputCtrl = TextEditingController();
-  final confirmPwdInputCtrl = TextEditingController();
+  final dynamic datas;
+  MineChangePasswordController({this.datas});
+  late BottomPayPassword bottomPayPassword;
 
-  final _submitBtnEnable = true.obs;
-  set submitBtnEnable(value) => _submitBtnEnable.value = value;
-  get submitBtnEnable => _submitBtnEnable.value;
+  final _nextBtnEnable = true.obs;
+  bool get nextBtnEnable => _nextBtnEnable.value;
+  set nextBtnEnable(v) => _nextBtnEnable.value = v;
 
-  final _showPwd = false.obs;
-  set showPwd(value) => _showPwd.value = value;
-  get showPwd => _showPwd.value;
+  late BuildContext context;
 
-  final _showConfirmPwd = false.obs;
-  set showConfirmPwd(value) => _showConfirmPwd.value = value;
-  get showConfirmPwd => _showConfirmPwd.value;
+  TextEditingController changePwdCtrl = TextEditingController();
+  TextEditingController changePwdConfirmCtrl = TextEditingController();
 
-  userSetPayPwdRequest(Map<String, dynamic> params,
-      Function(bool success, dynamic json) success) {
-    Http().doPost(
-      Urls.userChangePwd,
-      params,
-      success: (json) {
-        if (success != null) {
-          success(true, json);
-        } else {
-          success(false, json);
+  bool setPwdSuccess = false;
+  setPwdAction({Function()? successCallback}) {
+    Map<String, dynamic> params = {
+      // "code": authCodeInputCtrl.text,
+      // "new1st_Pad": pwdCtrl.text,
+      "phoneKey": AppDefault().deviceId
+    };
+    String url = Urls.userChangePwd;
+
+    simpleRequest(
+      url: url,
+      params: params,
+      success: (success, json) {
+        if (success) {
+          Get.find<HomeController>().homeOnRefresh();
+          if (successCallback != null) {
+            successCallback();
+          }
         }
       },
-      fail: (reason, code, json) {
-        if (success != null) {
-          success(false, json);
+      after: () {},
+    );
+  }
+
+  changePwd(String pwd) {
+    nextBtnEnable = false;
+
+    simpleRequest(
+      url: Urls.user1stPadEdit,
+      params: {
+        "old3nd_Pad": pwd,
+        "new1st_Pad": changePwdCtrl.text,
+        "phoneKey": AppDefault().deviceId,
+      },
+      success: (success, json) {
+        if (success) {
+          if (json["messages"] != null && json["messages"].isNotEmpty) {
+            ShowToast.normal(json["messages"]);
+          }
+          Future.delayed(const Duration(seconds: 1), () {
+            Get.back();
+          });
         }
+      },
+      after: () {
+        nextBtnEnable = true;
       },
     );
   }
 
-  dataInit(int code) {
-    if (!isFirst) {
-      return;
-    }
-    isFirst = false;
-    authCode = code;
-  }
-
-  submitAction() async {
-    if (pwdInputCtrl.text.isEmpty) {
+  changePwdAction() {
+    if (changePwdCtrl.text.isEmpty) {
       ShowToast.normal("请输入新密码");
       return;
     }
 
-    if (pwdInputCtrl.text.length < 4 || pwdInputCtrl.text.length > 20) {
-      ShowToast.normal("密码长度需为4到20位");
+    if (changePwdCtrl.text.length < 8 || changePwdCtrl.text.length > 20) {
+      ShowToast.normal("密码长度要求8到20位");
       return;
     }
-
-    if (confirmPwdInputCtrl.text.isEmpty) {
+    if (changePwdConfirmCtrl.text.isEmpty) {
       ShowToast.normal("请输入确认密码");
       return;
     }
-
-    if (pwdInputCtrl.text != confirmPwdInputCtrl.text) {
+    if (changePwdConfirmCtrl.text != changePwdCtrl.text) {
       ShowToast.normal("两次密码不一致，请重新输入");
       return;
     }
 
-    submitBtnEnable = false;
-    String? deviceId = await PlatformDeviceId.getDeviceId;
-    userSetPayPwdRequest({
-      "code": authCode,
-      "new1st_Pad": pwdInputCtrl.text,
-      "phoneKey": deviceId ?? ""
-    }, (success, json) {
-      submitBtnEnable = true;
-      if (success) {
-        ShowToast.normal("设置成功");
-        Future.delayed(const Duration(seconds: 1), () {
-          Get.until((route) {
-            if (route is GetPageRoute) {
-              if (route.binding is MineSettingListBinding) {
-                return true;
-              } else {
-                return false;
-              }
-            } else {
-              return false;
-            }
-          });
-        });
-      } else {
-        if (json != null &&
-            json["messages"] != null &&
-            json["messages"].isNotEmpty) {
-          ShowToast.normal(json["messages"]);
-        }
-      }
-    });
+    if (AppDefault().homeData["u_3rd_password"] == null ||
+        AppDefault().homeData["u_3rd_password"].isEmpty) {
+      showPayPwdWarn(
+        haveClose: true,
+        popToRoot: false,
+        untilToRoot: false,
+        setSuccess: () {},
+      );
+      return;
+    }
+    bottomPayPassword.show();
+  }
 
-    // userSetPayPwdRequest({"old3nd_Pad":""}, (success, json) => null)
+  @override
+  void onInit() {
+    bottomPayPassword = BottomPayPassword.init(
+      confirmClick: (payPwd) {
+        changePwd(payPwd);
+      },
+    );
+    super.onInit();
+  }
+
+  @override
+  void onClose() {
+    changePwdCtrl.dispose();
+    changePwdConfirmCtrl.dispose();
+    super.onClose();
   }
 }
 
 class MineChangePassword extends GetView<MineChangePasswordController> {
-  final int authCode;
-  const MineChangePassword({Key? key, required this.authCode})
-      : super(key: key);
-
+  const MineChangePassword({Key? key}) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    controller.dataInit(authCode);
     return GestureDetector(
       onTap: () => takeBackKeyboard(context),
       child: Scaffold(
         backgroundColor: AppColor.pageBackgroundColor,
-        appBar: getDefaultAppBar(context, "修改登陆密码"),
+        appBar: getDefaultAppBar(
+          context,
+          "修改登录密码",
+        ),
         body: getInputBodyNoBtn(context,
-            contentColor: Colors.white,
+            contentColor: Colors.transparent,
             marginTop: 10,
-            submitBtn: GetX<MineChangePasswordController>(
-              init: controller,
-              builder: (_) {
-                return getBottomBlueSubmitBtn(context, "确认修改", onPressed: () {
-                  controller.submitAction();
-                }, enalble: controller.submitBtnEnable);
-              },
-            ),
+            buttonHeight: 80.w + paddingSizeBottom(context),
             children: [
-              ghb(60),
-              sbRow([
-                getSimpleText("设置新登陆密码", 26, AppColor.textBlack, isBold: true),
-              ], width: 375 - 25 * 2),
-              ghb(8),
-              sbRow([
-                getSimpleText(
-                  "你已通过身份认证，请输入新密码来修改",
-                  14,
-                  AppColor.textGrey,
-                ),
-              ], width: 375 - 25 * 2),
-              ghb(55),
-              sbhRow([
+              //修改登录密码
+              centClm([
+                sbhRow([
+                  getSimpleText(
+                      "必须是8-16个字符之间，包含字母和数字组合的新密码", 12, AppColor.text3)
+                ], width: 375 - 15.5 * 2, height: 50),
+                // pwdInput(0),
+                // ghb(15),
+                pwdInput(0),
+                pwdInput(1),
+                ghb(31.5),
                 GetX<MineChangePasswordController>(
-                  init: controller,
-                  builder: (_) {
-                    return CustomInput(
-                      textEditCtrl: controller.pwdInputCtrl,
-                      width: (375 - 35 * 2 - 40).w,
-                      heigth: 45.w,
-                      keyboardType: TextInputType.text,
-                      showValue: controller.showConfirmPwd,
-                      placeholder: "请输入新密码(由英文或数字组成8位数)",
-                      onSubmitted: (p0) {
-                        takeBackKeyboard(context);
-                      },
-                    );
+                  builder: (controller) {
+                    return getLoginBtn("确认", () {
+                      controller.changePwdAction();
+                    }, haveShadow: false, enable: controller.nextBtnEnable);
                   },
-                ),
-                GetX<MineChangePasswordController>(
-                  init: controller,
-                  builder: (_) {
-                    return CustomButton(
-                      onPressed: () => controller.showConfirmPwd =
-                          !controller.showConfirmPwd,
-                      child: SizedBox(
-                        width: 40.w,
-                        height: 45.w,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Image.asset(
-                              "assets/images/login/icon_${controller.showConfirmPwd ? "hide" : "show"}pwd.png",
-                              width: 17.w,
-                              fit: BoxFit.fitWidth),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ], width: 375 - 35 * 2, height: 45),
-              gline(375 - 25 * 2, 0.5),
-              ghb(22),
-              sbhRow([
-                GetX<MineChangePasswordController>(
-                  init: controller,
-                  builder: (_) {
-                    return CustomInput(
-                      textEditCtrl: controller.confirmPwdInputCtrl,
-                      width: (375 - 35 * 2 - 40).w,
-                      heigth: 45.w,
-                      keyboardType: TextInputType.text,
-                      showValue: controller.showPwd,
-                      placeholder: "请再次输入新密码",
-                      onSubmitted: (p0) {
-                        takeBackKeyboard(context);
-                      },
-                    );
-                  },
-                ),
-                GetX<MineChangePasswordController>(
-                  init: controller,
-                  builder: (_) {
-                    return CustomButton(
-                      onPressed: () => controller.showPwd = !controller.showPwd,
-                      child: SizedBox(
-                        width: 40.w,
-                        height: 45.w,
-                        child: Align(
-                          alignment: Alignment.centerRight,
-                          child: Image.asset(
-                              "assets/images/login/icon_${controller.showPwd ? "hide" : "show"}pwd.png",
-                              width: 17.w,
-                              fit: BoxFit.fitWidth),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ], width: 375 - 35 * 2, height: 45),
-              gline(375 - 25 * 2, 0.5),
+                )
+              ]),
             ]),
       ),
+    );
+  }
+
+  Widget pwdInput(int type) {
+    String title = "";
+    String placeholder = "";
+    TextEditingController textCtrl;
+    int? maxLength;
+    TextInputType inputType = TextInputType.text;
+    switch (type) {
+      case 0:
+        title = "新密码";
+        placeholder = "请输入新密码";
+        textCtrl = controller.changePwdCtrl;
+        maxLength = 20;
+        break;
+      case 1:
+        title = "确认密码";
+        placeholder = "请再次输入新密码";
+        textCtrl = controller.changePwdConfirmCtrl;
+        maxLength = 20;
+        break;
+      default:
+        textCtrl = TextEditingController();
+    }
+    return Container(
+      width: 375.w,
+      height: 55.w,
+      decoration: const BoxDecoration(color: Colors.white),
+      child: Center(
+          child: sbRow([
+        getSimpleText(title, 15, AppColor.text3),
+        CustomInput(
+          width: 270.w - 15.5.w,
+          heigth: 55.w,
+          placeholder: placeholder,
+          textEditCtrl: textCtrl,
+          maxLength: maxLength,
+          keyboardType: inputType,
+          style: TextStyle(fontSize: 15.sp, color: AppColor.text),
+          placeholderStyle:
+              TextStyle(fontSize: 15.sp, color: AppColor.assisText),
+        )
+      ], width: 375 - 15.5 * 2)),
     );
   }
 }

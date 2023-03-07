@@ -319,8 +319,16 @@ class MachineOrderLaunch extends GetView<MachineOrderLaunchController> {
                                   ghb(21.5),
                                   controller.util.orderDetailInfoCell("订单类型",
                                       t2: controller.orderTypeName),
-                                  controller.util
-                                      .orderDetailInfoCell("采购类型", t2: "正常采购"),
+                                  controller.util.orderDetailInfoCell("采购类型",
+                                      t2: (controller.orderData["purType"] ??
+                                                  0) ==
+                                              0
+                                          ? ""
+                                          : (controller.orderData["purType"] ??
+                                                      0) ==
+                                                  1
+                                              ? "正常采购"
+                                              : "续约奖励采购"),
                                   // controller.util.orderDetailInfoCell("商品单价",
                                   //     t2: "￥${controller.orderData["totalPrice"] ?? 0}"),
                                   controller.util.orderDetailInfoCell("数量",
@@ -363,21 +371,41 @@ class MachineOrderLaunch extends GetView<MachineOrderLaunchController> {
                                           "",
                                       type: 1,
                                       height: 28),
-                                  controller.util.orderDetailInfoCell("收货人",
-                                      t2: controller.orderData["recipient"] ??
-                                          "",
-                                      type: 1,
-                                      height: 28),
-                                  controller.util.orderDetailInfoCell("手机号码",
-                                      t2: controller
-                                              .orderData["recipientMobile"] ??
-                                          "",
-                                      type: 1,
-                                      height: 28),
-                                  controller.util.orderDetailInfoCell("收货地址",
-                                      t2: controller.orderData["userAddress"],
-                                      type: 1,
-                                      maxLines: 10),
+                                  (controller.orderData["deliveryMetho"] ??
+                                              1) ==
+                                          0
+                                      ? ghb(0)
+                                      : (controller.orderData[
+                                                      "deliveryMetho"] ??
+                                                  1) ==
+                                              2
+                                          ? controller.util.orderDetailInfoCell(
+                                              "收货方式",
+                                              t2: "线下自提",
+                                              type: 1,
+                                              height: 28)
+                                          : centClm([
+                                              controller.util
+                                                  .orderDetailInfoCell("收货人",
+                                                      t2: controller.orderData[
+                                                              "recipient"] ??
+                                                          "",
+                                                      type: 1,
+                                                      height: 28),
+                                              controller.util.orderDetailInfoCell(
+                                                  "手机号码",
+                                                  t2: controller.orderData[
+                                                          "recipientMobile"] ??
+                                                      "",
+                                                  type: 1,
+                                                  height: 28),
+                                              controller.util
+                                                  .orderDetailInfoCell("收货地址",
+                                                      t2: controller.orderData[
+                                                          "userAddress"],
+                                                      type: 1,
+                                                      maxLines: 10),
+                                            ]),
                                   ghb(15)
                                 ],
                               ),

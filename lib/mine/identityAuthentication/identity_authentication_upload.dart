@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:app_settings/app_settings.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/home/home.dart';
-import 'package:cxhighversion2/mine/identityAuthentication/identity_authentication_upload_complete.dart';
 import 'package:cxhighversion2/service/http.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';

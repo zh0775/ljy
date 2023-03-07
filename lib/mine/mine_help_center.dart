@@ -1,13 +1,16 @@
 import 'package:cxhighversion2/component/custom_button.dart';
 import 'package:cxhighversion2/component/custom_empty_view.dart';
+import 'package:cxhighversion2/component/custom_list_empty_view.dart';
 import 'package:cxhighversion2/component/custom_network_image.dart';
 import 'package:cxhighversion2/home/businessSchool/business_school_detail.dart';
 import 'package:cxhighversion2/service/urls.dart';
 import 'package:cxhighversion2/util/app_default.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:skeletons/skeletons.dart';
 
 class MineHelpCenterBinding implements Bindings {
   @override
@@ -24,6 +27,10 @@ class MineHelpCenterController extends GetxController {
   final _isLoading = false.obs;
   bool get isLoading => _isLoading.value;
   set isLoading(v) => _isLoading.value = v;
+
+  final _isFirstLoadding = true.obs;
+  bool get isFirstLoadding => _isFirstLoadding.value;
+  set isFirstLoadding(v) => _isFirstLoadding.value = v;
 
   final _topIndex = 0.obs;
   int get topIndex => _topIndex.value;
@@ -77,10 +84,10 @@ class MineHelpCenterController extends GetxController {
     0,
     0,
   ];
-  List<RefreshController> pullCtrls = [
-    RefreshController(),
-    RefreshController(),
-  ];
+  // List<RefreshController> pullCtrls = [
+  //   RefreshController(),
+  //   RefreshController(),
+  // ];
   List<List> dataLists = [
     [],
     [],
@@ -120,18 +127,19 @@ class MineHelpCenterController extends GetxController {
           List mDatas = data["data"] ?? [];
           dataLists[myLoadIdx] =
               isLoad ? [...dataLists[myLoadIdx], ...mDatas] : mDatas;
-          isLoad
-              ? pullCtrls[myLoadIdx].loadComplete()
-              : pullCtrls[myLoadIdx].refreshCompleted();
+          // isLoad
+          //     ? pullCtrls[myLoadIdx].loadComplete()
+          //     : pullCtrls[myLoadIdx].refreshCompleted();
           update(["$loadListBuildId$myLoadIdx"]);
         } else {
-          isLoad
-              ? pullCtrls[myLoadIdx].loadFailed()
-              : pullCtrls[myLoadIdx].refreshFailed();
+          // isLoad
+          //     ? pullCtrls[myLoadIdx].loadFailed()
+          //     : pullCtrls[myLoadIdx].refreshFailed();
         }
       },
       after: () {
         isLoading = false;
+        isFirstLoadding = false;
       },
     );
 
@@ -218,9 +226,9 @@ class MineHelpCenterController extends GetxController {
 
   @override
   void onClose() {
-    for (var e in pullCtrls) {
-      e.dispose();
-    }
+    // for (var e in pullCtrls) {
+    //   e.dispose();
+    // }
     pageCtrl.dispose();
     super.onClose();
   }
@@ -329,32 +337,100 @@ class MineHelpCenter extends GetView<MineHelpCenterController> {
     return GetBuilder<MineHelpCenterController>(
       id: "${controller.loadListBuildId}$listIdx",
       builder: (_) {
-        return SmartRefresher(
-          controller: controller.pullCtrls[listIdx],
-          onLoading: () => controller.onLoad(listIdx),
-          onRefresh: () => controller.onRefresh(listIdx),
-          enablePullUp:
-              controller.counts[listIdx] > controller.dataLists[listIdx].length,
-          child: controller.dataLists[listIdx].isEmpty
-              ? GetX<MineHelpCenterController>(
-                  builder: (_) {
-                    return CustomEmptyView(
-                      isLoading: controller.isLoading,
-                    );
-                  },
-                )
-              : ListView.builder(
-                  itemCount: controller.dataLists[listIdx].length,
-                  padding: EdgeInsets.only(bottom: 20.w),
-                  itemBuilder: (context, index) {
-                    return listIdx == 0
-                        ? cell(index, controller.dataLists[listIdx][index],
-                            listIdx)
-                        : cell2(index, controller.dataLists[listIdx][index],
-                            listIdx);
-                  },
-                ),
-        );
+        return EasyRefresh(
+            header: const CupertinoHeader(),
+            footer: const CupertinoFooter(),
+            // controller: controller.pullCtrls[listIdx],
+            // onLoading: () => controller.onLoad(listIdx),
+            onRefresh: () => controller.onRefresh(listIdx),
+            onLoad: controller.dataLists[listIdx].length >=
+                    controller.counts[listIdx]
+                ? null
+                : () => controller.onLoad(listIdx),
+            // enablePullUp: controller.counts[listIdx] >
+            // controller.dataLists[listIdx].length,
+            child: GetX<MineHelpCenterController>(
+              builder: (_) {
+                return Skeleton(
+                    isLoading: controller.isFirstLoadding,
+                    skeleton: SkeletonListView(
+                      item: SkeletonItem(
+                          child: Column(
+                        children: [
+                          ghb(15),
+                          listIdx == 0
+                              ? Row(
+                                  children: [
+                                    SkeletonAvatar(
+                                      style: SkeletonAvatarStyle(
+                                        width: 100.w,
+                                        height: 77.w,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: SkeletonParagraph(
+                                        style: SkeletonParagraphStyle(
+                                            lines: 2,
+                                            spacing: 10.w,
+                                            lineStyle: SkeletonLineStyle(
+                                              randomLength: true,
+                                              height: 20.w,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              // minLength: 150.w,
+                                              // maxLength: 160.w,
+                                            )),
+                                      ),
+                                    )
+                                  ],
+                                )
+                              : Column(
+                                  children: [
+                                    SkeletonAvatar(
+                                      style: SkeletonAvatarStyle(
+                                        width: 345.w,
+                                        height: 171.w,
+                                      ),
+                                    ),
+                                    SkeletonParagraph(
+                                      style: SkeletonParagraphStyle(
+                                          lines: 2,
+                                          // spacing: 10.w,
+                                          lineStyle: SkeletonLineStyle(
+                                            randomLength: true,
+                                            height: 20.w,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            // minLength: 150.w,
+                                            // maxLength: 160.w,
+                                          )),
+                                    )
+                                  ],
+                                )
+                        ],
+                      )),
+                    ),
+                    child: controller.dataLists[listIdx].isEmpty
+                        ? CustomListEmptyView(
+                            isLoading: controller.isLoading,
+                          )
+                        : ListView.builder(
+                            itemCount: controller.dataLists[listIdx].length,
+                            padding: EdgeInsets.only(bottom: 20.w),
+                            itemBuilder: (context, index) {
+                              return listIdx == 0
+                                  ? cell(
+                                      index,
+                                      controller.dataLists[listIdx][index],
+                                      listIdx)
+                                  : cell2(
+                                      index,
+                                      controller.dataLists[listIdx][index],
+                                      listIdx);
+                            },
+                          ));
+              },
+            ));
       },
     );
   }

@@ -1,17 +1,20 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:crop_your_image/crop_your_image.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/component/custom_empty_view.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 // import 'package:extended_image/extended_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class AppCropImagePage extends StatefulWidget {
   final XFile image;
-  final Function(dynamic image)? cropResult;
+  final Function(Uint8List image)? cropResult;
   const AppCropImagePage({
     super.key,
     required this.image,
@@ -23,6 +26,7 @@ class AppCropImagePage extends StatefulWidget {
 }
 
 class _AppCropImagePageState extends State<AppCropImagePage> {
+  final cropCtrl = CropController();
   Uint8List? cropImg;
   final GlobalKey key = GlobalKey();
   bool isOk = false;
@@ -49,10 +53,14 @@ class _AppCropImagePageState extends State<AppCropImagePage> {
               ),
         CustomButton(
           onPressed: () {
-            cropImage();
-            setState(() {
-              isOk = true;
-            });
+            if (!isOk) {
+              cropImage();
+            } else {
+              if (widget.cropResult != null) {
+                widget.cropResult!(cropImg!);
+              }
+              Get.back();
+            }
           },
           child: SizedBox(
             width: 50.w,
@@ -68,29 +76,63 @@ class _AppCropImagePageState extends State<AppCropImagePage> {
           ),
         )
       ]),
-      // body: isOk
-      //     ? Center(
-      //         child: Image.memory(cropImg!),
-      //       )
-      //     : ExtendedImage.file(
-      //         File(widget.image.path),
-      //         fit: BoxFit.contain,
-      //         mode: ExtendedImageMode.editor,
-      //         cacheRawData: true,
-      //         extendedImageEditorKey: key,
-      //         initEditorConfigHandler: (state) {
-      //           myImageState = state;
-      //           return EditorConfig(
-      //               maxScale: 8.0,
-      //               cropRectPadding: EdgeInsets.all(20.0.w),
-      //               hitTestSize: 20.0,
-      //               cropAspectRatio: CropAspectRatios.ratio1_1);
-      //         },
-      //       ),
+      body: isOk
+          ? Center(
+              child: Image.memory(
+                cropImg!,
+                width: 375.w,
+                height: 375.w,
+                fit: BoxFit.fill,
+              ),
+            )
+          : FutureBuilder<Uint8List>(
+              future: widget.image.readAsBytes(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Center(
+                    child: Crop(
+                      controller: cropCtrl,
+                      initialSize: 1,
+                      image: snapshot.requireData,
+                      baseColor: Colors.black,
+                      maskColor: Colors.white.withAlpha(100),
+                      cornerDotBuilder: (size, edgeAlignment) {
+                        return DotControl(
+                          color: AppColor.theme,
+                        );
+                      },
+                      interactive: true,
+                      aspectRatio: 1.0,
+                      radius: 0,
+                      initialAreaBuilder: (rect) {
+                        return Rect.fromCenter(
+                            center: Offset(ScreenUtil().screenWidth / 2,
+                                ScreenUtil().screenHeight / 2 - kToolbarHeight),
+                            width: 365.w,
+                            height: 365.w);
+                      },
+                      onCropped: (value) {
+                        cropImg = value;
+                        setState(() {
+                          isOk = true;
+                        });
+                      },
+                    ),
+                  );
+                } else {
+                  return const Center(
+                    child: CustomEmptyView(
+                      isLoading: true,
+                    ),
+                  );
+                }
+              },
+            ),
     );
   }
 
-  cropImage() async {
+  cropImage() {
+    cropCtrl.crop();
     // bakeOrientation()
     // fileData = await cropImageDataWithDartLibrary(state: key.currentState!);
     // if (myImageState != null) {

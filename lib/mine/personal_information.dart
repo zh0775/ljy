@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:cxhighversion2/component/app_crop_image_page.dart';
 import 'package:cxhighversion2/component/app_image_picker.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
@@ -13,10 +11,10 @@ import 'package:cxhighversion2/util/EventBus.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/util/notify_default.dart';
 import 'package:cxhighversion2/util/toast.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 import 'identityAuthentication/identity_authentication_check.dart';
 import 'identityAuthentication/identity_authentication_upload.dart';
@@ -47,7 +45,7 @@ class PersonalInformationController extends GetxController {
 
   String uploadImageUrl = "";
 
-  XFile? uploadImageFile;
+  Uint8List? uploadImageFile;
   String uploadImageFileBuildId = "PersonalInformation_uploadImageFileBuildId";
 
   Map publicHomeData = {};
@@ -106,7 +104,7 @@ class PersonalInformationController extends GetxController {
     );
   }
 
-  upLoadImg(XFile imgFile) {
+  upLoadImg(imgFile) {
     Http().uploadImages(
       [imgFile],
       success: (json) {
@@ -162,16 +160,30 @@ class PersonalInformationController extends GetxController {
       rzText = "已认证";
     }
     update();
+    update([uploadImageFileBuildId]);
   }
 
   @override
   void onInit() {
     imagePicker = AppImagePicker(
       imgCallback: (imgFile) {
-        // Get.to(AppCropImagePage(image: imgFile), transition: Transition.zoom);
-        uploadImageFile = imgFile;
-        upLoadImg(uploadImageFile!);
-        update([uploadImageFileBuildId]);
+        Get.to(
+            AppCropImagePage(
+              image: imgFile,
+              cropResult: (img) {
+                // var tempDir = await getTemporaryDirectory();
+                // var file = await File(
+                //         '${tempDir.path}/image_${DateTime.now().millisecond}.jpg')
+                //     .create();
+                // file.writeAsBytesSync(img);
+                // uploadImageFile =  XFile(file.path);
+
+                uploadImageFile = img;
+                upLoadImg(uploadImageFile!);
+                update([uploadImageFileBuildId]);
+              },
+            ),
+            transition: Transition.noTransition);
       },
     );
     getInfo();
@@ -332,8 +344,8 @@ class PersonalInformation extends GetView<PersonalInformationController> {
                 return ClipRRect(
                     borderRadius: BorderRadius.circular(25.w),
                     child: controller.uploadImageFile != null
-                        ? Image.file(
-                            File(controller.uploadImageFile!.path),
+                        ? Image.memory(
+                            controller.uploadImageFile!,
                             width: 50.w,
                             height: 50.w,
                             fit: BoxFit.fitWidth,
@@ -492,8 +504,8 @@ class PersonalInformation extends GetView<PersonalInformationController> {
                           return ClipRRect(
                               borderRadius: BorderRadius.circular(25.w),
                               child: controller.uploadImageFile != null
-                                  ? Image.file(
-                                      File(controller.uploadImageFile!.path),
+                                  ? Image.memory(
+                                      controller.uploadImageFile!,
                                       width: 40.w,
                                       height: 40.w,
                                       fit: BoxFit.cover,

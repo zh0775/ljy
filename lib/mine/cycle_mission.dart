@@ -1,4 +1,5 @@
 import 'package:cxhighversion2/component/custom_button.dart';
+import 'package:cxhighversion2/statistics/machineManage/statistics_machine_replenishment.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -193,7 +194,10 @@ class CycleMission extends GetView<CycleMissionController> {
           ghb(31),
           getSubmitBtn(
             "查看补货记录",
-            () {},
+            () {
+              push(const StatisticsMachineReplenishment(), context,
+                  binding: StatisticsMachineReplenishmentBinding());
+            },
             height: 45,
             color: AppColor.theme,
             fontSize: 15,

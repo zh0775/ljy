@@ -235,14 +235,16 @@ class UserMallPage extends StatelessWidget {
                 default:
               }
             },
-            child: centClm([
-              Image.asset(
-                assetsName(typeImg),
-                width: 45.w,
-                fit: BoxFit.fitHeight,
-              ),
-              getSimpleText(title, 14.w, AppColor.textGrey5)
-            ]),
+            child: index == 3
+                ? gwb(45)
+                : centClm([
+                    Image.asset(
+                      assetsName(typeImg),
+                      width: 45.w,
+                      fit: BoxFit.fitHeight,
+                    ),
+                    getSimpleText(title, 14.w, AppColor.textGrey5)
+                  ]),
           );
         }))
       ]),

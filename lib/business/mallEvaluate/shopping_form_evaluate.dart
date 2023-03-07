@@ -1,5 +1,6 @@
 // 评论表单  发表评价
 
+import 'package:cxhighversion2/business/mallEvaluate/mall_evaluate_page.dart';
 import 'package:flutter/material.dart';
 import 'package:cxhighversion2/util/app_default.dart';
 import 'package:cxhighversion2/component/custom_button.dart';
@@ -14,7 +15,8 @@ import 'package:get/get.dart';
 class EvaluateFormPageBinding implements Bindings {
   @override
   void dependencies() {
-    Get.put<EvaluateFormPageController>(EvaluateFormPageController(datas: Get.arguments));
+    Get.put<EvaluateFormPageController>(
+        EvaluateFormPageController(datas: Get.arguments));
   }
 }
 
@@ -60,6 +62,8 @@ class EvaluateFormPageController extends GetxController {
       },
       success: (success, json) {
         if (success) {
+          Get.find<MallEvaluatePageController>().loadNotEvaluteList();
+          Get.find<MallEvaluatePageController>().loadHasEvaluteList();
           ShowToast.normal("提交成功");
           Future.delayed(const Duration(seconds: 1), () {
             Get.back();
@@ -114,7 +118,8 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
                 child: Row(
                   children: [
                     CustomNetworkImage(
-                      src: AppDefault().imageUrl + (controller.datas["shopImg"] ?? ""),
+                      src: AppDefault().imageUrl +
+                          (controller.datas["shopImg"] ?? ""),
                       width: 60,
                       height: 60,
                       fit: BoxFit.cover,
@@ -126,7 +131,8 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          getSimpleText(controller.datas["shopName"] ?? '', 15, const Color(0xFF333333)),
+                          getSimpleText(controller.datas["shopName"] ?? '', 15,
+                              const Color(0xFF333333)),
                           SizedBox(
                             child: starButton(),
                           )
@@ -156,7 +162,9 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
               controller.update();
             },
             child: Image.asset(
-              index <= controller.currentStar ? assetsName('business/icon_star') : assetsName('business/icon_star_border'),
+              index <= controller.currentStar
+                  ? assetsName('business/icon_star')
+                  : assetsName('business/icon_star_border'),
               width: 28.5,
               height: 27.5,
             ),
@@ -185,7 +193,8 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
               heigth: 138.5.w,
               placeholder: "请说出您对商品的使用感受...",
               style: TextStyle(fontSize: 14.w, color: AppColor.text),
-              placeholderStyle: TextStyle(fontSize: 14.w, color: AppColor.assisText),
+              placeholderStyle:
+                  TextStyle(fontSize: 14.w, color: AppColor.assisText),
               textAlignVertical: TextAlignVertical.top,
               textAlign: TextAlign.start,
               maxLines: 100,
@@ -209,7 +218,11 @@ class EvaluateFormPage extends GetView<EvaluateFormPageController> {
         builder: (_) {
           return getSubmitBtn("确定", () {
             controller.submitAction();
-          }, width: 345, height: 45, color: AppColor.themeOrange, enable: controller.submitEnable);
+          },
+              width: 345,
+              height: 45,
+              color: AppColor.themeOrange,
+              enable: controller.submitEnable);
         },
       ),
     );

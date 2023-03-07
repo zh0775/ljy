@@ -426,7 +426,7 @@ class Http {
       After? after}) async {
     List<Future> imagesFuture = [];
     if (images.length == 1) {
-      XFile asset = images[0];
+      var asset = images[0];
       // if (userBg) {
       //   asset.readAsBytes();
       //  byteData = await File(asset.path).readAsBytes();
@@ -443,12 +443,20 @@ class Http {
       //     (asset.originalWidth * 0.3).round(),
       //     (asset.originalHeight * 0.3).round(),
       //     quality: 30);
-      List<int> imageData = await asset.readAsBytes();
+      List<int> imageData;
+      if (asset is Uint8List) {
+        imageData = asset;
+      } else {
+        imageData = await asset.readAsBytes();
+      }
 
       // byteData.buffer.asUint8List();
       MultipartFile multipartFile = MultipartFile.fromBytes(
         imageData,
-        filename: asset.name,
+        // filename: asset.name,
+        filename: asset is XFile
+            ? asset.name
+            : "image_${DateTime.now().millisecond}.jpg",
         // contentType: MediaType.parse('application/octet-stream'),
       );
       FormData formData = FormData.fromMap({"uploadFile": multipartFile});
@@ -514,16 +522,24 @@ class Http {
       }
     } else {
       for (int i = 0; i < images.length; i++) {
-        XFile asset = images[i];
+        List<int> imageData;
+        var asset = images[i];
+        if (asset is Uint8List) {
+          imageData = asset;
+        } else {
+          imageData = await asset.readAsBytes();
+        }
         // ByteData byteData = await asset.getByteData();
         // ByteData byteData = await asset.getThumbByteData(
         //     (asset.originalWidth * 0.3).round(),
         //     (asset.originalHeight * 0.3).round());
         // List<int> imageData = byteData.buffer.asUint8List();
-        List<int> imageData = await asset.readAsBytes();
+
         MultipartFile multipartFile = MultipartFile.fromBytes(
           imageData,
-          filename: asset.name,
+          filename: asset is XFile
+              ? asset.name
+              : "image_${DateTime.now().millisecond}.jpg",
           // contentType: MediaType.parse('application/octet-stream'),
         );
         FormData formData = FormData.fromMap({"uploadFile": multipartFile});
